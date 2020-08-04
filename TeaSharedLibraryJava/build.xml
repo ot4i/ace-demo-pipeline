@@ -1,0 +1,42 @@
+<project name="TeaSharedLibraryJava" default="dist" basedir=".">
+    <description>
+    Java build for Tea project
+  </description>
+    <!-- set global properties for this build -->
+    <property name="src" location="." />
+    <property name="build" location="build" />
+    <property name="dist" location="dist" />
+	<property environment="process_env" />
+	
+	<path id="jcnclasspath">
+	  <pathelement path="${classpath}"/>
+	  <pathelement location="${process_env.MQSI_FILEPATH}/classes/jplugin2.jar"/>
+	  <pathelement location="${process_env.MQSI_FILEPATH}/classes/javacompute.jar"/>
+	</path>
+	
+    <target name="init">
+        <!-- Create the time stamp -->
+        <tstamp />
+        <!-- Create the build directory structure used by compile -->
+        <mkdir dir="${build}" />
+    	<!--echoproperties/ -->
+    </target>
+ 
+    <target name="compile" depends="init" description="Java compile">
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${src}" destdir="${build}">
+        	<classpath refid="jcnclasspath" />
+        </javac>
+    </target>
+ 
+    <target name="dist" depends="compile" description="Create JAR file for use">
+        <mkdir dir="${dist}" />
+        <jar destfile="${dist}/TeaSharedLibraryJava.jar" basedir="${build}" />
+    </target>
+ 
+    <target name="clean" description="clean up">
+        <!-- Delete the ${build} and ${dist} directory trees -->
+        <delete dir="${build}" />
+        <delete dir="${dist}" />
+    </target>
+</project>

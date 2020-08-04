@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<project basedir=".." default="dist" name="TeaTestsScaffold">
+  <description>ACE Pipeline Demo (scaffold script)</description>
+	<property environment="process_env" />
+    	<!--echoproperties/ -->
+	<target name="copyJar">
+		<copy file="TeaSharedLibraryJava/dist/TeaSharedLibraryJava.jar" todir="TeaSharedLibrary/"/>
+	</target>
+	<condition property="mqsipackagebar.location" value="${process_env.MQSI_FILEPATH}/bin/mqsipackagebar.bat" else="${process_env.MQSI_FILEPATH}/bin/mqsipackagebar">
+		<os family="windows" />
+    </condition>
+	<target name="createBar">
+		<exec executable="${mqsipackagebar.location}">
+			<arg value="-w" />
+			<arg value="." />
+			<arg value="-a" />
+			<arg value="tea-scaffold.bar" />
+			<arg value="-k" />
+			<arg value="TeaSharedLibrary" />
+			<arg value="TeaTestsScaffold" />
+		</exec>
+	</target>
+	<target name="dist" depends="createBar"/>
+</project>

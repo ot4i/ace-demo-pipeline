@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<policies>
+  <policy policyType="JDBCProviders" policyName="TEAJDBC" policyTemplate="DB2_91_Linux">
+    <databaseName>DATABASE_NAME</databaseName>
+    <databaseType>DB2 Universal Database</databaseType>
+    <databaseVersion>11.5</databaseVersion>
+    <type4DriverClassName>com.ibm.db2.jcc.DB2Driver</type4DriverClassName>
+    <type4DatasourceClassName>com.ibm.db2.jcc.DB2XADataSource</type4DatasourceClassName>
+    <connectionUrlFormat>jdbc:db2://[serverName]:[portNumber]/[databaseName]:user=[user];password=[password];</connectionUrlFormat>
+    <connectionUrlFormatAttr1></connectionUrlFormatAttr1>
+    <connectionUrlFormatAttr2></connectionUrlFormatAttr2>
+    <connectionUrlFormatAttr3></connectionUrlFormatAttr3>
+    <connectionUrlFormatAttr4></connectionUrlFormatAttr4>
+    <connectionUrlFormatAttr5></connectionUrlFormatAttr5>
+    <serverName>SERVER_NAME</serverName>
+    <portNumber>PORT_NUMBER</portNumber>
+    <jarsURL></jarsURL>
+    <databaseSchemaNames>useProvidedSchemaNames</databaseSchemaNames>
+    <description></description>
+    <maxConnectionPoolSize>0</maxConnectionPoolSize>
+    <securityIdentity>tea</securityIdentity>
+    <environmentParms></environmentParms>
+    <jdbcProviderXASupport>false</jdbcProviderXASupport>
+    <useDeployedJars>true</useDeployedJars>
+  </policy>
+</policies>

@@ -1,0 +1,62 @@
+<project name="TeaTests" default="test" basedir=".">
+    <description>
+    Java build for Tea project
+  </description>
+    <!-- set global properties for this build -->
+    <property name="src" location="." />
+    <property name="build" location="build" />
+    <property name="dist" location="dist" />
+	<property environment="process_env" />
+	
+	<path id="jcnclasspath">
+	  <pathelement path="${classpath}"/>
+	  <pathelement location="${process_env.MQSI_FILEPATH}/classes/jplugin2.jar"/>
+	  <pathelement location="${process_env.MQSI_FILEPATH}/classes/javacompute.jar"/>
+	  <pathelement location="junit-platform-console-standalone-1.6.2.jar"/>
+	  <pathelement location="${process_env.WORKSPACE}/TeaTests/junit-platform-console-standalone-1.6.2.jar"/>
+	</path>
+	
+    <target name="init">
+        <!-- Create the time stamp -->
+        <tstamp />
+        <!-- Create the build directory structure used by compile -->
+        <mkdir dir="${build}" />
+    	<!--echoproperties/ -->
+    </target>
+ 
+    <target name="compile" depends="init" description="Java compile">
+        <!-- Compile the java code from ${src} into ${build} -->
+        <javac srcdir="${src}" destdir="${build}">
+        	<classpath refid="jcnclasspath" />
+        </javac>
+    </target>
+ 
+    <target name="dist" depends="compile" description="Create JAR file for use">
+        <mkdir dir="${dist}" />
+        <jar destfile="${dist}/tea-unit-tests.jar" basedir="${build}" />
+    </target>
+ 
+    <target name="clean" description="clean up">
+        <!-- Delete the ${build} and ${dist} directory trees -->
+        <delete dir="${build}" />
+        <delete dir="${dist}" />
+    </target>
+
+    <target name="test" depends="dist" description="Run tests">
+      <junit printsummary="true" fork="yes" haltonfailure="yes" showoutput="yes">
+	<classpath>
+	  <pathelement path="${build}"/>
+	  <pathelement location="${process_env.MQSI_FILEPATH}/classes/jplugin2.jar"/>
+	  <pathelement location="${process_env.MQSI_FILEPATH}/classes/javacompute.jar"/>
+          <pathelement location="${build.tests}"/>
+          <pathelement path="${java.class.path}"/>
+	  <pathelement location="junit-platform-console-standalone-1.6.2.jar"/>
+	  <pathelement location="${process_env.WORKSPACE}/TeaTests/junit-platform-console-standalone-1.6.2.jar"/>
+	</classpath>
+	<formatter type="brief" useFile="false"/>
+	<formatter type="xml"   usefile="true" />
+	<test name="com.ibm.ot4i.ace.pipeline.demo.tea.AuditSubflowUnitTests"/>
+      </junit>
+    </target>
+
+</project>

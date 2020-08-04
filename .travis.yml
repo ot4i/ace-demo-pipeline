@@ -1,0 +1,13 @@
+language: generic
+
+services:
+  - docker
+
+before_install:
+  - echo "$ARTIFACTORY_PASSWORD" | docker login -u "$ARTIFACTORY_USERNAME" --password-stdin appconnect-docker-local.artifactory.swg-devops.com
+  - docker pull appconnect-docker-local.artifactory.swg-devops.com/experimental/pipeline-travis-build
+
+script:
+  - echo "Changing permissions to allow docker volume writes"
+  - chmod -R 777 .
+  - docker run --rm -ti -e LICENSE=accept -v $PWD:/tmp/work appconnect-docker-local.artifactory.swg-devops.com/experimental/pipeline-travis-build /bin/bash -c "export TRAVIS_JOB_NUMBER=$TRAVIS_JOB_NUMBER && cd /tmp/work && /bin/bash scripts/build-and-ut.sh"
