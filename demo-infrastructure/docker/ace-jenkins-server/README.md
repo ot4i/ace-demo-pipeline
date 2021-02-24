@@ -27,7 +27,7 @@ For reference, the initial setup included
 - DB2 also running on kenya.hursley.uk.ibm.com:50000
 - uk.icr.io/ace-registry as the IBM Cloud registry
 - aceCluster running in Dallas (us-south) for the preprod tests
-- local registry for ace-minimal:11.0.0.9-alpine built from https://github.com/ot4i/ace-docker/tree/master/experimental/ace-minimal
+- local registry for ace-minimal:11.0.0.11-alpine built from https://github.com/ot4i/ace-docker/tree/master/experimental/ace-minimal
 
 Jenkins credentials viewed from build page:
 
