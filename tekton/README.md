@@ -20,21 +20,21 @@ For the initial testing, variants of ace-minimal:11.0.0.11-alpine and pipeline-t
  The Tekton pipeline relies on docker credentials being provided for Kaniko to use when pushing the built image, and these credentials must be associated with the service account for the pipeline. Create as follows:
 ```
 kubectl create secret docker-registry regcred --docker-server=uk.icr.io --docker-username=iamapikey --docker-password=<your-api-key>
-kubectl apply -f https://raw.githubusercontent.com/tdolby-at-uk-ibm-com/ace-pipeline-demo-21-02/main/tekton/service-account.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/demo-pipeline-21-02/tekton/service-account.yaml
 ```
 The service account also has the ability to create services, deployments, etc, which are necessary for running the service.
 
 Setting up the pipeline requires Tekton to be installed, tasks to be created, and the pipeline itself to be configured:
 ```
 kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/previous/v0.21.0/release.yaml
-kubectl apply -f https://raw.githubusercontent.com/tdolby-at-uk-ibm-com/ace-pipeline-demo-21-02/main/tekton/10-maven-ace-build-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/tdolby-at-uk-ibm-com/ace-pipeline-demo-21-02/main/tekton/20-deploy-to-cluster-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/tdolby-at-uk-ibm-com/ace-pipeline-demo-21-02/main/tekton/ace-pipeline.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/demo-pipeline-21-02/tekton/10-maven-ace-build-task.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/demo-pipeline-21-02/tekton/20-deploy-to-cluster-task.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/demo-pipeline-21-02/tekton/ace-pipeline.yaml
 ```
 
 Once that has been accomplished, the simplest way to run the pipeline is
 ```
-kubectl apply -f https://raw.githubusercontent.com/tdolby-at-uk-ibm-com/ace-pipeline-demo-21-02/main/tekton/ace-pipeline-run.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/demo-pipeline-21-02/tekton/ace-pipeline-run.yaml
 tkn pipelinerun logs ace-pipeline-run-1 -f
 ```
 
@@ -50,7 +50,7 @@ Note that the actual password itself (as opposed to the hash provided by "oc who
 
 After that, the pipeline run would be
 ```
-kubectl apply -f https://raw.githubusercontent.com/tdolby-at-uk-ibm-com/ace-pipeline-demo-21-02/main/tekton/ace-pipeline-run-crc.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/demo-pipeline-21-02/tekton/ace-pipeline-run-crc.yaml
 tkn pipelinerun logs ace-pipeline-run-1 -f
 ```
 to pick up the correct registry default.

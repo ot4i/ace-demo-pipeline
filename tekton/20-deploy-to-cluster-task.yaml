@@ -13,11 +13,11 @@ spec:
         #!/bin/sh
         set -x
         cd /work
-        git clone "https://github.com/tdolby-at-uk-ibm-com/ace-pipeline-demo-21-02"
+        git clone -b demo-pipeline-21-02 "https://github.com/ot4i/ace-demo-pipeline"
         export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
         echo $REG_WITH_ESCAPED_SLASH
-        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-pipeline-demo-21-02/tekton/tea-tekton-deployment.yaml
-        cat /work/ace-pipeline-demo-21-02/tekton/tea-tekton-deployment.yaml
+        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/tea-tekton-deployment.yaml
+        cat /work/ace-demo-pipeline/tekton/tea-tekton-deployment.yaml
       volumeMounts:
         - mountPath: /work
           name: work
@@ -27,7 +27,7 @@ spec:
       args:
         - "apply"
         - "-f"
-        - "/work/ace-pipeline-demo-21-02/tekton/tea-tekton-deployment.yaml"
+        - "/work/ace-demo-pipeline/tekton/tea-tekton-deployment.yaml"
       volumeMounts:
         - mountPath: /work
           name: work
@@ -37,7 +37,7 @@ spec:
       args:
         - "apply"
         - "-f"
-        - "/work/ace-pipeline-demo-21-02/tekton/tea-tekton-service.yaml"
+        - "/work/ace-demo-pipeline/tekton/tea-tekton-service.yaml"
       volumeMounts:
         - mountPath: /work
           name: work

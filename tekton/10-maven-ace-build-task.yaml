@@ -12,7 +12,7 @@ spec:
       script: |
         #!/bin/sh
         cd /work
-        git clone "https://github.com/tdolby-at-uk-ibm-com/ace-pipeline-demo-21-02"
+        git clone -b demo-pipeline-21-02 "https://github.com/ot4i/ace-demo-pipeline"
       volumeMounts:
         - mountPath: /work
           name: work
@@ -32,7 +32,7 @@ spec:
         #!/bin/bash
         export LICENSE=accept
         . /opt/ibm/ace-11/server/bin/mqsiprofile
-        cd /work/ace-pipeline-demo-21-02
+        cd /work/ace-demo-pipeline
         mvn verify
       volumeMounts:
         - mountPath: /work
@@ -41,10 +41,10 @@ spec:
       image: tdolby/experimental:pipeline-travis-build-maven
       script: |
         #!/bin/bash
-        mkdir -p /work/ace-pipeline-demo-21-02/scripts/preprod-container/bars/
-        cp /work/ace-pipeline-demo-21-02/TeaRESTApplication/tea.bar /work/ace-pipeline-demo-21-02/scripts/preprod-container/bars/
-        cp /work/ace-pipeline-demo-21-02/TeaSharedLibrary/tea-shlib.bar /work/ace-pipeline-demo-21-02/scripts/preprod-container/bars/
-        find /work/ace-pipeline-demo-21-02/scripts/preprod-container -print
+        mkdir -p /work/ace-demo-pipeline/scripts/preprod-container/bars/
+        cp /work/ace-demo-pipeline/TeaRESTApplication/tea.bar /work/ace-demo-pipeline/scripts/preprod-container/bars/
+        cp /work/ace-demo-pipeline/TeaSharedLibrary/tea-shlib.bar /work/ace-demo-pipeline/scripts/preprod-container/bars/
+        find /work/ace-demo-pipeline/scripts/preprod-container -print
       volumeMounts:
         - mountPath: /work
           name: work
@@ -57,9 +57,9 @@ spec:
       command:
         - /kaniko/executor
       args:
-        - --dockerfile=/work/ace-pipeline-demo-21-02/scripts/preprod-container/Dockerfile
+        - --dockerfile=/work/ace-demo-pipeline/scripts/preprod-container/Dockerfile
         - --destination=$(params.dockerRegistry)/tea-tekton
-        - --context=/work/ace-pipeline-demo-21-02/scripts/preprod-container
+        - --context=/work/ace-demo-pipeline/scripts/preprod-container
         - --skip-tls-verify
       volumeMounts:
         - mountPath: /work
