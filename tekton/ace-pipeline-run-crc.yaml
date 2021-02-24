@@ -8,4 +8,4 @@ spec:
     name: ace-pipeline
   params:
     - name: dockerRegistry
-      value: "uk.icr.io/ace-registry"
+      value: "image-registry.openshift-image-registry.svc:5000/default"

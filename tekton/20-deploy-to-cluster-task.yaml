@@ -3,13 +3,21 @@ kind: Task
 metadata:
   name: deploy-to-cluster
 spec:
+  params:
+    - name: dockerRegistry
+      type: string
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
       script: |
         #!/bin/sh
+        set -x
         cd /work
         git clone "https://github.com/tdolby-at-uk-ibm-com/ace-pipeline-demo-21-02"
+        export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
+        echo $REG_WITH_ESCAPED_SLASH
+        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-pipeline-demo-21-02/tekton/tea-tekton-deployment.yaml
+        cat /work/ace-pipeline-demo-21-02/tekton/tea-tekton-deployment.yaml
       volumeMounts:
         - mountPath: /work
           name: work

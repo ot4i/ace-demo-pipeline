@@ -3,6 +3,9 @@ kind: Task
 metadata:
   name: maven-ace-build
 spec:
+  params:
+    - name: dockerRegistry
+      type: string
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
@@ -55,8 +58,9 @@ spec:
         - /kaniko/executor
       args:
         - --dockerfile=/work/ace-pipeline-demo-21-02/scripts/preprod-container/Dockerfile
-        - --destination=uk.icr.io/ace-registry/tea-tekton
+        - --destination=$(params.dockerRegistry)/tea-tekton
         - --context=/work/ace-pipeline-demo-21-02/scripts/preprod-container
+        - --skip-tls-verify
       volumeMounts:
         - mountPath: /work
           name: work

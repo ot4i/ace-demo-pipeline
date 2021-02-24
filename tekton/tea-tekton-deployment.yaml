@@ -18,7 +18,7 @@ spec:
           secretName: jdbc-secret
       containers:
       - name: tea-tekton
-        image: uk.icr.io/ace-registry/tea-tekton:latest
+        image: DOCKER_REGISTRY/tea-tekton:latest
         ports:
         - containerPort: 7800
         volumeMounts:
