@@ -20,8 +20,8 @@ USER root
 # Prevent errors about having no terminal when using apt-get
 ENV DEBIAN_FRONTEND noninteractive
 
-ARG DOWNLOAD_URL=http://kenya.hursley.uk.ibm.com:52367/ace-11.0.0.9.tar.gz
-ARG PRODUCT_VERSION=ace-11.0.0.9
+ARG DOWNLOAD_URL=http://kenya.hursley.uk.ibm.com:52367/ace-11.0.0.11.tar.gz
+ARG PRODUCT_VERSION=ace-11.0.0.11
 ARG DOCKER_GID=1999
 
 RUN dpkg --add-architecture i386 \
@@ -41,6 +41,7 @@ RUN dpkg --add-architecture i386 \
     lsb-release \
     locales \
     make \
+    maven \
     net-tools \
     nmap \
     openssh-server \

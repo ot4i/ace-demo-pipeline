@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: ace-pipeline
+spec:
+  tasks:
+    - name: build-from-source
+      taskRef:
+        name: maven-ace-build
+    - name: deploy-to-cluster
+      taskRef:
+        name: deploy-to-cluster

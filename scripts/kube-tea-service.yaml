@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tea
+spec:
+  selector:
+    matchLabels:
+      app: tea
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tea
+    spec:
+      volumes:
+      - name: secret-volume-2
+        secret:
+          secretName: jdbc-secret
+      containers:
+      - name: tea
+        image: uk.icr.io/ace-registry/tea:latest
+        ports:
+        - containerPort: 7800
+        volumeMounts:
+        - name: secret-volume-2
+          mountPath: /var/run/secrets/jdbc

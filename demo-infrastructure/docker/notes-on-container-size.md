@@ -48,14 +48,14 @@ Jenkins builds (because it has to use jenkins/jenkins:lts as the base image).
    size down to less than 400MB compressed. This still takes about 30 seconds
    to pull, but is much better than attempting to pull multiple gigabytes. 
    Using a cut-down image works because the sample application in this repo can
-   use ant (installed in the image) and mqsipackagebar, as otherwise a toolkit 
+   use Maven (installed in the image) and mqsipackagebar, as otherwise a toolkit 
    image would be needed and the size would be much greater. TravisCI builds run
    for all PRs, and these happen a lot more often than Jenkins builds, so speed is
    more important and in this particular case image size has a big impact on 
    build speed.
  - Runtime containers also need to be small to fit into the free tier of the IBM
    Cloud Registry, and can in fact be smaller than the TravisCI container due to 
-   not needing ant; these are also based on the experimental/ace-minimal images. 
+   not needing Maven; these are also based on the experimental/ace-minimal images. 
    They tend to be pulled less than the TravisCI images, but much more than the 
    Jenkins images, and the runtime images change a lot more frequently as well.
 

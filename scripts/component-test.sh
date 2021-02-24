@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2020 Open Technologies for Integration
+# Copyright (c) 2021 Open Technologies for Integration
 # Licensed under the MIT license (see LICENSE for details)
 #
 # Relies on CT_JDBC_USR and CT_JDBC_PSW being set in the environment
@@ -10,43 +10,25 @@ then
     . /opt/ibm/ace-11/server/bin/mqsiprofile
 fi
 
-echo "Build JCN code"
-ant -f TeaSharedLibraryJava/build.xml
-
-if [ "$?" != "0" ]; then
-    echo "ant failed; exiting"
-    exit 1
-fi
-
-echo "Build application and shared library into BAR file"
-ant -f TeaRESTApplication/build.xml
-
-if [ "$?" != "0" ]; then
-    echo "ant failed; exiting"
-    exit 1
-fi
-
-echo "Build test scaffold and shared library into BAR file"
-ant -f TeaTestsScaffold/build.xml
-
-if [ "$?" != "0" ]; then
-    echo "ant failed; exiting"
-    exit 1
-fi
-
+echo "Running Maven to build the code and tests"
+# Use package for this phase because we handle testing outside Maven
+mvn package
 
 echo "Deploy test scaffold to server"
 rm -rf /tmp/ct-work-dir
 mqsicreateworkdir /tmp/ct-work-dir
-mqsibar -c -w /tmp/ct-work-dir -a  tea-scaffold.bar
+mqsibar -c -w /tmp/ct-work-dir -a TeaSharedLibrary/tea-shlib.bar
+mqsibar -c -w /tmp/ct-work-dir -a TeaTestsScaffold/tea-tests-scaffold.bar
 mqsisetdbparms -w /tmp/ct-work-dir -n jdbc::tea -u ${CT_JDBC_USR} -p ${CT_JDBC_PSW}
 
 mkdir /tmp/ct-work-dir/run/CTPolicies
 echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns2:policyProjectDescriptor xmlns="http://com.ibm.etools.mft.descriptor.base" xmlns:ns2="http://com.ibm.etools.mft.descriptor.policyProject"><references/></ns2:policyProjectDescriptor>' > /tmp/ct-work-dir/run/CTPolicies/policy.descriptor
 
 cp ${WORKSPACE}/scripts/preprod-container/TEAJDBC.policyxml /tmp/ct-work-dir/run/CTPolicies/TEAJDBC.policyxml
-sed -i "s/DATABASE_NAME/USERDB/g" /tmp/ct-work-dir/run/CTPolicies/TEAJDBC.policyxml
-sed -i "s/SERVER_NAME/kenya.hursley.uk.ibm.com/g" /tmp/ct-work-dir/run/CTPolicies/TEAJDBC.policyxml
+#sed -i "s/DATABASE_NAME/USERDB/g" /tmp/ct-work-dir/run/CTPolicies/TEAJDBC.policyxml
+#sed -i "s/SERVER_NAME/kenya.hursley.uk.ibm.com/g" /tmp/ct-work-dir/run/CTPolicies/TEAJDBC.policyxml
+sed -i "s/DATABASE_NAME/BLUDB/g" /tmp/ct-work-dir/run/CTPolicies/TEAJDBC.policyxml
+sed -i "s/SERVER_NAME/dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net/g" /tmp/ct-work-dir/run/CTPolicies/TEAJDBC.policyxml
 sed -i "s/PORT_NUMBER/50000/g" /tmp/ct-work-dir/run/CTPolicies/TEAJDBC.policyxml
 
 sed -i "s/#policyProject: 'DefaultPolicies'/policyProject: 'CTPolicies'/g" /tmp/ct-work-dir/server.conf.yaml

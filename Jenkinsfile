@@ -4,7 +4,7 @@ pipeline {
     stage('Build and UT') {
       steps {
         sh 'scripts/build-and-ut.sh'
-        junit 'TeaTests/TEST*xml'
+        junit 'TeaTests/target/failsafe-reports/TEST*xml'
         sh 'scripts/force-failure-on-junit-fail.sh'
       }
     }

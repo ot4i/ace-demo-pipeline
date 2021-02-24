@@ -1,0 +1,8 @@
+/bin/
+/target/
+/maven-status/
+/generated-sources/
+/classes/
+/maven-archiver/
+*.jar
+/surefire/

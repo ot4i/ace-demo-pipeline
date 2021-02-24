@@ -1,0 +1,65 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: maven-ace-build
+spec:
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      script: |
+        #!/bin/sh
+        cd /work
+        git clone "https://github.com/tdolby-at-uk-ibm-com/ace-pipeline-demo-21-02"
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: list
+      image: tdolby/experimental:pipeline-travis-build-maven
+      command:
+        - ls
+      args:
+        - "-l"
+        - "/work"
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: maven-build
+      image: tdolby/experimental:pipeline-travis-build-maven
+      script: |
+        #!/bin/bash
+        export LICENSE=accept
+        . /opt/ibm/ace-11/server/bin/mqsiprofile
+        cd /work/ace-pipeline-demo-21-02
+        mvn verify
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: preprod-container-setup
+      image: tdolby/experimental:pipeline-travis-build-maven
+      script: |
+        #!/bin/bash
+        mkdir -p /work/ace-pipeline-demo-21-02/scripts/preprod-container/bars/
+        cp /work/ace-pipeline-demo-21-02/TeaRESTApplication/tea.bar /work/ace-pipeline-demo-21-02/scripts/preprod-container/bars/
+        cp /work/ace-pipeline-demo-21-02/TeaSharedLibrary/tea-shlib.bar /work/ace-pipeline-demo-21-02/scripts/preprod-container/bars/
+        find /work/ace-pipeline-demo-21-02/scripts/preprod-container -print
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: docker-build-and-push
+      image: gcr.io/kaniko-project/executor:v0.16.0
+      # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
+      env:
+        - name: "DOCKER_CONFIG"
+          value: "/tekton/home/.docker/"
+      command:
+        - /kaniko/executor
+      args:
+        - --dockerfile=/work/ace-pipeline-demo-21-02/scripts/preprod-container/Dockerfile
+        - --destination=uk.icr.io/ace-registry/tea-tekton
+        - --context=/work/ace-pipeline-demo-21-02/scripts/preprod-container
+      volumeMounts:
+        - mountPath: /work
+          name: work
+  volumes:
+    - name: work
+      emptyDir: {}
