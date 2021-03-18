@@ -16,7 +16,7 @@ kubectl create secret generic jdbc-secret --from-literal=USERID='blah' --from-li
 ```
 Once those are in place, then the template in this directory needs to be loaded into the cluster:
 ```
-oc apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/demo-pipeline-21-02/s2i/tea-oc-hybrid-stibuild.json
+oc apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/s2i/tea-oc-hybrid-stibuild.json
 ```
 and then a build can be kicked off:
 ```
