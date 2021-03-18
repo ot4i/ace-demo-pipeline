@@ -52,6 +52,12 @@
           <source>1.8</source>
           <target>1.8</target>
         </configuration>
+        <executions>
+	  <execution>
+	    <id>default-testCompile</id>
+	    <phase>none</phase>
+	  </execution>
+        </executions>
       </plugin>
       <plugin>
 	<!-- Match JCN build strategy -->
@@ -65,7 +71,47 @@
               <goal>jar</goal>
             </goals>
           </execution>
+	  <execution>
+	    <id>default-jar</id>
+	    <phase>none</phase>
+	  </execution>
         </executions>
+      </plugin>
+      <!-- Not strictly necessary, but eliminates log spam and empty JAR files -->
+      <plugin>
+	<artifactId>maven-resources-plugin</artifactId>
+	<version>[0.0,)</version>
+	<executions>
+	  <execution>
+	    <id>default-resources</id>
+	    <phase>none</phase>
+	  </execution>
+	  <execution>
+	    <id>default-testResources</id>
+	    <phase>none</phase>
+	  </execution>
+	</executions>
+      </plugin>
+      <plugin>
+	<artifactId>maven-surefire-plugin</artifactId>
+	<version>[0.0,)</version>
+	<executions>
+	  <execution>
+	    <id>default-test</id>
+	    <phase>none</phase>
+	  </execution>
+	</executions>
+      </plugin>
+      <!-- Disable standard install phase: we'll call mqsibar from demo-infrastructure instead -->
+      <plugin>
+	<artifactId>maven-install-plugin</artifactId>
+	<version>2.5.2</version>
+	<executions>
+	  <execution>
+	    <id>default-install</id>
+	    <phase>none</phase>
+	  </execution>
+	</executions>
       </plugin>
     </plugins>
     <pluginManagement>

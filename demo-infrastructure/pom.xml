@@ -45,34 +45,30 @@
           <source>1.8</source>
           <target>1.8</target>
         </configuration>
+        <executions>
+	  <execution>
+	    <id>default-testCompile</id>
+	    <phase>none</phase>
+	  </execution>
+        </executions>
       </plugin>
         <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
           <version>3.1.0</version>
         </plugin>
-        <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
-        <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.1</version>
-	  <configuration>
-	    <excludes>
-	      <exclude>**/ServerTests.java</exclude>
-	    </excludes>
-	  </configuration>
-        </plugin>
-        <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
-        </plugin>
+	<!-- Disable standard install phase; we'll use mqsibar instead -->
+	<plugin>
+	  <artifactId>maven-install-plugin</artifactId>
+	  <version>2.5.2</version>
+	  <executions>
+	    <execution>
+	      <id>default-install</id>
+	      <phase>none</phase>
+	    </execution>
+	  </executions>
+	</plugin>
+
         <plugin>
           <artifactId>maven-deploy-plugin</artifactId>
           <version>2.8.2</version>
@@ -86,6 +82,106 @@
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
         </plugin>
+      <plugin>
+	<groupId>org.codehaus.mojo</groupId><artifactId>exec-maven-plugin</artifactId><version>3.0.0</version>
+	<executions>
+	  <execution><id>create-work-dir</id>
+	    <phase>install</phase>
+	    <goals><goal>exec</goal></goals>
+	    <configuration>
+	      <executable>mqsicreateworkdir</executable>
+	      <arguments>
+		<argument>${install.work.directory}</argument>
+	      </arguments>
+	    </configuration>
+	  </execution>
+	  <execution><id>unpack-shlib</id>
+	    <phase>install</phase>
+	    <goals><goal>exec</goal></goals>
+	    <configuration>
+	      <executable>mqsibar</executable>
+	      <arguments>
+		<argument>-c</argument>
+		<argument>-w</argument>
+		<argument>${install.work.directory}</argument>
+		<argument>-a</argument>
+		<argument>../TeaSharedLibrary/tea-shlib.bar</argument>
+	      </arguments>
+	    </configuration>
+	  </execution>
+	  <execution><id>unpack-application</id>
+	    <phase>install</phase>
+	    <goals><goal>exec</goal></goals>
+	    <configuration>
+	      <executable>mqsibar</executable>
+	      <arguments>
+		<argument>-c</argument>
+		<argument>-w</argument>
+		<argument>${install.work.directory}</argument>
+		<argument>-a</argument>
+		<argument>../TeaRESTApplication/tea.bar</argument>
+	      </arguments>
+	    </configuration>
+	  </execution>
+	  <execution><id>copy-template-policies</id>
+	    <phase>install</phase>
+	    <goals><goal>exec</goal></goals>
+	    <configuration>
+	      <executable>cp</executable>
+	      <arguments>
+		<argument>../scripts/preprod-container/TEAJDBC.policyxml</argument>
+		<argument>${install.work.directory}</argument>
+	      </arguments>
+	    </configuration>
+	  </execution>
+	  <execution><id>copy-startup-script</id>
+	    <phase>install</phase>
+	    <goals><goal>exec</goal></goals>
+	    <configuration>
+	      <executable>cp</executable>
+	      <arguments>
+		<argument>../scripts/preprod-container/init-creds.sh</argument>
+		<argument>${install.work.directory}/ace-startup-script.sh</argument>
+	      </arguments>
+	    </configuration>
+	  </execution>
+	</executions>
+      </plugin>
+      <!-- Not strictly necessary, but eliminates log spam and empty JAR files -->
+      <plugin>
+	<artifactId>maven-jar-plugin</artifactId>
+	<version>[0.0,)</version>
+	<executions>
+	  <execution>
+	    <id>default-jar</id>
+	    <phase>none</phase>
+	  </execution>
+	</executions>
+      </plugin>
+      <plugin>
+	<artifactId>maven-resources-plugin</artifactId>
+	<version>[0.0,)</version>
+	<executions>
+	  <execution>
+	    <id>default-resources</id>
+	    <phase>none</phase>
+	  </execution>
+	  <execution>
+	    <id>default-testResources</id>
+	    <phase>none</phase>
+	  </execution>
+	</executions>
+      </plugin>
+      <plugin>
+	<artifactId>maven-surefire-plugin</artifactId>
+	<version>[0.0,)</version>
+	<executions>
+	  <execution>
+	    <id>default-test</id>
+	    <phase>none</phase>
+	  </execution>
+	</executions>
+      </plugin>
     </plugins>
   </build>
 </project>

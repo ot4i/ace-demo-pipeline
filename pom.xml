@@ -4,7 +4,10 @@
   <artifactId>ace-demo-pipeline</artifactId>
   <version>1.0</version>
   <packaging>pom</packaging>
-
+  <!-- Override with -Dinstall.work.directory=/what/ever -->
+  <properties>
+     <install.work.directory>/home/aceuser/ace-server</install.work.directory>
+  </properties>
   <modules>
     <module>TeaSharedLibraryJava</module>
     <module>TeaSharedLibrary</module>

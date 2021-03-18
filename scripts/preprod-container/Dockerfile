@@ -2,7 +2,7 @@
 # Licensed under the MIT license (see LICENSE for details)
 
 FROM tdolby/experimental:ace-minimal-11.0.0.11-alpine
-# FROM ace-minimal:11.0.0.11-alpine
+#FROM ace-minimal:12.1289.0.0-alpine
 
 #
 # This image is used to run integration solutions in a cloud. Although this file is in
