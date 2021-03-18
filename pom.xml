@@ -1,0 +1,20 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ace-demo-pipeline</groupId>
+  <artifactId>ace-demo-pipeline</artifactId>
+  <version>1.0</version>
+  <packaging>pom</packaging>
+  <!-- Override with -Dinstall.work.directory=/what/ever -->
+  <properties>
+     <install.work.directory>/home/aceuser/ace-server</install.work.directory>
+  </properties>
+  <modules>
+    <module>TeaSharedLibraryJava</module>
+    <module>TeaSharedLibrary</module>
+    <module>TeaRESTApplication</module>
+    <module>TeaTestsScaffold</module>
+    <module>demo-infrastructure</module>
+    <module>TeaTests</module>
+  </modules>
+
+</project>

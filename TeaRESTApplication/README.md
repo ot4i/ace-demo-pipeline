@@ -8,7 +8,7 @@ curl -X POST --data '{"name": "Assam", "strength": 5}' http://173.193.79.84:3153
 curl http://173.193.79.84:31531/tea/index/1
 ```
 
-Can be run locally as well as in the cloud, and for full details this repo should be pulled into an ACE 11.0.0.9 toolkit (via egit-4.11) and examined there.
+Can be run locally as well as in the cloud, and for full details this repo should be pulled into an ACE 11.0.0.11 toolkit (via egit-4.11) and examined there.
 
 ## Implementation
 

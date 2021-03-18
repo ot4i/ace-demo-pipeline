@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="src" output="target/test-classes" path="src">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="var" path="COMMON_CLASSES_HOME/IntegrationAPI.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jnr/lib/jnr-a64asm-1.0.0.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jnr/lib/jnr-unixsocket-0.23.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jnr/lib/jnr-constants-0.9.12.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jnr/lib/jnr-ffi-2.1.10.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jnr/lib/jnr-posix-3.0.50.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jnr/lib/jffi-1.2.19.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jnr/lib/asm-7.0.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jnr/lib/jnr-enxio-0.21.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jnr/lib/jnr-x86asm-1.0.2.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jnr/lib/jffi-1.2.19-native.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jackson/lib/jackson-annotations-2.10.0.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jackson/lib/jackson-core-2.10.0.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jackson/lib/snakeyaml-1.26.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jackson/lib/jackson-dataformat-yaml-2.10.0.jar"/>
-	<classpathentry kind="lib" path="/opt/ace-11.0.0.9/common/jackson/lib/jackson-databind-2.10.3.jar"/>
-	<classpathentry kind="lib" path="junit-platform-console-standalone-1.6.2.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>

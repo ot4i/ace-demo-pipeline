@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tea-tekton
+spec:
+  selector:
+    matchLabels:
+      app: tea-tekton
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: tea-tekton
+    spec:
+      volumes:
+      - name: secret-volume-2
+        secret:
+          secretName: jdbc-secret
+      containers:
+      - name: tea-tekton
+        image: DOCKER_REGISTRY/tea-tekton:latest
+        ports:
+        - containerPort: 7800
+        volumeMounts:
+        - name: secret-volume-2
+          mountPath: /var/run/secrets/jdbc

@@ -1,7 +1,7 @@
 # Copyright (c) 2020 Open Technologies for Integration
 # Licensed under the MIT license (see LICENSE for details)
 
-FROM ace-minimal:11.0.0.9-ubuntu
+FROM ace-minimal:11.0.0.11-ubuntu
 
 #
 # This image is run by Travis in a CI container, and is pulled each time.
@@ -19,17 +19,20 @@ ENV DEBIAN_FRONTEND noninteractive
 # For dev pipeline use we can accept the ACE license automatically
 ENV LICENSE accept
 
-RUN dpkg --add-architecture i386 \
-  && apt-get update && apt-get install -y --no-install-recommends \
+# Weird conflicts between JVMs if we don't do this
+RUN mv /opt/ibm/ace-11/server/bin/mqsiprofile /opt/ibm/ace-11/server/bin/mqsiprofile-
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     tzdata \
     unzip \
     zip \
-  && rm -rf /var/lib/apt/lists/* \
-  && cd /opt \
-  && curl https://mirrors.ukfast.co.uk/sites/ftp.apache.org//ant/binaries/apache-ant-1.9.15-bin.tar.bz2 | tar -xjf - \
-  && ln -s /opt/apache-ant-1.9.15/bin/ant /usr/bin/ant
+    maven \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN mv /opt/ibm/ace-11/server/bin/mqsiprofile- /opt/ibm/ace-11/server/bin/mqsiprofile
+
 
 ENV TZ=Europe/London
 WORKDIR /

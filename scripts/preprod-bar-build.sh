@@ -19,7 +19,16 @@ fi
 mkdir -p temp/bars/
 
 # Built in previous stages
-cp tea.bar temp/bars
+cp TeaRESTApplication/tea.bar temp/bars
+if [ "$?" != "0" ]; then
+    echo "Application BAR build failed - aborting"
+    exit 1
+fi
+cp TeaSharedLibrary/tea-shlib.bar temp/bars
+if [ "$?" != "0" ]; then
+    echo "Shared library BAR build failed - aborting"
+    exit 1
+fi
 
 cp scripts/preprod-container/Dockerfile temp/
 cp scripts/preprod-container/*.sh temp/

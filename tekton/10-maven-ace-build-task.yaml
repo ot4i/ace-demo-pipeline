@@ -1,0 +1,68 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: maven-ace-build
+spec:
+  params:
+    - name: dockerRegistry
+      type: string
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      script: |
+        #!/bin/sh
+        cd /work
+        git clone "https://github.com/ot4i/ace-demo-pipeline"
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: list
+      image: tdolby/experimental:pipeline-travis-build-maven
+      command:
+        - ls
+      args:
+        - "-l"
+        - "/work"
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: maven-build
+      image: tdolby/experimental:pipeline-travis-build-maven
+      script: |
+        #!/bin/bash
+        export LICENSE=accept
+        . /opt/ibm/ace-11/server/bin/mqsiprofile
+        mkdir /work/maven-output
+        cd /work/ace-demo-pipeline
+        mvn -Dinstall.work.directory=/work/maven-output/ace-server install
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: preprod-container-setup
+      image: tdolby/experimental:pipeline-travis-build-maven
+      script: |
+        #!/bin/bash
+        cd /work/maven-output
+        cp /work/ace-demo-pipeline/tekton/Dockerfile Dockerfile
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: docker-build-and-push
+      image: gcr.io/kaniko-project/executor:v0.16.0
+      # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
+      env:
+        - name: "DOCKER_CONFIG"
+          value: "/tekton/home/.docker/"
+      command:
+        - /kaniko/executor
+      args:
+        - --dockerfile=/work/maven-output/Dockerfile
+        - --destination=$(params.dockerRegistry)/tea-tekton
+        - --context=/work/maven-output
+        - --skip-tls-verify
+      volumeMounts:
+        - mountPath: /work
+          name: work
+  volumes:
+    - name: work
+      emptyDir: {}

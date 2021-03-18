@@ -12,9 +12,12 @@ fi
 
 # Start the server
 echo -n `date`
-echo " Starting the server"
+echo " Starting the server on work directory $1"
 rm /tmp/server.log /tmp/server-stdout.log 2>/dev/null
-IntegrationServer -w $1 --event-log /tmp/server.log > /tmp/server-stdout.log 2>&1 &
+#which IntegrationServer
+#ldd `which IntegrationServer`
+#echo $CLASSPATH
+IntegrationServer -w $1 --event-log /tmp/server.log --no-nodejs --admin-rest-api -1 > /tmp/server-stdout.log 2>&1 &
 
 # Wait for it to finish initialising
 counter=120
@@ -25,7 +28,6 @@ while [ "$counter" != "0" ]; do
     # 2019-04-04 08:46:39.205168Z: [Thread 10860] (Msg 1/1) BIP1991I: Integration server has finished initialization.
     grep -q "BIP1991" /tmp/server.log 2>/dev/null
     if [ "$?" != "0" ]; then
-#        echo "Server not available"
         sleep 1
     else
         echo -n `date`
@@ -33,5 +35,6 @@ while [ "$counter" != "0" ]; do
         counter=0
     fi
 done
-
+echo " Server start log follows"
 cat /tmp/server-stdout.log
+echo ""

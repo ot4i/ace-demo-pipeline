@@ -1,0 +1,46 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-to-cluster
+spec:
+  params:
+    - name: dockerRegistry
+      type: string
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      script: |
+        #!/bin/sh
+        set -x
+        cd /work
+        git clone "https://github.com/ot4i/ace-demo-pipeline"
+        export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
+        echo $REG_WITH_ESCAPED_SLASH
+        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/tea-tekton-deployment.yaml
+        cat /work/ace-demo-pipeline/tekton/tea-tekton-deployment.yaml
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: deploy-app
+      image: lachlanevenson/k8s-kubectl
+      command: ["kubectl"]
+      args:
+        - "apply"
+        - "-f"
+        - "/work/ace-demo-pipeline/tekton/tea-tekton-deployment.yaml"
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: create-service
+      image: lachlanevenson/k8s-kubectl
+      command: ["kubectl"]
+      args:
+        - "apply"
+        - "-f"
+        - "/work/ace-demo-pipeline/tekton/tea-tekton-service.yaml"
+      volumeMounts:
+        - mountPath: /work
+          name: work
+  volumes:
+    - name: work
+      emptyDir: {}

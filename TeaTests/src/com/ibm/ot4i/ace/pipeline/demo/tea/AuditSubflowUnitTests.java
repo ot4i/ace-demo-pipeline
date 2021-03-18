@@ -29,12 +29,11 @@ import org.w3c.dom.NodeList;
 
 import com.ibm.integration.admin.proxy.IntegrationServerProxy;
 
-
 public class AuditSubflowUnitTests
 {
   static IntegrationServerProxy isp = null;
-  static String baseDirectoryForResourceFiles = "test-data"; 
-
+  
+  static String baseDirectoryForResourceFiles = "test-data";
 
   /**
    * Reads environment variables and sets up IAPI link to the server
