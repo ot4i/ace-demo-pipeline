@@ -1,6 +1,7 @@
 # ACE demo pipeline [![Build Status](https://travis.ibm.com/TDOLBY/ace-pipeline-demo-21-02.svg?token=xVXapEHRzgxy81sq3YrV&branch=master)](https://travis.ibm.com/TDOLBY/ace-pipeline-demo-21-02)
 
-Demo pipeline for ACE 
+Demo pipeline for ACE to show how ACE solutions can be built in CI/CD pipelines using standard tools. The main focus is on how to use existing ACE
+capabilities in a pipeline, with the application being constructued to show pipeline-friendliness rather than being a "best practice" application.
 
 
 ![Pipeline overview](demo-slide-picture.png)
