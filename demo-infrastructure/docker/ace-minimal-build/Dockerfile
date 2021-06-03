@@ -1,7 +1,7 @@
 # Copyright (c) 2020 Open Technologies for Integration
 # Licensed under the MIT license (see LICENSE for details)
-
-FROM ace-minimal:12.0.1.0-alpine
+ARG BASE_IMAGE=ace-minimal:12.0.1.0-alpine
+FROM $BASE_IMAGE
 
 #
 # This image is run by Travis in a CI container, and is pulled each time.
