@@ -22,7 +22,7 @@ spec:
         - ls
       args:
         - "-l"
-        - "/work"
+        - "/opt/ibm/ace-11/common"
       volumeMounts:
         - mountPath: /work
           name: work
@@ -32,6 +32,7 @@ spec:
         #!/bin/bash
         export LICENSE=accept
         . /opt/ibm/ace-11/server/bin/mqsiprofile
+        export PATH=/opt/ibm/ace-11/common/jdk/bin:$PATH
         mkdir /work/maven-output
         cd /work/ace-demo-pipeline
         mvn -Dinstall.work.directory=/work/maven-output/ace-server install

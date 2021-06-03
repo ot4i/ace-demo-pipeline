@@ -15,6 +15,7 @@ spec:
         #!/bin/sh
         cd /work
         git clone "https://github.com/tdolby-at-uk-ibm-com/ace-docker"
+        ls -l /work/ace-docker/experimental/ace-minimal
       volumeMounts:
         - mountPath: /work
           name: work
