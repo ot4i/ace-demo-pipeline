@@ -25,9 +25,6 @@ RUN cd /opt && \
 ENV TZ=Europe/London
 WORKDIR /
 
-# Debugging
-RUN ls -l /opt/ibm/ace-11/common && ls -l /opt/ibm/ace-11/common/jdk && ls -l /opt/ibm/ace-11/common/jdk/bin
-
 # Default command to run
 ENTRYPOINT []
 CMD ["/bin/bash"]
