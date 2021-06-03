@@ -1,7 +1,9 @@
 # Copyright (c) 2021 Open Technologies for Integration
 # Licensed under the MIT license (see LICENSE for details)
 
-FROM tdolby/experimental:ace-minimal-11.0.0.11-alpine
+#FROM tdolby/experimental:ace-minimal-11.0.0.11-alpine
+ARG BASE_IMAGE=ace-minimal:12.0.1.0-alpine
+FROM $BASE_IMAGE
 
 # Used for tekton and Maven containers
 

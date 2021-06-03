@@ -60,6 +60,7 @@ spec:
         - --dockerfile=/work/maven-output/Dockerfile
         - --destination=$(params.dockerRegistry)/tea-tekton
         - --context=/work/maven-output
+        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-minimal:12.0.1.0-alpine
         - --skip-tls-verify
       volumeMounts:
         - mountPath: /work
