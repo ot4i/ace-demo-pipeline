@@ -17,15 +17,15 @@
     </dependency>
     <dependency>
       <groupId>ACEv11</groupId><artifactId>jackson-core</artifactId><version>11.0.0</version><scope>system</scope>
-      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-core-2.11.3.jar</systemPath>
+      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-core-2.12.3.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>ACEv11</groupId><artifactId>jackson-databind</artifactId><version>11.0.0</version><scope>system</scope>
-      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-databind-2.11.3.jar</systemPath>
+      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-databind-2.12.3.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>ACEv11</groupId><artifactId>jackson-annotations</artifactId><version>11.0.0</version><scope>system</scope>
-      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-annotations-2.11.3.jar</systemPath>
+      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-annotations-2.12.3.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>ACEv11</groupId><artifactId>jplugin2</artifactId><version>11.0.0</version><scope>system</scope>

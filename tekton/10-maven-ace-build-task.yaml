@@ -12,12 +12,12 @@ spec:
       script: |
         #!/bin/sh
         cd /work
-        git clone "https://github.com/ot4i/ace-demo-pipeline"
+        git clone "https://github.com/tdolby-at-uk-ibm-com/ace-demo-pipeline"
       volumeMounts:
         - mountPath: /work
           name: work
     - name: list
-      image: tdolby/experimental:pipeline-travis-build-maven
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.1.0-alpine
       command:
         - ls
       args:
@@ -27,7 +27,7 @@ spec:
         - mountPath: /work
           name: work
     - name: maven-build
-      image: tdolby/experimental:pipeline-travis-build-maven
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.1.0-alpine
       script: |
         #!/bin/bash
         export LICENSE=accept
@@ -39,7 +39,7 @@ spec:
         - mountPath: /work
           name: work
     - name: preprod-container-setup
-      image: tdolby/experimental:pipeline-travis-build-maven
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.1.0-alpine
       script: |
         #!/bin/bash
         cd /work/maven-output
