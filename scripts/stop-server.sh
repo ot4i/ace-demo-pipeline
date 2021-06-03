@@ -14,4 +14,8 @@ fi
 echo -n `date`
 echo " Killing the server"
 ps -ef | grep IntegrationServer
-ps -ef | grep IntegrationServer | grep $1 | cut -c8-16 | xargs kill -9 
+#ps -ef | grep IntegrationServer | grep $1 | cut -c8-16 | xargs kill -9 
+ps -eo pid,comm | grep -i integrat
+ps -eo pid,comm | grep -i integrat | xargs -n 1 echo 2>&1 | head -n 1
+ps -eo pid,comm | grep -i integrat | xargs -n 1 echo 2>&1 | head -n 1 | xargs kill -9 
+
