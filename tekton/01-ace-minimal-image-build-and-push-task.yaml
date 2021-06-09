@@ -1,10 +1,12 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: ace-minimal-build-build-and-push
+  name: ace-minimal-image-build-and-push
 spec:
   params:
     - name: dockerRegistry
+      type: string
+    - name: aceDownloadUrl
       type: string
   steps:
     - name: clone
@@ -12,11 +14,12 @@ spec:
       script: |
         #!/bin/sh
         cd /work
-        git clone "https://github.com/tdolby-at-uk-ibm-com/ace-demo-pipeline"
+        git clone "https://github.com/tdolby-at-uk-ibm-com/ace-docker"
+        ls -l /work/ace-docker/experimental/ace-minimal
       volumeMounts:
         - mountPath: /work
           name: work
-    - name: ace-minimal-build-push
+    - name: ace-minimal-push
       image: gcr.io/kaniko-project/executor:v0.16.0
       # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
       env:
@@ -25,10 +28,10 @@ spec:
       command:
         - /kaniko/executor
       args:
-        - --dockerfile=/work/ace-demo-pipeline/demo-infrastructure/docker/ace-minimal-build/Dockerfile
-        - --destination=$(params.dockerRegistry)/ace-minimal-build:12.0.1.0-alpine
-        - --context=/work/ace-demo-pipeline/demo-infrastructure/docker/ace-minimal-build
-        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-minimal:12.0.1.0-alpine
+        - --dockerfile=/work/ace-docker/experimental/ace-minimal/Dockerfile.alpine
+        - --destination=$(params.dockerRegistry)/ace-minimal:12.0.1.0-alpine
+        - --context=/work/ace-docker/experimental/ace-minimal
+        - --build-arg=DOWNLOAD_URL=$(params.aceDownloadUrl)
         - --skip-tls-verify
       volumeMounts:
         - mountPath: /work

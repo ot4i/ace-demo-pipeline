@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: ace-minimal-build-build-pipeline
+  name: ace-minimal-build-image-pipeline
 spec:
   params:
     - name: dockerRegistry
@@ -9,7 +9,7 @@ spec:
   tasks:
     - name: build-images
       taskRef:
-        name: ace-minimal-build-build-and-push
+        name: ace-minimal-build-image-build-and-push
       params:
         - name: dockerRegistry
           value: $(params.dockerRegistry)

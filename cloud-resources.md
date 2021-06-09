@@ -6,6 +6,11 @@ Need an IBM ID and then cloud registration at https://cloud.ibm.com/registration
 
 Create a cluster called aceCluster; this may take a few minutes to provision.
 
+```
+ibmcloud login -a cloud.ibm.com -r us-south -g default --apikey @~/tmp/ci-ibmcloud.txt
+ibmcloud ks cluster config --cluster aceCluster
+```
+
 ## Docker registry
 
 Create a registry, then update scripts/preprod-bar-build.sh and scripts/preprod-deploy-and-test.sh:scripts/preprod-bar-build.sh to use it; note that the registry login may be region-sensitive and so the region parameter on "ibmcloud login" may need to changed as well.
