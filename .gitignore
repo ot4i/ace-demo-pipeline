@@ -14,4 +14,4 @@
 *.bar
 *.class
 
-TeaSharedLibraryJava.jar
+**/TeaSharedLibraryJava.jar
