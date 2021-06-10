@@ -12,9 +12,8 @@
     <module>TeaSharedLibraryJava</module>
     <module>TeaSharedLibrary</module>
     <module>TeaRESTApplication</module>
-    <module>TeaTestsScaffold</module>
+    <module>TeaRESTApplication_UnitTest</module>
     <module>demo-infrastructure</module>
-    <module>TeaTests</module>
   </modules>
 
 </project>
