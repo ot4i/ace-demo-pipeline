@@ -156,7 +156,7 @@
 	      </arguments>
 	    </configuration>
 	  </execution>
-	  <execution><id>run-component-test</id>
+	  <execution><id>run-unit-test</id>
 	    <phase>integration-test</phase>
 	    <goals><goal>exec</goal></goals>
 	    <configuration>

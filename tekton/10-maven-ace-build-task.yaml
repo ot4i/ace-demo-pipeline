@@ -35,7 +35,7 @@ spec:
         export PATH=/opt/ibm/ace-11/common/jdk/bin:$PATH
         mkdir /work/maven-output
         cd /work/ace-demo-pipeline
-        mvn -Dinstall.work.directory=/work/maven-output/ace-server install
+        mvn --no-transfer-progress -Dinstall.work.directory=/work/maven-output/ace-server install
       volumeMounts:
         - mountPath: /work
           name: work
