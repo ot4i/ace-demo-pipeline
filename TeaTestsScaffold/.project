@@ -7,6 +7,11 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
+			<name>org.eclipse.m2e.core.maven2Builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
 			<name>com.ibm.etools.mft.applib.applibbuilder</name>
 			<arguments>
 			</arguments>
@@ -92,6 +97,11 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
+			<name>com.ibm.etools.mft.msg.assembly.messageAssemblyBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
 			<name>com.ibm.etools.msg.validation.dfdl.dfdlqnamevalidator</name>
 			<arguments>
 			</arguments>
@@ -103,11 +113,6 @@
 		</buildCommand>
 		<buildCommand>
 			<name>com.ibm.etools.mft.unittest.ui.TestCaseBuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.m2e.core.maven2Builder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
