@@ -105,19 +105,49 @@
 	  <execution>
 	    <phase>compile</phase>
 	    <goals><goal>exec</goal></goals>
+	    <configuration>
+	      <executable>mqsipackagebar</executable>
+	      <arguments>
+		<argument>-w</argument>
+		<argument>..</argument>
+		<argument>-a</argument>
+		<argument>tea-component-tests.bar</argument>
+		<argument>-t</argument>
+		<argument>TeaRESTApplication_ComponentTest</argument>
+	      </arguments>
+	    </configuration>
+	  </execution>
+	  <execution><id>unpack-component-test</id>
+	    <phase>pre-integration-test</phase>
+	    <goals><goal>exec</goal></goals>
+	    <configuration>
+	      <executable>mqsibar</executable>
+	      <arguments>
+		<argument>-c</argument>
+		<argument>-w</argument>
+		<argument>${ct.work.directory}</argument>
+		<argument>-a</argument>
+		<argument>tea-component-tests.bar</argument>
+	      </arguments>
+	    </configuration>
+	  </execution>
+	  <execution><id>run-component-test</id>
+	    <phase>integration-test</phase>
+	    <goals><goal>exec</goal></goals>
+	    <configuration>
+	      <executable>IntegrationServer</executable>
+	      <arguments>
+		<argument>-w</argument>
+		<argument>${ct.work.directory}</argument>
+		<argument>--no-nodejs</argument>
+		<argument>--admin-rest-api</argument>
+		<argument>-1</argument>
+		<argument>--test-project</argument>
+		<argument>TeaRESTApplication_ComponentTest</argument>
+	      </arguments>
+	    </configuration>
 	  </execution>
 	</executions>
-	<configuration>
-	  <executable>mqsipackagebar</executable>
-	  <arguments>
-	    <argument>-w</argument>
-	    <argument>..</argument>
-	    <argument>-a</argument>
-	    <argument>tea-component-tests.bar</argument>
-	    <argument>-t</argument>
-	    <argument>TeaRESTApplication_ComponentTest</argument>
-	  </arguments>
-	</configuration>
       </plugin>
       <!-- Not strictly necessary, but eliminates log spam and empty JAR files -->
       <plugin>
