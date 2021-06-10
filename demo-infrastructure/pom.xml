@@ -129,7 +129,7 @@
 	    <configuration>
 	      <executable>cp</executable>
 	      <arguments>
-		<argument>../scripts/preprod-container/TEAJDBC.policyxml</argument>
+		<argument>../demo-infrastructure/TEAJDBC.policyxml</argument>
 		<argument>${install.work.directory}</argument>
 	      </arguments>
 	    </configuration>
@@ -140,7 +140,7 @@
 	    <configuration>
 	      <executable>cp</executable>
 	      <arguments>
-		<argument>../scripts/preprod-container/init-creds.sh</argument>
+		<argument>../demo-infrastructure//init-creds.sh</argument>
 		<argument>${install.work.directory}/ace-startup-script.sh</argument>
 	      </arguments>
 	    </configuration>
