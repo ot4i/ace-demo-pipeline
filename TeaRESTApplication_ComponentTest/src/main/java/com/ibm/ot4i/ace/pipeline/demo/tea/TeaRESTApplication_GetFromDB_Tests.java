@@ -68,6 +68,8 @@ public class TeaRESTApplication_GetFromDB_Tests {
             /* Compare Output Message 1 at output terminal out */
             TestMessageAssembly actualMessageAssembly = nodeSpy.propagatedMessageAssembly("out", 1);
 
-            assertEquals("Earl Grey", actualMessageAssembly.messagePath("XMLNSC.logData.info.name").getStringValue());
+            // We don't really care about the value here: if we get this far, and the JSON data
+            // exists, then we've successfully connected to the database.
+            assertEquals("0", actualMessageAssembly.messagePath("JSON.Data.id").getValueAsString());
     }
 }

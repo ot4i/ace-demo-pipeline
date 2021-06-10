@@ -64,7 +64,7 @@
   <build>
     <!-- Match old JCN project defaults -->
     <directory>.</directory>
-    <finalName>${project.artifactId}</finalName>
+    <finalName>${project.artifactId}-maven</finalName>
 
     <plugins>
       <plugin>
