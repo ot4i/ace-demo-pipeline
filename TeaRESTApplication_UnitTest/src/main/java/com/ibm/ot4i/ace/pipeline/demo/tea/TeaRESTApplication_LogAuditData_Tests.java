@@ -16,6 +16,8 @@ import static com.ibm.integration.test.v1.Matchers.*;
 import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 public class TeaRESTApplication_LogAuditData_Tests {
 
@@ -29,7 +31,8 @@ public class TeaRESTApplication_LogAuditData_Tests {
 		// Ensure any mocks created by a test are cleared after the test runs 
 		TestSetup.restoreAllMocks();
 	}
-    @Test
+
+	@Test
     public void TeaRESTApplication_LogAuditData_CreateXML_Test() throws TestException {
 
             // Define the SpyObjectReference
@@ -42,13 +45,8 @@ public class TeaRESTApplication_LogAuditData_Tests {
             // Declare a new TestMessageAssembly object for the message being sent into the node
             TestMessageAssembly inputMessageAssembly = new TestMessageAssembly();
 
-            inputMessageAssembly.messagePath("JSON.Data.id").setValue(123);
-            inputMessageAssembly.messagePath("JSON.Data.name").setValue("Earl Grey");
-
-
-            //InputStream inputMessage = Thread.currentThread().getContextClassLoader().getResourceAsStream("createXMLFromJSONinputMessage.mxml");
-            //inputMessageAssembly.buildFromRecordedMessageAssembly(inputMessage);
-
+            InputStream inputMessage = Thread.currentThread().getContextClassLoader().getResourceAsStream("createXMLFromJSONinputMessage.mxml");
+            inputMessageAssembly.buildFromRecordedMessageAssembly(inputMessage);
 
             // Call the message flow node with the Message Assembly
             nodeSpy.evaluate(inputMessageAssembly, true, "in");
@@ -60,6 +58,41 @@ public class TeaRESTApplication_LogAuditData_Tests {
             TestMessageAssembly actualMessageAssembly = nodeSpy.propagatedMessageAssembly("out", 1);
 
             assertEquals("Earl Grey", actualMessageAssembly.messagePath("XMLNSC.logData.info.name").getStringValue());
+    }
+	@Test
+    public void TeaRESTApplication_LogAuditData_RemoveXML_Test() throws TestException {
+
+            // Define the SpyObjectReference
+            SpyObjectReference nodeReference = new SpyObjectReference().application("TeaRESTApplication")
+                            .messageFlow("gen.TeaRESTApplication").subflowNode("getIndex (Implementation)").subflowNode("LogAuditData").node("Remove XML");
+
+            // Initialise a NodeSpy
+            NodeSpy nodeSpy = new NodeSpy(nodeReference);
+
+            // Declare a new TestMessageAssembly object for the message being sent into the node
+            TestMessageAssembly inputMessageAssembly = new TestMessageAssembly();
+
+            inputMessageAssembly.messagePath("JSON.Data.id").setValue(123);
+            inputMessageAssembly.messagePath("JSON.Data.name").setValue("Earl Grey");
+            inputMessageAssembly.messagePath("XMLNSC.logData.info.id").setValue(123);
+            inputMessageAssembly.messagePath("XMLNSC.logData.info.name").setValue("Earl Grey");
+
+            // Call the message flow node with the Message Assembly
+            nodeSpy.evaluate(inputMessageAssembly, true, "in");
+
+            // Assert the terminal propagate count for the message
+            assertThat(nodeSpy, terminalPropagateCountIs("out", 1));
+
+            /* Compare Output Message 1 at output terminal out */
+            TestMessageAssembly actualMessageAssembly = nodeSpy.propagatedMessageAssembly("out", 1);
+
+            // Make sure the JSON still exists
+            assertEquals("Earl Grey", actualMessageAssembly.messagePath("JSON.Data.name").getStringValue());
+            // And that XMLNSC does not
+            Exception exception = assertThrows(TestException.class, () -> {
+            	actualMessageAssembly.messagePath("XMLNSC.logData.info.name").getValueAsString();
+            });
+            assertTrue(exception.getMessage().contains("Child element does not exist"));
     }
 
 }
