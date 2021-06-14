@@ -8,8 +8,8 @@ CREATE COMPUTE MODULE LogAuditData_Compute
 	BEGIN
 		-- CALL CopyMessageHeaders();
 		CALL CopyEntireMessage();
-		SET OutputRoot.XMLNSC.logData.info.id = InputRoot.JSON.Data.id;
-		SET OutputRoot.XMLNSC.logData.info.name = InputRoot.JSON.Data.name;
+		--SET OutputRoot.XMLNSC.logData.info.id = InputRoot.JSON.Data.id;
+		--SET OutputRoot.XMLNSC.logData.info.name = InputRoot.JSON.Data.name;
 		RETURN TRUE;
 	END;
 
