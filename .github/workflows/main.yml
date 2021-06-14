@@ -40,6 +40,7 @@ jobs:
           #ace-12.0.1.0/ace accept license silently
           #. ace-12.0.1.0/server/bin/mqsiprofile
           export LICENSE=accept
+          export MQSI_WORKPATH=$PWD/ace-minimal-image-unzip/var/mqsi
           . ace-minimal-image-unzip/opt/ibm/ace-11/server/bin/mqsiprofile
           export MQSI_REGISTRY=$PWD/ace-minimal-image-unzip/var/mqsi
           mqsilist
@@ -49,6 +50,7 @@ jobs:
         run: |
           #. ace-12.0.1.0/server/bin/mqsiprofile
           export LICENSE=accept
+          export MQSI_WORKPATH=$PWD/ace-minimal-image-unzip/var/mqsi
           . ace-minimal-image-unzip/opt/ibm/ace-11/server/bin/mqsiprofile
           export MQSI_REGISTRY=$PWD/ace-minimal-image-unzip/var/mqsi
           mqsilist
