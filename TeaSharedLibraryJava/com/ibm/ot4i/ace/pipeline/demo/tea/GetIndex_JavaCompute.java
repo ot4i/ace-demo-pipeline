@@ -72,8 +72,8 @@ public class GetIndex_JavaCompute extends MbJavaComputeNode {
       MbElement jsonData = rootElem.createElementAsLastChild("JSON").
         createElementAsFirstChild(MbElement.TYPE_NAME);
       jsonData.setName("Data");
-      jsonData.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "id", teaIndex);
-      jsonData.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "name", teaName);
+      jsonData.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "idd", teaIndex);
+      jsonData.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "namee", teaName);
 	        
       // End of user code
       // ----------------------------------------------------------
