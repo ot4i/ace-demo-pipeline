@@ -31,8 +31,8 @@ jobs:
           ########################################################################
           # 
           # Download ace-minimal image; could use ace-minimal-build but in our
-	  # case we already have Maven and the various utilities contained in 
-	  # the build image, so we download the base image because it's smaller.
+          # case we already have Maven and the various utilities contained in 
+          # the build image, so we download the base image because it's smaller.
           # 
           ########################################################################
           curl -so moby-download-frozen-image-v2.sh https://raw.githubusercontent.com/moby/moby/master/contrib/download-frozen-image-v2.sh
