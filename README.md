@@ -4,7 +4,7 @@ Demo pipeline for ACE to show how ACE solutions can be built in CI/CD pipelines 
 capabilities in a pipeline, with the application being constructed to show pipeline-friendliness rather than being a "best practice" application.
 
 
-![Pipeline overview](demo-slide-picture.png)
+![Pipeline overview](ace-demo-pipeline-tekton-1.png)
 
 ## Constituent parts
 
