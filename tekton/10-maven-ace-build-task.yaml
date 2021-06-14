@@ -21,8 +21,8 @@ spec:
       script: |
         #!/bin/bash
         export LICENSE=accept
-        . /opt/ibm/ace-11/server/bin/mqsiprofile
-        export PATH=/opt/ibm/ace-11/common/jdk/bin:$PATH
+        . /opt/ibm/ace-12/server/bin/mqsiprofile
+        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
         mkdir /work/maven-output
         cd /work/ace-demo-pipeline
         mvn --no-transfer-progress -Dinstall.work.directory=/work/maven-output/ace-server install
@@ -34,8 +34,8 @@ spec:
       script: |
         #!/bin/bash
         export LICENSE=accept
-        . /opt/ibm/ace-11/server/bin/mqsiprofile
-        export PATH=/opt/ibm/ace-11/common/jdk/bin:$PATH
+        . /opt/ibm/ace-12/server/bin/mqsiprofile
+        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
         # Slightly hacky, but quicker than building everything again!
         (cd /work/maven-output/ace-server/run && tar -cf - * ) | (cd /home/aceuser/ace-server/run && tar -xf - )
         # Set up credentials for the component tests; init-creds.sh looks in /tmp for policy

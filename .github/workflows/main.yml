@@ -47,7 +47,7 @@ jobs:
           ########################################################################
           export LICENSE=accept
           export MQSI_WORKPATH=$PWD/ace-minimal-image-unzip/var/mqsi
-          . ace-minimal-image-unzip/opt/ibm/ace-11/server/bin/mqsiprofile
+          . ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsiprofile
           mqsilist
           
       # Runs a set of commands using the runners shell
@@ -60,11 +60,11 @@ jobs:
           ########################################################################
           export LICENSE=accept
           export MQSI_WORKPATH=$PWD/ace-minimal-image-unzip/var/mqsi
-          . ace-minimal-image-unzip/opt/ibm/ace-11/server/bin/mqsiprofile
+          . ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsiprofile
           # Using ace-minimal without WXS support
           export MQSI_NO_CACHE_SUPPORT=1
           # Make sure Maven and others can find the correct javac
-          export PATH=$PWD/ace-minimal-image-unzip/opt/ibm/ace-11/common/jdk/bin:$PATH
+          export PATH=$PWD/ace-minimal-image-unzip/opt/ibm/ace-12/common/jdk/bin:$PATH
           ########################################################################
           # 
           # Run the Maven build and unit test phases
