@@ -31,11 +31,15 @@ jobs:
           /bin/pwd
           #env | sort
           #df -k
-          curl -# http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/integration/12.0.1.0-ACE-LINUX64-DEVELOPER.tar.gz | tar -xzvf -
-          ace-12.0.1.0/ace accept license silently
-          . ace-12.0.1.0/server/bin/mqsiprofile
+          mkdir /var/mqsi || /bin/true
+          curl -so moby-download-frozen-image-v2.sh https://raw.githubusercontent.com/moby/moby/master/contrib/download-frozen-image-v2.sh
+          mkdir ace-minimal
+          #bash moby-download-frozen-image-v2.sh ace-minimal tdolby/experimental:ace-minimal-12.0.1.0-alpine
+          #curl -s http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/integration/12.0.1.0-ACE-LINUX64-DEVELOPER.tar.gz | tar -xzf -
+          #ace-12.0.1.0/ace accept license silently
+          #. ace-12.0.1.0/server/bin/mqsiprofile
+          export LICENSE=accept
           mqsilist
-          df -k
           
       # Runs a set of commands using the runners shell
       - name: Build ACE projects
