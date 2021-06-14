@@ -71,4 +71,4 @@ jobs:
           # 
           ########################################################################
           echo "Running Maven install to $PWD/ace-server . . ."
-          mvn --no-transfer-progress -Dinstall.work.directory=$PWD/ace-server install
+          mvn --no-transfer-progress verify
