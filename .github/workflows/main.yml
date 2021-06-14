@@ -31,20 +31,26 @@ jobs:
           /bin/pwd
           #env | sort
           #df -k
-          mkdir /var/mqsi || /bin/true
           curl -so moby-download-frozen-image-v2.sh https://raw.githubusercontent.com/moby/moby/master/contrib/download-frozen-image-v2.sh
-          mkdir ace-minimal
-          #bash moby-download-frozen-image-v2.sh ace-minimal tdolby/experimental:ace-minimal-12.0.1.0-alpine
+          mkdir ace-minimal-download
+          bash moby-download-frozen-image-v2.sh ace-minimal-download tdolby/experimental:ace-minimal-12.0.1.0-alpine
+          mkdir ace-minimal-image-unzip
+          cd ace-minimal-download &&  grep layer.tar manifest.json | tr -d '"' | tr -d ',' | xargs -n 1 tar -C ../ace-minimal-image-unzip -xf
           #curl -s http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/integration/12.0.1.0-ACE-LINUX64-DEVELOPER.tar.gz | tar -xzf -
           #ace-12.0.1.0/ace accept license silently
           #. ace-12.0.1.0/server/bin/mqsiprofile
           export LICENSE=accept
+          . ace-minimal-image-unzip/opt/ibm/ace-11/server/bin/mqsiprofile
+          export MQSI_REGISTRY=$PWD/ace-minimal-image-unzip/var/mqsi
           mqsilist
           
       # Runs a set of commands using the runners shell
       - name: Build ACE projects
         run: |
-          . ace-12.0.1.0/server/bin/mqsiprofile
+          #. ace-12.0.1.0/server/bin/mqsiprofile
+          export LICENSE=accept
+          . ace-minimal-image-unzip/opt/ibm/ace-11/server/bin/mqsiprofile
+          export MQSI_REGISTRY=$PWD/ace-minimal-image-unzip/var/mqsi
           mqsilist
           echo "Running Maven install to $PWD/ace-server . . ."
           mvn --no-transfer-progress -Dinstall.work.directory=$PWD/ace-server install
