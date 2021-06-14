@@ -26,37 +26,49 @@ jobs:
       - uses: actions/checkout@v2
 
       # Runs a set of commands using the runners shell
-      - name: Download ACE
+      - name: Download ACE image
         run: |
-          /bin/pwd
-          #env | sort
-          #df -k
+          ########################################################################
+          # 
+          # Download ace-minimal image; could use ace-minimal-build but in our
+	  # case we already have Maven and the various utilities contained in 
+	  # the build image, so we download the base image because it's smaller.
+          # 
+          ########################################################################
           curl -so moby-download-frozen-image-v2.sh https://raw.githubusercontent.com/moby/moby/master/contrib/download-frozen-image-v2.sh
           mkdir ace-minimal-download
           bash moby-download-frozen-image-v2.sh ace-minimal-download tdolby/experimental:ace-minimal-12.0.1.0-alpine
           mkdir ace-minimal-image-unzip
           cd ace-minimal-download && grep layer.tar manifest.json | tr -d '"' | tr -d ',' | xargs -n 1 tar -C ../ace-minimal-image-unzip -xf && cd - && rm -rf ace-minimal-download
-          #curl -s http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/integration/12.0.1.0-ACE-LINUX64-DEVELOPER.tar.gz | tar -xzf -
-          #ace-12.0.1.0/ace accept license silently
-          #. ace-12.0.1.0/server/bin/mqsiprofile
+          ########################################################################
+          # 
+          # Set up ACE environment and ensure downloaded image works
+          # 
+          ########################################################################
           export LICENSE=accept
           export MQSI_WORKPATH=$PWD/ace-minimal-image-unzip/var/mqsi
           . ace-minimal-image-unzip/opt/ibm/ace-11/server/bin/mqsiprofile
-          export MQSI_REGISTRY=$PWD/ace-minimal-image-unzip/var/mqsi
           mqsilist
           
       # Runs a set of commands using the runners shell
-      - name: Build ACE projects
+      - name: Build/UT for ACE projects
         run: |
-          #. ace-12.0.1.0/server/bin/mqsiprofile
+          ########################################################################
+          # 
+          # Set up ACE environment
+          # 
+          ########################################################################
           export LICENSE=accept
           export MQSI_WORKPATH=$PWD/ace-minimal-image-unzip/var/mqsi
           . ace-minimal-image-unzip/opt/ibm/ace-11/server/bin/mqsiprofile
-          export MQSI_REGISTRY=$PWD/ace-minimal-image-unzip/var/mqsi
           # Using ace-minimal without WXS support
           export MQSI_NO_CACHE_SUPPORT=1
           # Make sure Maven and others can find the correct javac
           export PATH=$PWD/ace-minimal-image-unzip/opt/ibm/ace-11/common/jdk/bin:$PATH
-          mqsilist
+          ########################################################################
+          # 
+          # Run the Maven build and unit test phases
+          # 
+          ########################################################################
           echo "Running Maven install to $PWD/ace-server . . ."
           mvn --no-transfer-progress -Dinstall.work.directory=$PWD/ace-server install
