@@ -56,7 +56,7 @@ Note that the actual password itself (as opposed to the hash provided by "oc who
 
 After that, the pipeline runs would be
 ```
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/os/ace-minimal-image-pipeline-run.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/os/ace-minimal-build-image-pipeline-run.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/os/ace-minimal-image-pipeline-run-crc.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/os/ace-minimal-build-image-pipeline-run-crc.yaml
 ```
 to pick up the correct registry default.
