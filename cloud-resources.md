@@ -2,20 +2,42 @@
 
 Need an IBM ID and then cloud registration at https://cloud.ibm.com/registration
 
+The IBM Cloud tools should be available; installing them locally is one way to achieve this, following
+the instructions at https://cloud.ibm.com/docs/cli?topic=cli-getting-started to install the ibmcloud
+command and plugins. 
+
+Tekton can be run from a dashboard or from the command line; the command is available from https://github.com/tektoncd/cli and
+can be installed locally.
+
+## API keys for command-line and Tekton builds
+
+Need to create an API key: from the "Manage" menu at the top of the IBM Cloud dashboard, choose "Access (IAM)" and 
+then "API keys" on the left. This key is used for login from local commands, Tekton builds, and container image
+registry access.
+
 ## Kubernetes
 
-Create a cluster called aceCluster; this may take a few minutes to provision.
+Create a cluster called aceCluster; this may take a few minutes to provision. After the cluster h
 
 ```
-ibmcloud login -a cloud.ibm.com -r us-south -g default --apikey @~/tmp/ci-ibmcloud.txt
+ibmcloud login -a cloud.ibm.com -r us-south -g default --apikey <api key>
 ibmcloud ks cluster config --cluster aceCluster
 ```
 
 ## Docker registry
 
-Create a registry, then update scripts/preprod-bar-build.sh and scripts/preprod-deploy-and-test.sh:scripts/preprod-bar-build.sh to use it; note that the registry login may be region-sensitive and so the region parameter on "ibmcloud login" may need to changed as well.
+Create a registry (under "Container Registry" on the IBM Cloud dashboard), then create a namespace 
+with a unique name to store the images used in the demo. This demo has "us.icr.io/ace-registry" set as the 
+default which means that "ace-registry" is already in use and another name must be chosen.
 
-Need to create a namespace for use with the us.icr.io container registry (for whichever region is chosen)
+The various pipeline-run files in the tekton directory (ace-pipeline-run.yaml, ace-minimal-image-pipeline-run.yaml, 
+etc) need to be updated with the registry information, otherwise permissions-related errors will occur.
+
+To enable pipeline access to the registry, assign the API key (see above) as a "secret text" credential in 
+Tekton called "regcred" for use in pushing and pulling container images:
+```
+kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=iamapikey --docker-password=<your-api-key>
+```
 
 ## DB2 on Cloud
 
@@ -24,7 +46,3 @@ Create a DB2 instance via "Create resource" on the IBM Cloud dashboard; create c
 kubectl create secret generic jdbc-secret --from-literal=USERID='blah' --from-literal=PASSWORD='blah' --from-literal=databaseName='BLUDB' --from-literal=serverName='dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net' --from-literal=portNumber='50000' 
 ```
 with the obvious replacements.
-
-## API keys for builds (via Jenkins)
-
-Need to create an API key: from the "Manage" menu at the top of the IBM Cloud dashboard, choose "Access (IAM)" and then "API keys" on the left. Create a key, and then assign it as a "secret text" credential in Jenkins called IBMCLOUD_APIKEY
