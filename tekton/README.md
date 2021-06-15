@@ -46,6 +46,19 @@ tkn pipelinerun logs ace-pipeline-run-1 -f
 
 and this should build the projects, run the unit tests, create a docker image, and then create a deployment that runs the application.
 
+## Tekton dashboard
+
+The Tekton dahsboard (for non-OpenShift users) can be installed as follows:
+```
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
+```
+
+By default, the Tekton dashboard is not accessible outside the cluster; assuming a secure host somewhere, the
+dashboard HTTP port can be made available locally as follows:
+```
+kubectl --namespace tekton-pipelines port-forward --address 0.0.0.0 svc/tekton-dashboard 9097:9097
+```
+
 ## OpenShift CRC
 
 The majority of steps are the same, but the registry authentication is a little different; assuming a session logged in as kubeadmin, it would look as follows:
