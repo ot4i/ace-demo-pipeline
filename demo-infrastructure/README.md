@@ -1,7 +1,7 @@
 # Infrastructure for ACE pipeline demo
 
-Various applications, scripts, and Dockerfiles for the pipeline demo. These files are 
-not specific to this application, and would normally reside elsewhere and be shared by 
+Various applications, scripts, and Dockerfiles for the pipeline demo. Some of these files
+are not specific to this application, and would normally reside elsewhere and be shared by 
 multiple application projects, but the demo is more self-contained if we keep them here.
 
 ## Docker images
