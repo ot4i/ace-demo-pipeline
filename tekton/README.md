@@ -2,15 +2,19 @@
 
 Used to run the pipeline stages via Tekton. Relies on the same IBM Cloud kubernetes cluster as before, with the JDBC
 credentials having been set up, and can also be run using OpenShift Code-Ready Containers (tested on 1.21).
+
 ![Pipeline overview](../ace-demo-pipeline-tekton-1.png)
 
 The tasks rely on several different containers:
 
 - The Tekton git-init image to run the initial git clones.
 - Kaniko for building the container images.
-- The ace-minimal image for a small Alpine-based runtime container (~300MB). See https://github.com/tdolby-at-uk-ibm-com/ace-docker/tree/master/experimental/ace-minimal for more details on the image, and [minimal image build instructions](README-image-build.md) on how to build the various pre-req images.
+- The ace-minimal image for a small Alpine-based runtime container (~420MB, which fits into the IBM Cloud container registry
+free tier limit of 512MB), and builder variant with Maven added in.  See https://github.com/tdolby-at-uk-ibm-com/ace-docker/tree/master/experimental/ace-minimal
+for more details on the minimal image, and [minimal image build instructions](README-image-build.md) on how to build the various pre-req images.
 
-For the initial testing, variants of ace-minimal:12.0.1.0-alpine have been pushed to tdolby/experimental on DockerHub, but this is not a stable location, and the images should be rebuilt by anyone attempting to use this repo.
+For the initial testing, variants of ace-minimal:12.0.1.0-alpine have been pushed to tdolby/experimental on DockerHub, but this is not a
+stable location, and the images should be rebuilt by anyone attempting to use this repo.
 
 ## Getting started
 
@@ -18,7 +22,8 @@ For the initial testing, variants of ace-minimal:12.0.1.0-alpine have been pushe
 is unlikely to be writable. Creating registries and so on (though essential) is beyond the scope of this document, but customisation of
 the artifacts in this repo (such as ace-pipeline-run.yaml) will almost certainly be necessary.
 
- The Tekton pipeline relies on docker credentials being provided for Kaniko to use when pushing the built image, and these credentials must be associated with the service account for the pipeline. Create as follows, with appropriate changes for a fork of this repo:
+ The Tekton pipeline relies on docker credentials being provided for Kaniko to use when pushing the built image, and these credentials
+must be associated with the service account for the pipeline. Create as follows, with appropriate changes for a fork of this repo:
 ```
 kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=iamapikey --docker-password=<your-api-key>
 kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/service-account.yaml
