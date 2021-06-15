@@ -15,6 +15,8 @@ ibmcloud ks cluster config --cluster aceCluster
 
 Create a registry, then update scripts/preprod-bar-build.sh and scripts/preprod-deploy-and-test.sh:scripts/preprod-bar-build.sh to use it; note that the registry login may be region-sensitive and so the region parameter on "ibmcloud login" may need to changed as well.
 
+Need to create a namespace for use with the us.icr.io container registry (for whichever region is chosen)
+
 ## DB2 on Cloud
 
 Create a DB2 instance via "Create resource" on the IBM Cloud dashboard; create credentials and add them to the Kubernetes cluster as "jdbc-secret" like this:
