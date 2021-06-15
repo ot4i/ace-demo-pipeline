@@ -75,6 +75,15 @@ tkn pipelinerun logs ace-pipeline-run-1 -f
 to pick up the correct registry default. The OpenShift Pipeline operator provides a web interface for the pipeline runs
 also, which may be an easier way to view progress.
 
+To enable external connectivity from within OpenShift to enable testing, run the following
+```
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/os/tea-tekton-route.yaml
+```
+which will create a route at http://tea-route-default.apps-crc.testing (which can be changed in the yaml file).
+
+Accessing http://tea-route-default.apps-crc.testing/tea/index/0 should result in the application running and showing
+JSON result data.
+
 ## Possible enhancements
 
 The pipeline should use a single git commit to ensure the two tasks are actually using the same source. Alternatively, PVCs could 
