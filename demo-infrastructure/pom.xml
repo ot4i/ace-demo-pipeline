@@ -134,6 +134,17 @@
 	      </arguments>
 	    </configuration>
 	  </execution>
+	  <execution><id>copy-overrides</id>
+	    <phase>install</phase>
+	    <goals><goal>exec</goal></goals>
+	    <configuration>
+	      <executable>cp</executable>
+	      <arguments>
+		<argument>../demo-infrastructure/application-overrides.txt</argument>
+		<argument>${install.work.directory}</argument>
+	      </arguments>
+	    </configuration>
+	  </execution>
 	  <execution><id>copy-startup-script</id>
 	    <phase>install</phase>
 	    <goals><goal>exec</goal></goals>
