@@ -27,21 +27,21 @@ must be associated with the service account for the pipeline. If this has not al
 appropriate changes for a fork of this repo:
 ```
 kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=iamapikey --docker-password=<your-api-key>
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/service-account.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/demo-pipeline-21-06/tekton/service-account.yaml
 ```
 The service account also has the ability to create services, deployments, etc, which are necessary for running the service.
 
 Setting up the pipeline requires Tekton to be installed, tasks to be created, and the pipeline itself to be configured:
 ```
 kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/10-maven-ace-build-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/20-deploy-to-cluster-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-pipeline.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/demo-pipeline-21-06/tekton/10-maven-ace-build-task.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/demo-pipeline-21-06/tekton/20-deploy-to-cluster-task.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/demo-pipeline-21-06/tekton/ace-pipeline.yaml
 ```
 
 Once that has been accomplished, the simplest way to run the pipeline is
 ```
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-pipeline-run.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/demo-pipeline-21-06/tekton/ace-pipeline-run.yaml
 tkn pipelinerun logs ace-pipeline-run-1 -f
 ```
 
@@ -85,7 +85,7 @@ Note that the actual password itself (as opposed to the hash provided by "oc who
 
 After that, the pipeline run would be
 ```
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/os/ace-pipeline-run-crc.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/demo-pipeline-21-06/tekton/os/ace-pipeline-run-crc.yaml
 tkn pipelinerun logs ace-pipeline-run-1 -f
 ```
 to pick up the correct registry default. The OpenShift Pipeline operator provides a web interface for the pipeline runs
@@ -93,7 +93,7 @@ also, which may be an easier way to view progress.
 
 To enable external connectivity from within OpenShift to enable testing, run the following
 ```
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/os/tea-tekton-route.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/demo-pipeline-21-06/tekton/os/tea-tekton-route.yaml
 ```
 which will create a route at http://tea-route-default.apps-crc.testing (which can be changed in the yaml file).
 
