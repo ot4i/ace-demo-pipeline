@@ -23,7 +23,8 @@ is unlikely to be writable. Creating registries and so on (though essential) is 
 the artifacts in this repo (such as ace-pipeline-run.yaml) will almost certainly be necessary.
 
  The Tekton pipeline relies on docker credentials being provided for Kaniko to use when pushing the built image, and these credentials
-must be associated with the service account for the pipeline. Create as follows, with appropriate changes for a fork of this repo:
+must be associated with the service account for the pipeline. If this has not already been done elsewhere, then create as follows, with
+appropriate changes for a fork of this repo:
 ```
 kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=iamapikey --docker-password=<your-api-key>
 kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/service-account.yaml
