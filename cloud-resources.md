@@ -17,8 +17,12 @@ registry access.
 
 ## Kubernetes
 
-Create a cluster called aceCluster; this may take a few minutes to provision. After the cluster h
+Create a cluster called aceCluster by using the IBM Cloud dashboard: select "Kubernetes" on the left-side navigation 
+bar (accessible via the hamburger icon at the top left), and then select "Create cluster" on the resulting Kubernetes 
+screen.
 
+The cluster may take a few minutes to provision. After the cluster has been created, then it should be possible
+to login to ibmcloud and then access the cluster:
 ```
 ibmcloud login -a cloud.ibm.com -r us-south -g default --apikey <api key>
 ibmcloud ks cluster config --cluster aceCluster
