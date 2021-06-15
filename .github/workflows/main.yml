@@ -1,0 +1,74 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a set of commands using the runners shell
+      - name: Download ACE image
+        run: |
+          ########################################################################
+          # 
+          # Download ace-minimal image; could use ace-minimal-build but in our
+          # case we already have Maven and the various utilities contained in 
+          # the build image, so we download the base image because it's smaller.
+          # 
+          ########################################################################
+          curl -so moby-download-frozen-image-v2.sh https://raw.githubusercontent.com/moby/moby/master/contrib/download-frozen-image-v2.sh
+          mkdir ace-minimal-download
+          bash moby-download-frozen-image-v2.sh ace-minimal-download tdolby/experimental:ace-minimal-12.0.1.0-alpine
+          mkdir ace-minimal-image-unzip
+          cd ace-minimal-download && grep layer.tar manifest.json | tr -d '"' | tr -d ',' | xargs -n 1 tar -C ../ace-minimal-image-unzip -xf && cd - && rm -rf ace-minimal-download
+          ########################################################################
+          # 
+          # Set up ACE environment and ensure downloaded image works
+          # 
+          ########################################################################
+          export LICENSE=accept
+          export MQSI_WORKPATH=$PWD/ace-minimal-image-unzip/var/mqsi
+          . ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsiprofile
+          mqsilist
+          
+      # Runs a set of commands using the runners shell
+      - name: Build/UT for ACE projects
+        run: |
+          ########################################################################
+          # 
+          # Set up ACE environment
+          # 
+          ########################################################################
+          export LICENSE=accept
+          export MQSI_WORKPATH=$PWD/ace-minimal-image-unzip/var/mqsi
+          . ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsiprofile
+          # Using ace-minimal without WXS support
+          export MQSI_NO_CACHE_SUPPORT=1
+          # Make sure Maven and others can find the correct javac
+          export PATH=$PWD/ace-minimal-image-unzip/opt/ibm/ace-12/common/jdk/bin:$PATH
+          ########################################################################
+          # 
+          # Run the Maven build and unit test phases
+          # 
+          ########################################################################
+          echo "Running Maven install to $PWD/ace-server . . ."
+          mvn --no-transfer-progress verify
