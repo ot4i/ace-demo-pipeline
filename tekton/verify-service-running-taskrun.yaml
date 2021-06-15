@@ -1,0 +1,8 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: verify-service-running-taskrun-1
+spec:
+  serviceAccountName: ace-tekton-service-account
+  taskRef:
+    name: verify-service-running

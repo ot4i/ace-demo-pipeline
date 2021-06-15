@@ -1,0 +1,11 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: ace-minimal-build-image-pipeline-run-1
+spec:
+  serviceAccountName: ace-tekton-service-account
+  pipelineRef:
+    name: ace-minimal-build-image-pipeline
+  params:
+    - name: dockerRegistry
+      value: "aceDemoRegistry.azurecr.io"

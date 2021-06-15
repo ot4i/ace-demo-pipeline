@@ -1,7 +1,9 @@
 # Copyright (c) 2021 Open Technologies for Integration
 # Licensed under the MIT license (see LICENSE for details)
 
-FROM tdolby/experimental:ace-minimal-11.0.0.11-alpine
+#FROM tdolby/experimental:ace-minimal-11.0.0.11-alpine
+ARG BASE_IMAGE=ace-minimal:12.0.1.0-alpine
+FROM $BASE_IMAGE
 
 # Used for tekton and Maven containers
 
@@ -22,5 +24,5 @@ USER aceuser
 # We're in an internal pipeline
 ENV LICENSE=accept
 
-# Set entrypoint to run the server
-ENTRYPOINT ["bash", "-c", "/home/aceuser/ace-server/ace-startup-script.sh && IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 --no-nodejs"]
+# Set entrypoint to run the server; should move the apply overrides to the startup script at some point
+ENTRYPOINT ["bash", "-c", "/home/aceuser/ace-server/ace-startup-script.sh && ibmint apply overrides /home/aceuser/ace-server/application-overrides.txt --work-directory /home/aceuser/ace-server && IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 --no-nodejs"]

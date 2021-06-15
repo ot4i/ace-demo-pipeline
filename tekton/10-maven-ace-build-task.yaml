@@ -16,30 +16,41 @@ spec:
       volumeMounts:
         - mountPath: /work
           name: work
-    - name: list
-      image: tdolby/experimental:pipeline-travis-build-maven
-      command:
-        - ls
-      args:
-        - "-l"
-        - "/work"
-      volumeMounts:
-        - mountPath: /work
-          name: work
     - name: maven-build
-      image: tdolby/experimental:pipeline-travis-build-maven
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.1.0-alpine
       script: |
         #!/bin/bash
         export LICENSE=accept
-        . /opt/ibm/ace-11/server/bin/mqsiprofile
+        . /opt/ibm/ace-12/server/bin/mqsiprofile
+        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
         mkdir /work/maven-output
         cd /work/ace-demo-pipeline
-        mvn -Dinstall.work.directory=/work/maven-output/ace-server install
+        mvn --no-transfer-progress -Dinstall.work.directory=/work/maven-output/ace-server install
       volumeMounts:
         - mountPath: /work
           name: work
-    - name: preprod-container-setup
-      image: tdolby/experimental:pipeline-travis-build-maven
+    - name: component-test
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.1.0-alpine
+      script: |
+        #!/bin/bash
+        export LICENSE=accept
+        . /opt/ibm/ace-12/server/bin/mqsiprofile
+        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+        # Slightly hacky, but quicker than building everything again!
+        (cd /work/maven-output/ace-server/run && tar -cf - * ) | (cd /home/aceuser/ace-server/run && tar -xf - )
+        # Set up credentials for the component tests; init-creds.sh looks in /tmp for policy
+        cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml /tmp/
+        bash /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh
+        # Build and run the tests
+        cd /work/ace-demo-pipeline/TeaRESTApplication_ComponentTest
+        mvn --no-transfer-progress -Dct.work.directory=/home/aceuser/ace-server verify
+      volumeMounts:
+        - mountPath: /work
+          name: work
+        - name: secret-volume-2
+          mountPath: /var/run/secrets/jdbc
+    - name: next-stage-container-setup
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.1.0-alpine
       script: |
         #!/bin/bash
         cd /work/maven-output
@@ -59,6 +70,7 @@ spec:
         - --dockerfile=/work/maven-output/Dockerfile
         - --destination=$(params.dockerRegistry)/tea-tekton
         - --context=/work/maven-output
+        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-minimal:12.0.1.0-alpine
         - --skip-tls-verify
       volumeMounts:
         - mountPath: /work
@@ -66,3 +78,6 @@ spec:
   volumes:
     - name: work
       emptyDir: {}
+    - name: secret-volume-2
+      secret:
+        secretName: jdbc-secret

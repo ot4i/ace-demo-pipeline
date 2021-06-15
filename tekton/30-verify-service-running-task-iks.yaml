@@ -1,0 +1,49 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: verify-service-running
+spec:
+  steps:
+    - name: get-service-url
+      image: ibmcom/ibm-cloud-developer-tools-amd64 
+      script: |
+        #!/bin/sh
+        set -x
+        kubectl get service tea-tekton-service
+        export PORT=`kubectl get service tea-tekton-service | tr ' ' '\n' | grep TCP | cut -c 6-10`
+        
+        # Need to make this dynamic by querying the IKS node, but credentials are missing for IKS admin.
+        #ibmcloud ks workers --cluster aceCluster
+        #export HOST=`ibmcloud ks workers --cluster aceCluster | grep kube | cut -c55-72 | tr -d ' '`
+        export HOST=169.57.85.128
+
+        echo URL is http://$HOST:$PORT/tea/index/0
+        echo http://$HOST:$PORT/tea/index/0 > /work/url.txt
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: check-service
+      image: curlimages/curl
+      script: |
+        #!/bin/sh
+        #echo "Waiting for the service to start"
+        export URL=`cat /work/url.txt`
+        echo "Attempting to call the service at $URL"
+        
+        curl --silent -o /tmp/curl.out -v $URL
+        
+        echo; echo Service returned:
+        cat /tmp/curl.out
+        echo
+        
+        grep -q '"id":"0"' /tmp/curl.out
+        if [ "$?" != "0" ]; then
+            echo "Failed to get tea index 0"
+            exit 1
+        fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+  volumes:
+    - name: work
+      emptyDir: {}

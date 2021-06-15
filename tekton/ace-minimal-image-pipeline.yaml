@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: ace-minimal-image-pipeline
+spec:
+  params:
+    - name: dockerRegistry
+      type: string
+    - name: aceDownloadUrl
+      type: string
+  tasks:
+    - name: build-images
+      taskRef:
+        name: ace-minimal-image-build-and-push
+      params:
+        - name: dockerRegistry
+          value: $(params.dockerRegistry)
+        - name: aceDownloadUrl
+          value: $(params.aceDownloadUrl)
