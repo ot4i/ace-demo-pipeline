@@ -69,10 +69,11 @@ Note that the actual password itself (as opposed to the hash provided by "oc who
 
 After that, the pipeline run would be
 ```
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-pipeline-run-crc.yaml
+kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/os/ace-pipeline-run-crc.yaml
 tkn pipelinerun logs ace-pipeline-run-1 -f
 ```
-to pick up the correct registry default.
+to pick up the correct registry default. The OpenShift Pipeline operator provides a web interface for the pipeline runs
+also, which may be an easier way to view progress.
 
 ## Possible enhancements
 
