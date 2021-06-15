@@ -5,7 +5,7 @@ Rough notes from initial attempt
 Using same IBM Cloud kubernetes cluster as before.
 
 ```
-kubectl create secret docker-registry regcred --docker-server=uk.icr.io --docker-username=iamapikey --docker-password=<your-key>
+kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=iamapikey --docker-password=<your-key>
 kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/service-account.yaml
 
 
