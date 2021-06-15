@@ -46,9 +46,24 @@ tkn pipelinerun logs ace-pipeline-run-1 -f
 
 and this should build the projects, run the unit tests, create a docker image, and then create a deployment that runs the application.
 
+## How to know if the pipeline has succeeded
+
+The end result should be a running container with the tea application deployed, listening for requests on /tea/index at the
+appropriate host and port. An HTTP GET on http://containerHost:containerPort/tea/index/0 should return some JSON, though the 
+name may be null if the database has no entry for id 0.
+
+For the IBM Kubernetes Service, the public IP address of the worker node is the easiest way to access the service, but the host
+is not published in the usual external IP field. To find the external IP, use IBM Cloud dashboard to view the "Worker nodes" 
+tab information for the Kube cluster, where the "Public IP" contains the correct address. The port number can be found by querying
+the Kubernetes tea-tekton-service either by using
+```
+kubectl get service tea-tekton-service
+```
+or by using the Kubernetes dashboard to view the service. Thee values can then be used to access the application.
+
 ## Tekton dashboard
 
-The Tekton dahsboard (for non-OpenShift users) can be installed as follows:
+The Tekton dashboard (for non-OpenShift users) can be installed as follows:
 ```
 kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
 ```
