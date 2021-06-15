@@ -36,6 +36,9 @@ kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master
 tkn pipelinerun logs ace-minimal-build-image-pipeline-run-1 -f
 ```
 
+In certain cases, the images present in the repository cannot be "seen" by the Tekton pipeline task steps, for
+unclear but credential-related reasons. Starting pods that use the images appears to force the pull to the worker
+node, and this can be done as follows:
 ```
 kubectl delete pod force-pull
 kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/force-pull-of-images.yaml
