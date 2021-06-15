@@ -2,6 +2,8 @@
 
 Used to build images that can then be used to build and run ACE applications.
 
+![Pipeline overview](../ace-demo-pipeline-tekton-1.png)
+
 ## Getting started
 
  Most of the specific registry names need to be customised: us.icr.io may not be the right region, for example, and us.icr.io/ace-registry 
