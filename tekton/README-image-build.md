@@ -2,7 +2,7 @@
 
 Used to build images that can then be used to build and run ACE applications.
 
-![Pipeline overview](../ace-demo-pipeline-tekton-1.png)
+![Image build overview](ace-demo-pipeline-tekton-2.png)
 
 ## Getting started
 
