@@ -15,4 +15,9 @@
 *.class
 
 TeaSharedLibrary/TeaSharedLibraryJava.jar
-TeaSharedLibrary/TeaSharedLibraryJava.jar
+**/maven-status/*
+**/maven-archiver/*
+**/*-maven.jar
+
+# This shouldn't be needed!
+TeaRESTApplication_UnitTest/resources
