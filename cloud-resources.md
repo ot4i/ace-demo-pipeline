@@ -34,8 +34,9 @@ Create a registry (under "Container Registry" on the IBM Cloud dashboard), then 
 with a unique name to store the images used in the demo. This demo has "us.icr.io/ace-registry" set as the 
 default which means that "ace-registry" is already in use and another name must be chosen.
 
-The various pipeline-run files in the tekton directory (ace-pipeline-run.yaml, ace-minimal-image-pipeline-run.yaml, 
-etc) need to be updated with the registry information, otherwise permissions-related errors will occur.
+The various pipeline-run files in the tekton directories (ace-pipeline-run.yaml,
+minimal-image-build/ace-minimal-image-pipeline-run.yaml, etc) need to be updated with the registry information,
+otherwise permissions-related errors will occur.
 
 To enable pipeline access to the registry, assign the API key (see above) as a "secret text" credential in 
 Tekton called "regcred" for use in pushing and pulling container images:

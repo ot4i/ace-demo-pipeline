@@ -6,7 +6,7 @@ Using same IBM Cloud kubernetes cluster as before.
 
 ```
 kubectl create secret docker-registry regcred --docker-server=uk.icr.io --docker-username=iamapikey --docker-password=<your-key>
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/service-account.yaml
+kubectl apply -f tekton/service-account.yaml
 
 kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
 
@@ -28,11 +28,11 @@ kubectl apply -f ./ace-pipeline.yaml
 tkn pipelinerun delete -f ace-pipeline-run-1 ; kubectl apply -f ./ace-pipeline-run.yaml && tkn pipelinerun logs ace-pipeline-run-1 -f
 
 
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/10-maven-ace-build-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/20-deploy-to-cluster-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-pipeline.yaml
+kubectl apply -f tekton/10-maven-ace-build-task.yaml
+kubectl apply -f tekton/20-deploy-to-cluster-task.yaml
+kubectl apply -f tekton/ace-pipeline.yaml
 
-tkn pipelinerun delete -f ace-pipeline-run-1 ; kubectl apply -f https://raw.githubusercontent.com//ace-demo-pipeline/master/tekton/ace-pipeline-run.yaml && tkn pipelinerun logs ace-pipeline-run-1 -f
+tkn pipelinerun delete -f ace-pipeline-run-1 ; kubectl apply -f tekton/ace-pipeline-run.yaml && tkn pipelinerun logs ace-pipeline-run-1 -f
 
 
 
@@ -46,32 +46,32 @@ kubectl --namespace tekton-pipelines port-forward --address 0.0.0.0 svc/tekton-d
 AKS:
 ```
 kubectl create secret docker-registry regcred --docker-server=aceDemoRegistry.azurecr.io --docker-username=aceDemoRegistry --docker-password=<your-key>
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/service-account.yaml
+kubectl apply -f tekton/service-account.yaml
 
 kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
 
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/01-ace-minimal-image-build-and-push-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-minimal-image-pipeline.yaml
+kubectl apply -f tekton/minimal-image-build/01-ace-minimal-image-build-and-push-task.yaml
+kubectl apply -f tekton/minimal-image-build/ace-minimal-image-pipeline.yaml
 
 
-kubectl apply -f ~tdolby/github.ibm.com/ace-demo-pipeline/tekton/ace-minimal-image-pipeline-run-aks.yaml
+kubectl apply -f ~tdolby/github.ibm.com/ace-demo-pipeline/tekton/minimal-image-build/ace-minimal-image-pipeline-run-aks.yaml
 
 
-tkn pipelinerun delete -f ace-minimal-image-pipeline-run-1 ; kubectl apply -f  https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-minimal-image-pipeline-run-aks.yaml && tkn pipelinerun logs ace-minimal-image-pipeline-run-1 -f
-
-
-
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/02-ace-minimal-build-image-build-and-push-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-minimal-build-image-pipeline.yaml
-
-tkn pipelinerun delete -f ace-minimal-build-image-pipeline-run-1 ; kubectl apply -f ~tdolby/github.ibm.com/ace-demo-pipeline/tekton/ace-minimal-build-image-pipeline-run-aks.yaml && tkn pipelinerun logs ace-minimal-build-image-pipeline-run-1 -f
+tkn pipelinerun delete -f ace-minimal-image-pipeline-run-1 ; kubectl apply -f  tekton/minimal-image-build/ace-minimal-image-pipeline-run-aks.yaml && tkn pipelinerun logs ace-minimal-image-pipeline-run-1 -f
 
 
 
+kubectl apply -f tekton/minimal-image-build/02-ace-minimal-build-image-build-and-push-task.yaml
+kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline.yaml
 
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/10-maven-ace-build-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/20-deploy-to-cluster-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-pipeline.yaml
+tkn pipelinerun delete -f ace-minimal-build-image-pipeline-run-1 ; kubectl apply -f ~tdolby/github.ibm.com/ace-demo-pipeline/tekton/minimal-image-build/ace-minimal-build-image-pipeline-run-aks.yaml && tkn pipelinerun logs ace-minimal-build-image-pipeline-run-1 -f
+
+
+
+
+kubectl apply -f tekton/10-maven-ace-build-task.yaml
+kubectl apply -f tekton/20-deploy-to-cluster-task.yaml
+kubectl apply -f tekton/ace-pipeline.yaml
 
 tkn pipelinerun delete -f ace-pipeline-run-1 ; kubectl apply -f ~tdolby/github.ibm.com/ace-demo-pipeline/tekton/ace-pipeline-run-aks.yaml && tkn pipelinerun logs ace-pipeline-run-1 -f
 
@@ -81,25 +81,25 @@ tkn pipelinerun delete -f ace-pipeline-run-1 ; kubectl apply -f ~tdolby/github.i
 
 kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=iamapikey --docker-password=<your-key>
 
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/01-ace-minimal-image-build-and-push-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-minimal-image-pipeline.yaml
-kubectl apply -f ~tdolby/github.ibm.com/ace-demo-pipeline/tekton/ace-minimal-image-pipeline-run.yaml
+kubectl apply -f tekton/minimal-image-build/01-ace-minimal-image-build-and-push-task.yaml
+kubectl apply -f tekton/minimal-image-build/ace-minimal-image-pipeline.yaml
+kubectl apply -f tekton/minimal-image-build/ace-minimal-image-pipeline-run.yaml
 
-tkn pipelinerun delete -f ace-minimal-image-pipeline-run-1 ; kubectl apply -f  https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-minimal-image-pipeline-run.yaml && tkn pipelinerun logs ace-minimal-image-pipeline-run-1 -f
+tkn pipelinerun delete -f ace-minimal-image-pipeline-run-1 ; kubectl apply -f  tekton/minimal-image-build/ace-minimal-image-pipeline-run.yaml && tkn pipelinerun logs ace-minimal-image-pipeline-run-1 -f
 
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/02-ace-minimal-build-image-build-and-push-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-minimal-build-image-pipeline.yaml
-tkn pipelinerun delete -f ace-minimal-build-image-pipeline-run-1 ; kubectl apply -f ~tdolby/github.com/ace-demo-pipeline/tekton/ace-minimal-build-image-pipeline-run.yaml && tkn pipelinerun logs ace-minimal-build-image-pipeline-run-1 -f
+kubectl apply -f tekton/minimal-image-build/02-ace-minimal-build-image-build-and-push-task.yaml
+kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline.yaml
+tkn pipelinerun delete -f ace-minimal-build-image-pipeline-run-1 ; kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline-run.yaml && tkn pipelinerun logs ace-minimal-build-image-pipeline-run-1 -f
 
 kubectl delete pod force-pull
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/force-pull-of-images.yaml
+kubectl apply -f tekton/force-pull-of-images.yaml
 
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/10-maven-ace-build-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/20-deploy-to-cluster-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-pipeline.yaml
-tkn pipelinerun delete -f ace-pipeline-run-1 ; kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-pipeline-run.yaml && tkn pipelinerun logs ace-pipeline-run-1 -f
+kubectl apply -f tekton/10-maven-ace-build-task.yaml
+kubectl apply -f tekton/20-deploy-to-cluster-task.yaml
+kubectl apply -f tekton/ace-pipeline.yaml
+tkn pipelinerun delete -f ace-pipeline-run-1 ; kubectl apply -f tekton/ace-pipeline-run.yaml && tkn pipelinerun logs ace-pipeline-run-1 -f
 
 
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/30-verify-service-running-task-iks.yaml
+kubectl apply -f tekton/30-verify-service-running-task-iks.yaml
 
-tkn taskrun delete -f verify-service-running-taskrun-1 ; kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/verify-service-running-taskrun.yaml ; tkn taskrun logs verify-service-running-taskrun-1 -f
+tkn taskrun delete -f verify-service-running-taskrun-1 ; kubectl apply -f tekton/verify-service-running-taskrun.yaml ; tkn taskrun logs verify-service-running-taskrun-1 -f
