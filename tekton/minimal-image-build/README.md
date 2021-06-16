@@ -15,7 +15,7 @@ must be associated with the service account for the pipeline. If this has not al
 appropriate changes for a fork of this repo:
 ```
 kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=iamapikey --docker-password=<your-api-key>
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/service-account.yaml
+kubectl apply -f tekton/service-account.yaml
 ```
 The service account also has the ability to create services, deployments, etc, which are necessary for running the service.
 
@@ -23,17 +23,17 @@ Setting up the pipeline requires Tekton to be installed, tasks to be created, an
 commands build the ace-minimal image and push it to the registry:
 ```
 kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/01-ace-minimal-image-build-and-push-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-minimal-image-pipeline.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-minimal-image-pipeline-run.yaml
+kubectl apply -f tekton/minimal-image-build/01-ace-minimal-image-build-and-push-task.yaml
+kubectl apply -f tekton/minimal-image-build/ace-minimal-image-pipeline.yaml
+kubectl apply -f tekton/minimal-image-build/ace-minimal-image-pipeline-run.yaml
 tkn pipelinerun logs ace-minimal-image-pipeline-run-1 -f
 ```
 
 Once that has been built, the ace-minimal-build image can be built as follows:
 ```
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/02-ace-minimal-build-image-build-and-push-task.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-minimal-build-image-pipeline.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/ace-minimal-build-image-pipeline-run.yaml
+kubectl apply -f tekton/minimal-image-build/02-ace-minimal-build-image-build-and-push-task.yaml
+kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline.yaml
+kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline-run.yaml
 tkn pipelinerun logs ace-minimal-build-image-pipeline-run-1 -f
 ```
 
@@ -44,7 +44,7 @@ unclear but credential-related reasons. Starting pods that use the images appear
 node, and this can be done as follows:
 ```
 kubectl delete pod force-pull
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/force-pull-of-images.yaml
+kubectl apply -f tekton/force-pull-of-images.yaml
 ```
 
 ## OpenShift CRC
@@ -57,7 +57,7 @@ Note that the actual password itself (as opposed to the hash provided by "oc who
 
 After that, the pipeline runs would be
 ```
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/os/ace-minimal-image-pipeline-run-crc.yaml
-kubectl apply -f https://raw.githubusercontent.com/ot4i/ace-demo-pipeline/master/tekton/os/ace-minimal-build-image-pipeline-run-crc.yaml
+kubectl apply -f tekton/minimal-image-build/os/ace-minimal-image-pipeline-run-crc.yaml
+kubectl apply -f tekton/minimal-image-build/os/ace-minimal-build-image-pipeline-run-crc.yaml
 ```
 to pick up the correct registry default.

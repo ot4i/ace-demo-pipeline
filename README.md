@@ -45,7 +45,7 @@ Component testing is run from TeaRESTApplication_ComponentTest and relies on JDB
 
 To replicate the pipeline locally, do the following:
 
-1) Fork this repo; although cloning it locally would allow building locally, for the pipeline itself to work the source needs to be accessible to the IBM Cloud Kubernetes workers.
+1) Fork this repo and then clone it locally; although cloning it locally straight from the ot4i repo would allow building locally, for the pipeline itself to work some of the files need to be updated. The source also needs to be accessible to the IBM Cloud Kubernetes workers, and a public github repo forkedfrom this one is the easiest way to do this.
 2) Acquire an IBM Cloud account and create a Kubernetes cluster called "aceCluster", a Docker registry, and a DB2 on Cloud instance. More info in [cloud resources description](cloud-resources.md)
 3) Build the pre-req docker images and create the required credentials; see instructions in the [demo-infrastructure](demo-infrastructure/README.md) and [tekton](tekton/README-image-build.md) directories.
 4) Component testing relies on the same DB2 on Cloud instance as the eventual application image; this is not a best practice, but does keep the demo simpler to get going, and so getting the DB2 instance credentials set up in Kubernetes and/or locally is necessary for the component tests.
