@@ -60,7 +60,7 @@ the Kubernetes tea-tekton-service either by using
 ```
 kubectl get service tea-tekton-service
 ```
-or by using the Kubernetes dashboard to view the service. Thee values can then be used to access the application.
+or by using the Kubernetes dashboard to view the service. These values can then be used to access the application.
 
 ## Tekton dashboard
 
