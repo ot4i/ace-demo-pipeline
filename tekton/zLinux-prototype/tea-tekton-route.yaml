@@ -1,0 +1,14 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: tea-route
+  namespace: default
+spec:
+  host: tea-route-default.apps.acecc-shared-46-s390x.cp.fyre.ibm.com
+  to:
+    kind: Service
+    name: tea-tekton-service
+    weight: 100
+  port:
+    targetPort: 7800
+  wildcardPolicy: None
