@@ -5,6 +5,12 @@ Most of the files are shared, but some needed to be changed due to platform-spec
 
 ## Changes
 
+Main changes from the parent directory:
+
+- Using Ubuntu instead of Alpine for ace-minimal. Alpine exists for s390x but the glibc binaries are not readily available, and the ACE product relies on glibc.
+- ACE v12 on s390x does not ship with a JDK (has a JRE instead), so the IBM JDK needed to be downloaded for the builder image. The JDK is not needed for runtime.
+- Kaniko releases do not appear to provide s390x images; https://github.com/GoogleContainerTools/kaniko/pull/1475 provides an intermediate image tag that works.
+
 ## Commands
 
 Assuming the credentials have been set up as they would for other platforms, the minimal 
