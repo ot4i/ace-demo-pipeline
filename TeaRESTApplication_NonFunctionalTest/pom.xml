@@ -102,6 +102,19 @@
       <plugin>
 	<groupId>org.codehaus.mojo</groupId><artifactId>exec-maven-plugin</artifactId><version>3.0.0</version>
 	<executions>
+	  <execution><id>copy-resources</id>
+            <!-- This shouldn't be neeeded . . . -->
+	    <phase>generate-resources</phase>
+	    <goals><goal>exec</goal></goals>
+	    <configuration>
+	      <executable>cp</executable>
+	      <arguments>
+		<argument>-r</argument>
+		<argument>src/main/resources</argument>
+		<argument>.</argument>
+	      </arguments>
+	    </configuration>
+	  </execution>
 	  <execution>
 	    <phase>compile</phase>
 	    <goals><goal>exec</goal></goals>
