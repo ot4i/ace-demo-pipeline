@@ -90,7 +90,8 @@ jobs:
           export PATH=$PWD/ace-minimal-image-unzip/opt/ibm/ace-12/common/jdk/bin:$PATH
           ########################################################################
           # 
-          # Run the Maven test phases
+          # Run the Maven test phases; if we're using a development build, then
+          # we're restricted to on emessage per second . . . 
           # 
           ########################################################################
           echo "Running Maven verify in TeaRESTApplication_NonFunctionalTest (iterations set to 2) . . ."

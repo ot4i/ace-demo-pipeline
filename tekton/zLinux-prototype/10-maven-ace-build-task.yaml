@@ -68,7 +68,7 @@ spec:
         cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml /tmp/
         bash /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh
         ibmint apply overrides /work/ace-demo-pipeline/demo-infrastructure/application-overrides.txt --work-directory /home/aceuser/ace-server
-        # Ru nthe tests
+        # Run the tests
         cd /work/ace-demo-pipeline/perf-harness
         ./run-perf-harness.sh
       volumeMounts:
