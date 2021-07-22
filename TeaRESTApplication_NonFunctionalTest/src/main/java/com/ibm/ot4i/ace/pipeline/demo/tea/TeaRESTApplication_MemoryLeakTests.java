@@ -121,8 +121,8 @@ public class TeaRESTApplication_MemoryLeakTests {
             }
             // Initial test of algorithm - seems to work reasonably well.
             int earlyAverage = ( memoryUsageSnapshot[5] + memoryUsageSnapshot[6] + memoryUsageSnapshot[7] + memoryUsageSnapshot[8] + memoryUsageSnapshot[9] ) / 5;
-            int midAverage = ( memoryUsageSnapshot[20] + memoryUsageSnapshot[21] + memoryUsageSnapshot[22] + memoryUsageSnapshot[23] + memoryUsageSnapshot[24] ) / 5;
-            int lateAverage = ( memoryUsageSnapshot[35] + memoryUsageSnapshot[36] + memoryUsageSnapshot[37] + memoryUsageSnapshot[38] + memoryUsageSnapshot[39] ) / 5;
+            int midAverage = ( memoryUsageSnapshot[19] + memoryUsageSnapshot[20] + memoryUsageSnapshot[21] + memoryUsageSnapshot[22] + memoryUsageSnapshot[23] + memoryUsageSnapshot[24] ) / 5;
+            int lateAverage = ( memoryUsageSnapshot[34] + memoryUsageSnapshot[35] + memoryUsageSnapshot[36] + memoryUsageSnapshot[37] + memoryUsageSnapshot[38] + memoryUsageSnapshot[39] ) / 5;
             System.out.println("earlyAverage "+earlyAverage+" midAverage "+midAverage+" lateAverage "+lateAverage);
             
             // Java GC gets in our way slightly here - the memory numbers tend to bounce around quite a bit.
