@@ -50,8 +50,8 @@ jobs:
           . ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsiprofile
           mqsilist
           
-      # Runs a set of commands using the runners shell
-      - name: Build/UT/NFT for ACE projects
+      # Run ACE build and unit test
+      - name: Build/UT for ACE projects
         run: |
           ########################################################################
           # 
@@ -72,6 +72,27 @@ jobs:
           ########################################################################
           echo "Running Maven verify . . ."
           mvn --no-transfer-progress verify
+
+      # Run ACE non-functional tests
+      - name: Non-functional tests for ACE projects
+        run: |
+          ########################################################################
+          # 
+          # Set up ACE environment
+          # 
+          ########################################################################
+          export LICENSE=accept
+          export MQSI_WORKPATH=$PWD/ace-minimal-image-unzip/var/mqsi
+          . ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsiprofile
+          # Using ace-minimal without WXS support
+          export MQSI_NO_CACHE_SUPPORT=1
+          # Make sure Maven and others can find the correct javac
+          export PATH=$PWD/ace-minimal-image-unzip/opt/ibm/ace-12/common/jdk/bin:$PATH
+          ########################################################################
+          # 
+          # Run the Maven test phases
+          # 
+          ########################################################################
           echo "Running Maven verify in TeaRESTApplication_NonFunctionalTest (iterations set to 2) . . ."
           export ACE_DEMO_PIPELINE_NFT_ITERATIONS=2
           cd TeaRESTApplication_NonFunctionalTest
