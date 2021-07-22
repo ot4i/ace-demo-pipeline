@@ -1,8 +1,8 @@
-# TeaRESTApplication_ComponentTest
+# Perf harness testing
 
-Code for testing the main Tea application's connections to JDBC; refers to TeaRESTApplication
-and TeaSharedLibrary in order to unit test the JDBC interaction nodes.
+Scripts to allow testing using the per harness tool (see https://github.com/ot4i/perf-harness)
+to verify that the server continues to function correctly under load. The testing uses an 
+actual JDBC endpoint, which must be configured, and uses only external interfaces.
 
-These tests require a JDBC policy and credentials in the same way the main application does.
-Assuming the work directory has been set up correctly, then these tests can be run from the
-command line, Maven build, or the toolkit.
+Due to the Developer edition rate limiting, the default numbers of iterations and threads
+is limited, but these could be increased if a different edition was used.
