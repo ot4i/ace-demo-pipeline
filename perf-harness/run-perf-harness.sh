@@ -20,9 +20,12 @@ echo
 
 echo "Running perf harrness"
 
-java -ms512M -mx512M -cp ./perfharness.jar JMSPerfHarness -tc http.HTTPRequestor -nt 10 -ss 5 -sc BasicStats -wi 10 -to 30000 -rl 30 -ws 1 -dn 1 -rb 131072 -jh localhost -jp 7800 -ot GET -ur "tea/index/0"
+java -ms512M -mx512M -cp ./perfharness.jar JMSPerfHarness -tc http.HTTPRequestor -nt 1 -ss 5 -sc BasicStats -wi 10 -to 30000 -rl 30 -ws 1 -dn 1 -rb 131072 -jh localhost -jp 7800 -ot GET -ur "tea/index/0"
 
 echo "Killing server"
+
+jobs
+
 ps -ef 
 ps -ef | grep IntegrationServer | cut -c8-15 
 ps -ef | grep IntegrationServer | cut -c8-15 | xargs kill -9 
