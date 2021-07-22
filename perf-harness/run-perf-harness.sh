@@ -19,7 +19,9 @@ cat /tmp/curl.out
 echo
 
 echo "Killing server"
-ps -ef | grep IntegrationServer | grep ace-server | cut -c8-15 | xargs kill -9 
+ps -ef 
+ps -ef | grep IntegrationServer | cut -c8-15 
+ps -ef | grep IntegrationServer | cut -c8-15 | xargs kill -9 
 
 grep -q "200 OK" /tmp/curl.out
 if [ "$?" != "0" ]; then
