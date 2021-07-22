@@ -96,7 +96,7 @@ public class TeaRESTApplication_MemoryLeakTests {
             int [] memoryUsageSnapshot = new int[40];
             for ( int j=0 ; j < 40 ; j++ )
             {
-            	for ( int i=0 ; i<1000 ; i++ )
+            	for ( int i=0 ; i<20 ; i++ )
             	{
             		NodeStub dbNodeStub = new NodeStub(dbNodeReference);
             		dbNodeStub.onCall().propagatesMessage("in", "out", fixedOutputMessageAssembly);
