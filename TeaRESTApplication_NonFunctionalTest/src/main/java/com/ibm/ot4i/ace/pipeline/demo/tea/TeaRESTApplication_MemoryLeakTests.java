@@ -96,7 +96,7 @@ public class TeaRESTApplication_MemoryLeakTests {
             int [] memoryUsageSnapshot = new int[40];
             for ( int j=0 ; j < 40 ; j++ )
             {
-            	for ( int i=0 ; i<20 ; i++ )
+            	for ( int i=0 ; i<2 ; i++ )
             	{
             		NodeStub dbNodeStub = new NodeStub(dbNodeReference);
             		dbNodeStub.onCall().propagatesMessage("in", "out", fixedOutputMessageAssembly);
@@ -108,6 +108,7 @@ public class TeaRESTApplication_MemoryLeakTests {
             	}       
             	// Check memory usage
             	memoryUsageSnapshot[j] = getMemoryUsage();
+                System.out.println("memoryUsageSnapshot["+j+"]"+memoryUsageSnapshot[j]);
             }
             // Initial test of algorithm - seems to work reasonably well.
             int earlyAverage = ( memoryUsageSnapshot[5] + memoryUsageSnapshot[6] + memoryUsageSnapshot[7] + memoryUsageSnapshot[8] + memoryUsageSnapshot[9] ) / 5;
