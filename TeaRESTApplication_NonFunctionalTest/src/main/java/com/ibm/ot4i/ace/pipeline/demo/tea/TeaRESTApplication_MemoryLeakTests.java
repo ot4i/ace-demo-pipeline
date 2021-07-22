@@ -72,9 +72,18 @@ public class TeaRESTApplication_MemoryLeakTests {
         	return retval;
         }
         
+        /*
+         * Run lots of messages through the flow and check memory.
+         * Uses ACE_DEMO_PIPELINE_NFT_ITERATIONS to scale the number if iterations
+         * as GitHub Actions seem to run in CPU-constrained containers.
+         */
         @Test
         public void TeaRESTApplication_CheckGETOperation_Test() throws Exception {
-        
+        	int numberOfIterations = 500;
+        	
+        	String envvar = System.getenv("ACE_DEMO_PIPELINE_NFT_ITERATIONS");
+        	if ( envvar != null ) numberOfIterations = Integer.parseInt(envvar);
+        	
         	// Stub the nodes that would require an external DB (Get DB record) or spam
         	// the console (LogXMLData)
             SpyObjectReference dbNodeReference = new SpyObjectReference().application("TeaRESTApplication")
@@ -96,7 +105,7 @@ public class TeaRESTApplication_MemoryLeakTests {
             int [] memoryUsageSnapshot = new int[40];
             for ( int j=0 ; j < 40 ; j++ )
             {
-            	for ( int i=0 ; i<2 ; i++ )
+            	for ( int i=0 ; i<numberOfIterations ; i++ )
             	{
             		NodeStub dbNodeStub = new NodeStub(dbNodeReference);
             		dbNodeStub.onCall().propagatesMessage("in", "out", fixedOutputMessageAssembly);
@@ -108,7 +117,7 @@ public class TeaRESTApplication_MemoryLeakTests {
             	}       
             	// Check memory usage
             	memoryUsageSnapshot[j] = getMemoryUsage();
-                System.out.println("memoryUsageSnapshot["+j+"]"+memoryUsageSnapshot[j]);
+                //System.out.println("memoryUsageSnapshot["+j+"]"+memoryUsageSnapshot[j]);
             }
             // Initial test of algorithm - seems to work reasonably well.
             int earlyAverage = ( memoryUsageSnapshot[5] + memoryUsageSnapshot[6] + memoryUsageSnapshot[7] + memoryUsageSnapshot[8] + memoryUsageSnapshot[9] ) / 5;

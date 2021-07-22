@@ -72,6 +72,7 @@ jobs:
           ########################################################################
           echo "Running Maven verify . . ."
           mvn --no-transfer-progress verify
-          echo "Running Maven verify in TeaRESTApplication_NonFunctionalTest . . ."
+          echo "Running Maven verify in TeaRESTApplication_NonFunctionalTest (iterations set to 2) . . ."
+          export ACE_DEMO_PIPELINE_NFT_ITERATIONS=2
           cd TeaRESTApplication_NonFunctionalTest
           mvn --no-transfer-progress -Dct.work.directory=/tmp/mvn-test-work-dir verify
