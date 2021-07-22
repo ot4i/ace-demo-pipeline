@@ -70,5 +70,29 @@ jobs:
           # Run the Maven build and unit test phases
           # 
           ########################################################################
-          echo "Running Maven install to $PWD/ace-server . . ."
+          echo "Running Maven verify . . ."
+          mvn --no-transfer-progress verify
+
+      # Run memory leak check
+      - name: Non-functional tests 
+        run: |
+          ########################################################################
+          # 
+          # Set up ACE environment
+          # 
+          ########################################################################
+          export LICENSE=accept
+          export MQSI_WORKPATH=$PWD/ace-minimal-image-unzip/var/mqsi
+          . ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsiprofile
+          # Using ace-minimal without WXS support
+          export MQSI_NO_CACHE_SUPPORT=1
+          # Make sure Maven and others can find the correct javac
+          export PATH=$PWD/ace-minimal-image-unzip/opt/ibm/ace-12/common/jdk/bin:$PATH
+          ########################################################################
+          # 
+          # Run the Maven build and test phase
+          # 
+          ########################################################################
+          echo "Running Maven verify in TeaRESTApplication_NonFunctionalTest . . ."
+          cd TeaRESTApplication_NonFunctionalTest
           mvn --no-transfer-progress verify
