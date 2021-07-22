@@ -56,6 +56,7 @@ public class TeaRESTApplication_LogAuditData_Tests {
 
             /* Compare Output Message 1 at output terminal out */
             TestMessageAssembly actualMessageAssembly = nodeSpy.propagatedMessageAssembly("out", 1);
+            //System.out.println("message tree: "+actualMessageAssembly.getMessageTreeSerializedForm());
 
             assertEquals("Earl Grey", actualMessageAssembly.messagePath("XMLNSC.logData.info.name").getStringValue());
     }
