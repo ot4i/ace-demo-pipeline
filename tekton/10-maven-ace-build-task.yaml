@@ -12,7 +12,7 @@ spec:
       script: |
         #!/bin/sh
         cd /work
-        git clone "https://github.com/ot4i/ace-demo-pipeline"
+        git clone -b memory-leak-checking "https://github.com/ot4i/ace-demo-pipeline"
       volumeMounts:
         - mountPath: /work
           name: work
@@ -44,6 +44,26 @@ spec:
         # Build and run the tests
         cd /work/ace-demo-pipeline/TeaRESTApplication_ComponentTest
         mvn --no-transfer-progress -Dct.work.directory=/home/aceuser/ace-server verify
+      volumeMounts:
+        - mountPath: /work
+          name: work
+        - name: secret-volume-2
+          mountPath: /var/run/secrets/jdbc
+    - name: perf-harness-test
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.1.0-alpine
+      script: |
+        #!/bin/bash
+        export LICENSE=accept
+        . /opt/ibm/ace-12/server/bin/mqsiprofile
+        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+        # Slightly hacky, but quicker than building everything again!
+        (cd /work/maven-output/ace-server/run && tar -cf - * ) | (cd /home/aceuser/ace-server/run && tar -xf - )
+        # Set up credentials for the tests; init-creds.sh looks in /tmp for policy
+        cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml /tmp/
+        bash /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh
+        # Ru nthe tests
+        cd /work/ace-demo-pipeline/perf-harness
+        ./run-perf-harness.sh
       volumeMounts:
         - mountPath: /work
           name: work
