@@ -1,0 +1,11 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: knative-deploy-taskrun-1
+spec:
+  serviceAccountName: ace-tekton-service-account
+  taskRef:
+    name: knative-deploy
+  params:
+    - name: dockerRegistry
+      value: "image-registry.openshift-image-registry.svc:5000/default"
