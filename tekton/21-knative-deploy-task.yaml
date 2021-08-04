@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: knative-deploy
+spec:
+  params:
+    - name: dockerRegistry
+      type: string
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      script: |
+        #!/bin/sh
+        set -x
+        cd /work
+        git clone -b serverless "https://github.com/ot4i/ace-demo-pipeline"
+        export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
+        echo $REG_WITH_ESCAPED_SLASH
+        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/serverless/tea-tekton-knative-service.yaml
+        cat /work/ace-demo-pipeline/serverless/tea-tekton-knative-service.yaml
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: create-knative-service
+      image: lachlanevenson/k8s-kubectl
+      command: ["kubectl"]
+      args:
+        - "apply"
+        - "-f"
+        - "/work/ace-demo-pipeline/serverless/tea-tekton-knative-service.yaml"
+      volumeMounts:
+        - mountPath: /work
+          name: work
+  volumes:
+    - name: work
+      emptyDir: {}
