@@ -11,6 +11,10 @@ spec:
     metadata:
       labels:
         app: tea-tekton
+      annotations:
+        productName: "IBM App Connect Enterprise for non-production"
+        productID: eb5b5e73f62b4dcf8c434c6274a158a7
+        productMetric: FREE
     spec:
       volumes:
       - name: secret-volume-2
