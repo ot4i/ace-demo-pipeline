@@ -62,6 +62,22 @@ kubectl get service tea-tekton-service
 ```
 or by using the Kubernetes dashboard to view the service. These values can then be used to access the application.
 
+Note that if errors of the form
+
+```
+BIP2230E: Error detected whilst processing a message in node 'gen.TeaRESTApplication.getIndex (Implementation).GetFromDB.Get DB record'.
+BIP6233E: An error occurred in node: Broker 'integration_server'; Execution Group 'ace-server'; Message Flow 'gen.TeaRESTApplication';
+Node 'getIndex (Implementation).GetFromDB.Get DB record'; Node Type 'GetIndex_JavaCompute There was a problem establishing a connection
+to the given database URL: jdbc:db2://824dfd4d-99de-440d-9991-629c01b3832d.bs2io90l08kqb1od8lcg.databases.appdomain.cloud:30119/BLUDB:user=yyyyyyyy;password=xxxxxxxx;
+Exception details: error message: [jcc][t4][2034][11148][3.71.22] Execution failed due to a distribution protocol error that caused deallocation of the conversation.
+```
+occur, then it is likely that the TEAJDBC policy is not configured to use SSL. Setting
+
+```
+<environmentParms>sslConnection=true</environmentParms>
+```
+in the policyxml should eliminate this error.
+
 ## Tekton dashboard
 
 The Tekton dashboard (for non-OpenShift users) can be installed as follows:
