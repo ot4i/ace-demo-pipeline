@@ -48,6 +48,6 @@ kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker
 
 Create a DB2 instance via "Create resource" on the IBM Cloud dashboard; create credentials and add them to the Kubernetes cluster as "jdbc-secret" like this:
 ```
-kubectl create secret generic jdbc-secret --from-literal=USERID='blah' --from-literal=PASSWORD='blah' --from-literal=databaseName='BLUDB' --from-literal=serverName='dashdb-txn-sbox-yp-lon02-02.services.eu-gb.bluemix.net' --from-literal=portNumber='50000' 
+kubectl create secret generic jdbc-secret --from-literal=USERID='blah' --from-literal=PASSWORD='blah' --from-literal=databaseName='BLUDB' --from-literal=serverName='824dfd4d-99de-440d-9991-629c01b3832d.bs2io90l08kqb1od8lcg.databases.appdomain.cloud' --from-literal=portNumber='30119' 
 ```
 with the obvious replacements.

@@ -19,7 +19,7 @@
     <description></description>
     <maxConnectionPoolSize>0</maxConnectionPoolSize>
     <securityIdentity>tea</securityIdentity>
-    <environmentParms></environmentParms>
+    <environmentParms>sslConnection=true</environmentParms>
     <jdbcProviderXASupport>false</jdbcProviderXASupport>
     <useDeployedJars>true</useDeployedJars>
   </policy>
