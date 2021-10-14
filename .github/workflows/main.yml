@@ -49,6 +49,8 @@ jobs:
           export MQSI_WORKPATH=$PWD/ace-minimal-image-unzip/var/mqsi
           . ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsiprofile
           mqsilist
+          ls -l ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/
+          mqsipackagebar
           
       # Runs a set of commands using the runners shell
       - name: Build/UT for ACE projects
@@ -70,5 +72,7 @@ jobs:
           # Run the Maven build and unit test phases
           # 
           ########################################################################
+          mqsilist
+          mqsipackagebar
           echo "Running Maven install to $PWD/ace-server . . ."
           mvn --no-transfer-progress verify
