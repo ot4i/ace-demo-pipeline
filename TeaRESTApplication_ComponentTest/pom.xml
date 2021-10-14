@@ -17,11 +17,11 @@
     </dependency>
     <dependency>
       <groupId>ACEv11</groupId><artifactId>jackson-core</artifactId><version>11.0.0</version><scope>system</scope>
-      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-core-2.12.3.jar</systemPath>
+      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-core-2.12.4.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>ACEv11</groupId><artifactId>jackson-databind</artifactId><version>11.0.0</version><scope>system</scope>
-      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-databind-2.12.3.jar</systemPath>
+      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-databind-2.12.4.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>ACEv11</groupId><artifactId>javacompute</artifactId><version>11.0.0</version><scope>system</scope>
@@ -36,27 +36,27 @@
       <systemPath>${MQSI_BASE_FILEPATH}/server/classes/bipbroker.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>ACEv12</groupId><artifactId>hamcrest</artifactId><version>12.0.1</version><scope>system</scope>
+      <groupId>ACEv12</groupId><artifactId>hamcrest</artifactId><version>12.0.2</version><scope>system</scope>
       <systemPath>${MQSI_BASE_FILEPATH}/common/classes/hamcrest-2.2.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>ACEv12</groupId><artifactId>hamcrest-core</artifactId><version>12.0.1</version><scope>system</scope>
+      <groupId>ACEv12</groupId><artifactId>hamcrest-core</artifactId><version>12.0.2</version><scope>system</scope>
       <systemPath>${MQSI_BASE_FILEPATH}/common/classes/hamcrest-core-2.2.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>ACEv12</groupId><artifactId>json-unit</artifactId><version>12.0.1</version><scope>system</scope>
+      <groupId>ACEv12</groupId><artifactId>json-unit</artifactId><version>12.0.2</version><scope>system</scope>
       <systemPath>${MQSI_BASE_FILEPATH}/common/classes/json-unit-2.22.0.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>ACEv12</groupId><artifactId>json-unit-core</artifactId><version>12.0.1</version><scope>system</scope>
+      <groupId>ACEv12</groupId><artifactId>json-unit-core</artifactId><version>12.0.2</version><scope>system</scope>
       <systemPath>${MQSI_BASE_FILEPATH}/common/classes/json-unit-core-2.22.0.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>ACEv12</groupId><artifactId>IntegrationTest</artifactId><version>12.0.1</version><scope>system</scope>
+      <groupId>ACEv12</groupId><artifactId>IntegrationTest</artifactId><version>12.0.2</version><scope>system</scope>
       <systemPath>${MQSI_BASE_FILEPATH}/common/classes/IntegrationTest.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>ACEv12</groupId><artifactId>junit-platform-console-standalone</artifactId><version>12.0.1</version><scope>system</scope>
+      <groupId>ACEv12</groupId><artifactId>junit-platform-console-standalone</artifactId><version>12.0.2</version><scope>system</scope>
       <systemPath>${MQSI_BASE_FILEPATH}/server/classes/junit-platform-console-standalone-1.7.0.jar</systemPath>
     </dependency>
   </dependencies>

@@ -1,6 +1,6 @@
 # Copyright (c) 2020 Open Technologies for Integration
 # Licensed under the MIT license (see LICENSE for details)
-ARG BASE_IMAGE=ace-minimal:12.0.1.0-alpine
+ARG BASE_IMAGE=ace-minimal:12.0.2.0-alpine
 FROM $BASE_IMAGE
 
 #
