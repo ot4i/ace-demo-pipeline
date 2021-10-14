@@ -37,7 +37,7 @@ jobs:
           ########################################################################
           curl -so moby-download-frozen-image-v2.sh https://raw.githubusercontent.com/moby/moby/master/contrib/download-frozen-image-v2.sh
           mkdir ace-minimal-download
-          bash moby-download-frozen-image-v2.sh ace-minimal-download tdolby/experimental:ace-minimal-12.0.1.0-alpine
+          bash moby-download-frozen-image-v2.sh ace-minimal-download tdolby/experimental:ace-minimal-12.0.2.0-alpine
           mkdir ace-minimal-image-unzip
           cd ace-minimal-download && grep layer.tar manifest.json | tr -d '"' | tr -d ',' | xargs -n 1 tar -C ../ace-minimal-image-unzip -xf && cd - && rm -rf ace-minimal-download
           ########################################################################
