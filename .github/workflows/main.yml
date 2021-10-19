@@ -31,7 +31,7 @@ jobs:
           ########################################################################
           # 
           # Download ace-minimal image; could use ace-minimal-build but in our
-          # case we already have Maven and the various utilities contained in 
+          # case we already have Gradle and the various utilities contained in 
           # the build image, so we download the base image because it's smaller.
           # 
           ########################################################################
@@ -65,12 +65,12 @@ jobs:
           . ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsiprofile
           # Using ace-minimal without WXS support
           export MQSI_NO_CACHE_SUPPORT=1
-          # Make sure Maven and others can find the correct javac
+          # Make sure Gradle and others can find the correct javac
           export PATH=$PWD/ace-minimal-image-unzip/opt/ibm/ace-12/common/jdk/bin:$PATH
           ########################################################################
           # 
-          # Run the Maven build and unit test phases
+          # Run the Gradle build and unit test phases
           # 
           ########################################################################
-          echo "Running Maven install to $PWD/ace-server . . ."
-          mvn --no-transfer-progress verify
+          echo "Running Gradle build and unit test"
+          gradle -PCLASSPATH=$CLASSPATH
