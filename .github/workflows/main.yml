@@ -35,10 +35,10 @@ jobs:
           # stays where it is, then ibmint tries to scan it for projects!
           # 
           ########################################################################
-	  echo "Moving source to the build directory"
+          echo "Moving source to the build directory"
           mkdir build
           mv * build || /bin/true
-	  
+          
           ########################################################################
           # 
           # Download ace-minimal image; could use ace-minimal-build but in our
