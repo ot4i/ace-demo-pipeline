@@ -19,5 +19,10 @@ TeaSharedLibrary/TeaSharedLibraryJava.jar
 **/maven-archiver/*
 **/*-maven.jar
 
+TeaRESTApplication_UnitTest/TeaRESTApplication_UnitTest.jar
+
 # This shouldn't be needed!
 TeaRESTApplication_UnitTest/resources
+
+
+.gradle

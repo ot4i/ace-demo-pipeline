@@ -1,0 +1,46 @@
+//
+// Gradle build file for the ACE demo pipeline
+//
+// Usage:
+//
+// gradle  -PCLASSPATH=$CLASSPATH [-Pinstall.work.directory=<someDirectory>]
+//
+//
+
+def baseFilePath = System.getenv("MQSI_BASE_FILEPATH")
+def fileSep = System.getProperty("file.separator")
+def installWorkDir = "/home/aceuser/ace-server"
+
+if ( project.hasProperty("install.work.directory") ) {
+   installWorkDir = project.getProperty("install.work.directory")
+}
+
+task deleteTestWorkDirectory(type: Delete) {
+    delete '/tmp/gradle-test-work-dir'
+}
+
+task createTestWorkDirectory(type: Exec) {
+    commandLine baseFilePath + fileSep + 'server' + fileSep + 'bin/mqsicreateworkdir', '/tmp/gradle-test-work-dir'
+}
+
+task buildWithUnitTests(type: Exec) {
+    commandLine baseFilePath + fileSep + 'server' + fileSep + 'bin/ibmint', 'deploy', '--input-path', "$projectDir", '--output-work-directory', '/tmp/gradle-test-work-dir', '--project', 'TeaSharedLibraryJava', '--project',  'TeaSharedLibrary', '--project',  'TeaRESTApplication', '--project',  'TeaRESTApplication_UnitTest'
+}
+
+task runUnitTests(type: Exec) {
+    // Gradle throws away the CLASSPATH setting we need :(
+    //
+    // Without this setting, errors of the form occur:
+    //
+    // 2021-10-19 15:32:51.428952: BIP9320E: Message Flow 'gen.TeaRESTApplication', 'gen.TeaRESTApplication' encountered a failure and could not start. 
+    // 2021-10-19 15:32:51.429000: BIP3944E: Failed to generate the map for mapping routine '{default}:oldToNew_Mapping', with the following details: Location: '' Internal Error Number: 'NoClassDefFoundError'  Error Message: 'com.fasterxml.jackson.core.JsonProcessingException'. 
+    // 2021-10-19 15:32:51.429016: BIP3946E: Failed to generate mapping routine 'com.fasterxml.jackson.core.JsonProcessingException
+    // ', with the following details: '{1}'. 
+
+    environment CLASSPATH: project.getProperty("CLASSPATH")
+
+    // Exclude node.js for ace-minimal build
+    commandLine baseFilePath + fileSep + 'server' + fileSep + 'bin/IntegrationServer', '-w', '/tmp/gradle-test-work-dir', '--test-project', 'TeaRESTApplication_UnitTest', '--admin-rest-api', '-1', '--no-nodejs'
+}
+
+defaultTasks 'deleteTestWorkDirectory', 'createTestWorkDirectory', 'buildWithUnitTests', 'runUnitTests'

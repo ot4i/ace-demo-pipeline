@@ -30,8 +30,19 @@ jobs:
         run: |
           ########################################################################
           # 
+          # We move the source to the build directory to make sure it is not in
+          # the same directory as the downloaded install image. If the source 
+          # stays where it is, then ibmint tries to scan it for projects!
+          # 
+          ########################################################################
+          echo "Moving source to the build directory"
+          mkdir build
+          mv * build || /bin/true
+          
+          ########################################################################
+          # 
           # Download ace-minimal image; could use ace-minimal-build but in our
-          # case we already have Maven and the various utilities contained in 
+          # case we already have Gradle and the various utilities contained in 
           # the build image, so we download the base image because it's smaller.
           # 
           ########################################################################
@@ -40,8 +51,10 @@ jobs:
           bash moby-download-frozen-image-v2.sh ace-minimal-download tdolby/experimental:ace-minimal-12.0.2.0-alpine
           mkdir ace-minimal-image-unzip
           cd ace-minimal-download && grep layer.tar manifest.json | tr -d '"' | tr -d ',' | xargs -n 1 tar -C ../ace-minimal-image-unzip -xf && cd - && rm -rf ace-minimal-download
+
           # Not actually running on Alpine, so we undo a hack
           sed -i 's/\/bin\/mksh/\/bin\/bash/g' ace-minimal-image-unzip/opt/ibm/ace-12/ace ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsicreateworkdir ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsipackagebar
+
           ########################################################################
           # 
           # Set up ACE environment and ensure downloaded image works
@@ -63,14 +76,15 @@ jobs:
           export LICENSE=accept
           export MQSI_WORKPATH=$PWD/ace-minimal-image-unzip/var/mqsi
           . ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsiprofile
+
           # Using ace-minimal without WXS support
           export MQSI_NO_CACHE_SUPPORT=1
-          # Make sure Maven and others can find the correct javac
-          export PATH=$PWD/ace-minimal-image-unzip/opt/ibm/ace-12/common/jdk/bin:$PATH
+
           ########################################################################
           # 
-          # Run the Maven build and unit test phases
+          # Run the Gradle build and unit test phases
           # 
           ########################################################################
-          echo "Running Maven install to $PWD/ace-server . . ."
-          mvn --no-transfer-progress verify
+          cd build
+          echo "Running Gradle build and unit test"
+          gradle -PCLASSPATH=$CLASSPATH
