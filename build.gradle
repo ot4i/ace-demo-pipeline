@@ -39,8 +39,8 @@ task runUnitTests(type: Exec) {
 
     environment CLASSPATH: project.getProperty("CLASSPATH")
 
-
-    commandLine baseFilePath + fileSep + 'server' + fileSep + 'bin/IntegrationServer', '-w', '/tmp/gradle-test-work-dir', '--test-project', 'TeaRESTApplication_UnitTest'
+    // Exclude node.js for ace-minimal build
+    commandLine baseFilePath + fileSep + 'server' + fileSep + 'bin/IntegrationServer', '-w', '/tmp/gradle-test-work-dir', '--test-project', 'TeaRESTApplication_UnitTest', '--admin-rest-api', '-1', '--no-nodejs'
 }
 
 defaultTasks 'deleteTestWorkDirectory', 'createTestWorkDirectory', 'buildWithUnitTests', 'runUnitTests'
