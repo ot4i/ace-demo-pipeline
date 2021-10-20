@@ -29,7 +29,7 @@ jobs:
       - name: Download ACE image
         run: |
           mkdir build
-          mv * build
+          mv * build || /bin/true
           ########################################################################
           # 
           # Download ace-minimal image; could use ace-minimal-build but in our
