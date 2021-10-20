@@ -35,6 +35,7 @@ jobs:
           # the build image, so we download the base image because it's smaller.
           # 
           ########################################################################
+          cd ..
           curl -so moby-download-frozen-image-v2.sh https://raw.githubusercontent.com/moby/moby/master/contrib/download-frozen-image-v2.sh
           mkdir ace-minimal-download
           bash moby-download-frozen-image-v2.sh ace-minimal-download tdolby/experimental:ace-minimal-12.0.2.0-alpine
@@ -74,6 +75,7 @@ jobs:
           ########################################################################
           mqsicreateworkdir /tmp/eXp2021WorkDir
           df -k
+          cd ace-demo-pipeline
           echo "Running ibmint by itself in directory $PWD"
           ibmint deploy --input-path $PWD --output-work-directory /tmp/eXp2021WorkDir --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --project TeaRESTApplication_UnitTest
           echo "Running Gradle build and unit test"
