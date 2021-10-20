@@ -62,6 +62,7 @@ jobs:
           # 
           ########################################################################
           export LICENSE=accept
+          cd ..
           export MQSI_WORKPATH=$PWD/ace-minimal-image-unzip/var/mqsi
           . ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsiprofile
           # Using ace-minimal without WXS support
