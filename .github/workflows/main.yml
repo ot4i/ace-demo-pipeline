@@ -73,7 +73,8 @@ jobs:
           # 
           ########################################################################
           mqsicreateworkdir /tmp/eXp2021WorkDir
-          echo "Running ibmint by itself"
+          df -k
+          echo "Running ibmint by itself in directory $PWD"
           ibmint deploy --input-path $PWD --output-work-directory /tmp/eXp2021WorkDir --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --project TeaRESTApplication_UnitTest
           echo "Running Gradle build and unit test"
           gradle -PCLASSPATH=$CLASSPATH
