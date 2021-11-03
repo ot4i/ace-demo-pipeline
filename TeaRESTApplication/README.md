@@ -2,13 +2,15 @@
 
 This application presents a minimal REST API for storing and retrieving different types of tea.
 
+![application overview](ace-demo-application-picture.png)
+
 Basic curl commands to store and retrieve a type of tea:
 ```
 curl -X POST --data '{"name": "Assam", "strength": 5}' http://173.193.79.84:31531/tea/index
 curl http://173.193.79.84:31531/tea/index/1
 ```
 
-Can be run locally as well as in the cloud, and for full details this repo should be pulled into an ACE 11.0.0.11 toolkit (via egit-4.11) and examined there.
+Can be run locally as well as in the cloud, and for full details this repo should be pulled into an ACE 12.0.2.0 toolkit (via the egit plugin) and examined there.
 
 ## Implementation
 
