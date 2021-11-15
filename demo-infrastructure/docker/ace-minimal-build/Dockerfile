@@ -19,8 +19,8 @@ ENV LICENSE accept
 # The standard Maven packages on most distros bring a lot of extra packages with
 # them so we install Maven directly. 
 RUN cd /opt && \
-    curl -k https://apache.mirrors.nublue.co.uk/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz | tar -xzf - && \
-    ln -s /opt/apache-maven-3.6.3/bin/mvn /usr/local/bin/mvn
+    curl -k https://dlcdn.apache.org/maven/maven-3/3.8.3/binaries/apache-maven-3.8.3-bin.tar.gz | tar -xzf - && \
+    ln -s /opt/apache-maven-3.8.3/bin/mvn /usr/local/bin/mvn
 
 ENV TZ=Europe/London
 WORKDIR /
