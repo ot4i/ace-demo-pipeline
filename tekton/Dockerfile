@@ -2,7 +2,7 @@
 # Licensed under the MIT license (see LICENSE for details)
 
 #FROM tdolby/experimental:ace-minimal-11.0.0.11-alpine
-ARG BASE_IMAGE=ace-minimal:12.0.2.0-alpine
+ARG BASE_IMAGE=ace-minimal:12.2008.3.0-alpine
 FROM $BASE_IMAGE
 
 # Used for tekton and Maven containers
@@ -14,7 +14,8 @@ WORKDIR /tmp/maven-output
 COPY ace-server /tmp/maven-output/ace-server/
 RUN chown -R aceuser:mqbrkrs /tmp/* && \
     (cd /tmp/maven-output/ace-server && tar -cf - * ) | ( cd /home/aceuser/ace-server && tar -xf - ) && \
-    chmod 775 /home/aceuser/ace-server/ace-startup-script.sh 
+    chmod 775 /home/aceuser/ace-server/ace-startup-script.sh && \
+    chmod 775 /home/aceuser/ace-server/read-xml-creds.sh
 
 # Kaniko seems to chmod this directory 755 by mistake sometimes, which causes trouble later
 RUN chmod 1777 /tmp

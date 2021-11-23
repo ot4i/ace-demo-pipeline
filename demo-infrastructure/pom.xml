@@ -156,6 +156,17 @@
 	      </arguments>
 	    </configuration>
 	  </execution>
+	  <execution><id>copy-read-creds-script</id>
+	    <phase>install</phase>
+	    <goals><goal>exec</goal></goals>
+	    <configuration>
+	      <executable>cp</executable>
+	      <arguments>
+		<argument>../demo-infrastructure/read-xml-creds.sh</argument>
+		<argument>${install.work.directory}</argument>
+	      </arguments>
+	    </configuration>
+	  </execution>
 	</executions>
       </plugin>
       <!-- Not strictly necessary, but eliminates log spam and empty JAR files -->
