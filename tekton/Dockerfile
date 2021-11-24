@@ -15,7 +15,8 @@ COPY ace-server /tmp/maven-output/ace-server/
 RUN chown -R aceuser:mqbrkrs /tmp/* && \
     (cd /tmp/maven-output/ace-server && tar -cf - * ) | ( cd /home/aceuser/ace-server && tar -xf - ) && \
     chmod 775 /home/aceuser/ace-server/ace-startup-script.sh && \
-    chmod 775 /home/aceuser/ace-server/read-xml-creds.sh
+    chmod 775 /home/aceuser/ace-server/read-xml-creds.sh && \
+    chmod 775 /home/aceuser/ace-server/read-hashicorp-creds.sh
 
 # Kaniko seems to chmod this directory 755 by mistake sometimes, which causes trouble later
 RUN chmod 1777 /tmp

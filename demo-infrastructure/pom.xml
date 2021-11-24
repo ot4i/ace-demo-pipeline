@@ -156,7 +156,18 @@
 	      </arguments>
 	    </configuration>
 	  </execution>
-	  <execution><id>copy-read-creds-script</id>
+	  <execution><id>copy-read-hashicorp-creds-script</id>
+	    <phase>install</phase>
+	    <goals><goal>exec</goal></goals>
+	    <configuration>
+	      <executable>cp</executable>
+	      <arguments>
+		<argument>../demo-infrastructure/read-hashicorp-creds.sh</argument>
+		<argument>${install.work.directory}</argument>
+	      </arguments>
+	    </configuration>
+	  </execution>
+	  <execution><id>copy-read-xml-creds-script</id>
 	    <phase>install</phase>
 	    <goals><goal>exec</goal></goals>
 	    <configuration>
