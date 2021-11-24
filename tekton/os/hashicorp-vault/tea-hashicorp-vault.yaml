@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tea-hashicorp-vault
+  labels:
+    app: tea-hashicorp-vault
+spec:
+  selector:
+    matchLabels:
+      app: tea-hashicorp-vault
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-secret-tea: "secret/tea"
+        vault.hashicorp.com/agent-inject-template-tea: |
+          {{- with secret "secret/tea" -}}
+          type={{ .Data.data.type }}
+          username={{ .Data.data.username }}
+          password={{ .Data.data.password }}
+          {{- end }}
+        vault.hashicorp.com/role: "myapp"
+      labels:
+        app: tea-hashicorp-vault
+    spec:
+      serviceAccountName: app
+      containers:
+      - name: tea-hashicorp-vault
+        image: image-registry.openshift-image-registry.svc:5000/default/tea-tekton:latest
+        env:
+        - name: TEA_DATABASE_NAME
+          value: 'BLUDB'
+        - name: TEA_SERVER_NAME
+          value: '824dfd4d-99de-440d-9991-629c01b3832d.bs2io90l08kqb1od8lcg.databases.appdomain.cloud'
+        - name: TEA_PORT_NUMBER
+          value: '30119'
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: app
+  labels:
+    app: tea-hashicorp-vault
