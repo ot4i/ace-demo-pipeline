@@ -1,12 +1,14 @@
 #!/bin/bash
 
 # Aiming for something like
-# 
-# Credentials:
-#   jdbc:
-#     tea:
-#       username: "USERNAME"
-#       password: "PASSWORD"
+#
+# <?xml version="1.0" encoding="UTF-8"?>
+# <credentials>
+#   <credential credentialType="jdbc" credentialName="tea">
+#     <username>USERNAME</username>
+#     <password>PASSWORD</password>
+#   </credential>
+# </credentials>
 #
 # from files that look like
 #
@@ -27,18 +29,21 @@
 #          {{- end }}
 #
 
-echo "Credentials"
+echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+echo "<credentials>"
 
 for credfile in /vault/secrets/*; do
     export CRED_NAME=$(basename $credfile)
     export CRED_TYPE=$(grep 'type=' $credfile | sed 's/type=//')
-    echo "  \"$CRED_TYPE\":"
-    echo "    \"$CRED_NAME\":"
+    echo "  <credential credentialType=\"$CRED_TYPE\" credentialName=\"$CRED_NAME\">"
 
     while IFS= read -r line
     do
 	export CRED_COMPONENT=${line%%"="*}
 	export CRED_VALUE=${line#*"="}
-        echo "      $CRED_COMPONENT: '$CRED_VALUE'"
+        echo "    <$CRED_COMPONENT>$CRED_VALUE</$CRED_COMPONENT>"
     done <<< $(cat $credfile | grep -v 'type=')
+
+    echo "  </credential>"
 done
+echo "</credentials>"
