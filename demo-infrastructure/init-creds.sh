@@ -61,7 +61,7 @@ then
     echo "  ExternalCredentialsProviders:" >> /home/aceuser/ace-server/overrides/server.conf.yaml
     echo "    TeaJDBCHashiCorp:" >> /home/aceuser/ace-server/overrides/server.conf.yaml
     echo "      loadAllCredentialsCommand: '/home/aceuser/ace-server/read-hashicorp-creds.sh'" >> /home/aceuser/ace-server/overrides/server.conf.yaml
-    echo "      loadAllCredentialsFormat: 'xml'" >> /home/aceuser/ace-server/overrides/server.conf.yaml
+    echo "      loadAllCredentialsFormat: 'yaml'" >> /home/aceuser/ace-server/overrides/server.conf.yaml
     echo ""  >> /home/aceuser/ace-server/overrides/server.conf.yaml    
 fi
 
