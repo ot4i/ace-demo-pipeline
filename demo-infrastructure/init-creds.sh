@@ -34,10 +34,11 @@ then
     cp ${TEMPLATE_POLICYXML} /home/aceuser/ace-server/run/PreProdPolicies/
 
     echo "" >> /home/aceuser/ace-server/server.conf.yaml
-    echo "ExternalCredentialsProviders:" >> /home/aceuser/ace-server/server.conf.yaml
-    echo "  TeaJDBCAzureKV:" >> /home/aceuser/ace-server/server.conf.yaml
-    echo "    loadAllCredentialsCommand: '/home/aceuser/ace-server/read-xml-creds.sh'" >> /home/aceuser/ace-server/server.conf.yaml
-    echo "    loadAllCredentialsFormat: 'xml'" >> /home/aceuser/ace-server/server.conf.yaml
+    echo "Credentials:" >> /home/aceuser/ace-server/server.conf.yaml
+    echo "  ExternalCredentialsProviders:" >> /home/aceuser/ace-server/server.conf.yaml
+    echo "    TeaJDBCAzureKV:" >> /home/aceuser/ace-server/server.conf.yaml
+    echo "      loadAllCredentialsCommand: '/home/aceuser/ace-server/read-xml-creds.sh'" >> /home/aceuser/ace-server/server.conf.yaml
+    echo "      loadAllCredentialsFormat: 'xml'" >> /home/aceuser/ace-server/server.conf.yaml
     echo ""  >> /home/aceuser/ace-server/server.conf.yaml
 fi
 
@@ -56,10 +57,11 @@ then
     cp ${TEMPLATE_POLICYXML} /home/aceuser/ace-server/run/PreProdPolicies/
 
     echo "" >> /home/aceuser/ace-server/server.conf.yaml
-    echo "ExternalCredentialsProviders:" >> /home/aceuser/ace-server/server.conf.yaml
-    echo "  TeaJDBCHashiCorp:" >> /home/aceuser/ace-server/server.conf.yaml
-    echo "    loadAllCredentialsCommand: '/home/aceuser/ace-server/read-hashicorp-creds.sh'" >> /home/aceuser/ace-server/server.conf.yaml
-    echo "    loadAllCredentialsFormat: 'xml'" >> /home/aceuser/ace-server/server.conf.yaml
+    echo "Credentials:" >> /home/aceuser/ace-server/server.conf.yaml
+    echo "  ExternalCredentialsProviders:" >> /home/aceuser/ace-server/server.conf.yaml
+    echo "    TeaJDBCHashiCorp:" >> /home/aceuser/ace-server/server.conf.yaml
+    echo "      loadAllCredentialsCommand: '/home/aceuser/ace-server/read-hashicorp-creds.sh'" >> /home/aceuser/ace-server/server.conf.yaml
+    echo "      loadAllCredentialsFormat: 'xml'" >> /home/aceuser/ace-server/server.conf.yaml
     echo ""  >> /home/aceuser/ace-server/server.conf.yaml    
 fi
 
