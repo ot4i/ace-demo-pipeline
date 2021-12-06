@@ -27,13 +27,14 @@
 #          {{- end }}
 #
 
-echo "Credentials"
+echo "---"
+echo "Credentials:"
 
 for credfile in /vault/secrets/*; do
     export CRED_NAME=$(basename $credfile)
     export CRED_TYPE=$(grep 'type=' $credfile | sed 's/type=//')
-    echo "  \"$CRED_TYPE\":"
-    echo "    \"$CRED_NAME\":"
+    echo "  $CRED_TYPE:"
+    echo "    $CRED_NAME:"
 
     while IFS= read -r line
     do
