@@ -10,4 +10,4 @@ spec:
     - name: dockerRegistry
       value: "image-registry.openshift-image-registry.svc:5000/default"
     - name: aceDownloadUrl
-      value: "http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/integration/12.2008.3.0-ACE-LINUX64-DEVELOPER.tar.gz"
+      value: "http://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/integration/12.2039.3.0-ACE-LINUX64-DEVELOPER.tar.gz"

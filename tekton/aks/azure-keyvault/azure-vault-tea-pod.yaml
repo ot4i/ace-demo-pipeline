@@ -8,7 +8,7 @@ metadata:
 spec:
   containers:
     - name: tea-azure-kv
-      image: tdolby/experimental:tea-application-12.2008.3.0
+      image: tdolby/experimental:tea-application-12.2039.3.0
       env:
       - name: TEA_DATABASE_NAME
         value: 'BLUDB'
