@@ -12,23 +12,23 @@
   <dependencies>
     <!-- LOCAL DEPENDENCY -->
     <dependency>
-      <groupId>ACEv11</groupId><artifactId>IntegrationAPI</artifactId><version>11.0.0</version><scope>system</scope>
+      <groupId>ACEv12</groupId><artifactId>IntegrationAPI</artifactId><version>12.0.4</version><scope>system</scope>
       <systemPath>${MQSI_BASE_FILEPATH}/common/classes/IntegrationAPI.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>ACEv11</groupId><artifactId>jackson-core</artifactId><version>11.0.0</version><scope>system</scope>
-      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-core-2.13.0.jar</systemPath>
+      <groupId>ACEv12</groupId><artifactId>jackson-core</artifactId><version>12.0.4</version><scope>system</scope>
+      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-core-2.13.1.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>ACEv11</groupId><artifactId>jackson-databind</artifactId><version>11.0.0</version><scope>system</scope>
-      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-databind-2.13.0.jar</systemPath>
+      <groupId>ACEv12</groupId><artifactId>jackson-databind</artifactId><version>12.0.4</version><scope>system</scope>
+      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-databind-2.13.1.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>ACEv11</groupId><artifactId>jplugin2</artifactId><version>11.0.0</version><scope>system</scope>
+      <groupId>ACEv12</groupId><artifactId>jplugin2</artifactId><version>12.0.4</version><scope>system</scope>
       <systemPath>${MQSI_BASE_FILEPATH}/server/classes/jplugin2.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>ACEv11</groupId><artifactId>bipbroker</artifactId><version>11.0.0</version><scope>system</scope>
+      <groupId>ACEv12</groupId><artifactId>bipbroker</artifactId><version>12.0.4</version><scope>system</scope>
       <systemPath>${MQSI_BASE_FILEPATH}/server/classes/bipbroker.jar</systemPath>
     </dependency>
   </dependencies>
