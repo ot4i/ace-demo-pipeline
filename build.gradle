@@ -27,6 +27,10 @@ task buildWithUnitTests(type: Exec) {
     commandLine baseFilePath + fileSep + 'server' + fileSep + 'bin/ibmint', 'deploy', '--input-path', "$projectDir", '--output-work-directory', '/tmp/gradle-test-work-dir', '--project', 'TeaSharedLibraryJava', '--project',  'TeaSharedLibrary', '--project',  'TeaRESTApplication', '--project',  'TeaRESTApplication_UnitTest'
 }
 
+task optimizeTestWorkDirectory(type: Exec) {
+    commandLine baseFilePath + fileSep + 'server' + fileSep + 'bin/ibmint', 'optimize', 'server', '--work-dir', '/tmp/gradle-test-work-dir'
+}
+
 task runUnitTests(type: Exec) {
     // Gradle throws away the CLASSPATH setting we need :(
     //
@@ -43,4 +47,4 @@ task runUnitTests(type: Exec) {
     commandLine baseFilePath + fileSep + 'server' + fileSep + 'bin/IntegrationServer', '-w', '/tmp/gradle-test-work-dir', '--test-project', 'TeaRESTApplication_UnitTest', '--admin-rest-api', '-1', '--no-nodejs'
 }
 
-defaultTasks 'deleteTestWorkDirectory', 'createTestWorkDirectory', 'buildWithUnitTests', 'runUnitTests'
+defaultTasks 'deleteTestWorkDirectory', 'createTestWorkDirectory', 'buildWithUnitTests', 'optimizeTestWorkDirectory', 'runUnitTests'

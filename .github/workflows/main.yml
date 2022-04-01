@@ -78,7 +78,10 @@ jobs:
           . ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsiprofile
 
           # Using ace-minimal without WXS support
-          export MQSI_NO_CACHE_SUPPORT=1
+          # 
+          # Note that this no longer works as of 12.0.4, with ibmint optimize server 
+          # being used instead.
+          #export MQSI_NO_CACHE_SUPPORT=1
 
           ########################################################################
           # 
