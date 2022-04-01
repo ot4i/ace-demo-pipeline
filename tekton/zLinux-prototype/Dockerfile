@@ -1,6 +1,6 @@
 # Copyright (c) 2020 Open Technologies for Integration
 # Licensed under the MIT license (see LICENSE for details)
-ARG BASE_IMAGE=ace-minimal:12.2039.3.0-ubuntu
+ARG BASE_IMAGE=ace-minimal:12.0.3.0-ubuntu
 FROM $BASE_IMAGE
 
 #

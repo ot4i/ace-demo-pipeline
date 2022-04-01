@@ -10,4 +10,4 @@ spec:
     - name: dockerRegistry
       value: "image-registry.openshift-image-registry.svc:5000/default"
     - name: aceDownloadUrl
-      value: "http://your-hostname-here/zLinux-12.2039.3.0-dev-edition.tar.gz"
+      value: "http://your-hostname-here/zLinux-12.0.3.0-dev-edition.tar.gz"
