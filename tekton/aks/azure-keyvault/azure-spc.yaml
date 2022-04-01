@@ -1,0 +1,27 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: spc-tea-keyvault
+spec:
+  provider: azure
+  secretObjects:
+  - secretName: test-secret
+    data:
+    - key: key
+      objectName: xmlCredentials
+    type: Opaque
+  parameters:
+    usePodIdentity: "true"
+    useVMManagedIdentity: "false"
+    userAssignedIdentityID: ""
+    keyvaultName: "tea-keyvault"
+    cloudName: ""
+    objects:  |
+      array:
+        - |
+          objectName: xmlCredentials
+          objectType: secret
+          objectVersion: ""
+    resourceGroup: "AKS-resource-group"
+    subscriptionId: ""
+    tenantId: ""

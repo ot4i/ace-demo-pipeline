@@ -29,9 +29,10 @@ spec:
         - /kaniko/executor
       args:
         - --dockerfile=/work/ace-docker/experimental/ace-minimal/Dockerfile.alpine
-        - --destination=$(params.dockerRegistry)/ace-minimal:12.0.2.0-alpine
+        - --destination=$(params.dockerRegistry)/ace-minimal:12.0.4.0-alpine
         - --context=/work/ace-docker/experimental/ace-minimal
         - --build-arg=DOWNLOAD_URL=$(params.aceDownloadUrl)
+        - --build-arg=PRODUCT_LABEL=ace-12.0.4.0
         - --skip-tls-verify
       volumeMounts:
         - mountPath: /work

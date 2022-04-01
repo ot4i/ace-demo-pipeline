@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tea-azure-kv
+  labels:
+    aadpodidbinding: azure-pod-identity-binding-selector 
+    app: tea-azure-kv
+spec:
+  containers:
+    - name: tea-azure-kv
+      image: tdolby/experimental:tea-application-12.0.4.0
+      env:
+      - name: TEA_DATABASE_NAME
+        value: 'BLUDB'
+      - name: TEA_SERVER_NAME
+        value: '824dfd4d-99de-440d-9991-629c01b3832d.bs2io90l08kqb1od8lcg.databases.appdomain.cloud'
+      - name: TEA_PORT_NUMBER
+        value: '30119'
+      volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
+  volumes:
+    - name: secrets-store-inline
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: spc-tea-keyvault

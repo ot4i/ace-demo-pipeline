@@ -27,6 +27,11 @@ task buildWithUnitTests(type: Exec) {
     commandLine baseFilePath + fileSep + 'server' + fileSep + 'bin/ibmint', 'deploy', '--input-path', "$projectDir", '--output-work-directory', '/tmp/gradle-test-work-dir', '--project', 'TeaSharedLibraryJava', '--project',  'TeaSharedLibrary', '--project',  'TeaRESTApplication', '--project',  'TeaRESTApplication_UnitTest'
 }
 
+task optimizeTestWorkDirectory(type: Exec) {
+    // Exclude node.js for ace-minimal build as we won't be using the REST API remotely
+    commandLine baseFilePath + fileSep + 'server' + fileSep + 'bin/ibmint', 'optimize', 'server', '--work-dir', '/tmp/gradle-test-work-dir', '--disable', 'NodeJS'
+}
+
 task runUnitTests(type: Exec) {
     // Gradle throws away the CLASSPATH setting we need :(
     //
@@ -39,8 +44,7 @@ task runUnitTests(type: Exec) {
 
     environment CLASSPATH: project.getProperty("CLASSPATH")
 
-    // Exclude node.js for ace-minimal build
-    commandLine baseFilePath + fileSep + 'server' + fileSep + 'bin/IntegrationServer', '-w', '/tmp/gradle-test-work-dir', '--test-project', 'TeaRESTApplication_UnitTest', '--admin-rest-api', '-1', '--no-nodejs'
+    commandLine baseFilePath + fileSep + 'server' + fileSep + 'bin/IntegrationServer', '-w', '/tmp/gradle-test-work-dir', '--test-project', 'TeaRESTApplication_UnitTest'
 }
 
-defaultTasks 'deleteTestWorkDirectory', 'createTestWorkDirectory', 'buildWithUnitTests', 'runUnitTests'
+defaultTasks 'deleteTestWorkDirectory', 'createTestWorkDirectory', 'buildWithUnitTests', 'optimizeTestWorkDirectory', 'runUnitTests'
