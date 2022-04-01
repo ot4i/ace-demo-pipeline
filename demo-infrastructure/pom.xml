@@ -178,6 +178,22 @@
 	      </arguments>
 	    </configuration>
 	  </execution>
+	  <execution><id>optimize-work-dir</id>
+	    <phase>install</phase>
+	    <goals><goal>exec</goal></goals>
+	    <configuration>
+	      <executable>ibmint</executable>
+	      <arguments>
+		<argument>optimize</argument>
+		<argument>server</argument>
+		<argument>--work-dir</argument>
+		<argument>${install.work.directory}</argument>
+                <!-- Not going to be using the REST API remotely -->
+		<argument>--disable</argument>
+		<argument>NodeJS</argument>
+	      </arguments>
+	    </configuration>
+	  </execution>
 	</executions>
       </plugin>
       <!-- Not strictly necessary, but eliminates log spam and empty JAR files -->
