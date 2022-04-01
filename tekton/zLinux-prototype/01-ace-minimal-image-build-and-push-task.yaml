@@ -29,7 +29,7 @@ spec:
         - /kaniko/executor
       args:
         - --dockerfile=/work/ace-docker/experimental/ace-minimal/Dockerfile.ubuntu
-        - --destination=$(params.dockerRegistry)/ace-minimal:12.0.3.0-ubuntu-s390x
+        - --destination=$(params.dockerRegistry)/ace-minimal:12.0.4.0-ubuntu-s390x
         - --context=/work/ace-docker/experimental/ace-minimal
         - --build-arg=DOWNLOAD_URL=$(params.aceDownloadUrl)
         - --skip-tls-verify
