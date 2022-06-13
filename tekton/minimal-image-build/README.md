@@ -8,7 +8,8 @@ Used to build images that can then be used to build and run ACE applications.
 
  Most of the specific registry names need to be customised: us.icr.io may not be the right region, for example, and us.icr.io/ace-containers 
 is unlikely to be writable. Creating registries and so on (though essential) is beyond the scope of this document, but customisation of
-the artifacts in this repo (such as ace-minimal-build-image-pipeline.yaml) will almost certainly be necessary.
+the artifacts in this repo (such as ace-minimal-build-image-pipeline.yaml) will almost certainly be necessary. Note that on Windows, kubectl
+sometimes complains about not being able to validate files; using --validate=false appears to eliminate the issue without causing problems.
 
  The Tekton pipeline relies on docker credentials being provided for Kaniko to use when pushing the built image, and these credentials
 must be associated with the service account for the pipeline. If this has not already been done elsewhere, then create as follows, with
