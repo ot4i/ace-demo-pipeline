@@ -18,7 +18,8 @@ appropriate changes for a fork of this repo:
 kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=iamapikey --docker-password=<your-api-key>
 kubectl apply -f tekton/service-account.yaml
 ```
-The service account also has the ability to create services, deployments, etc, which are necessary for running the service.
+The service account also has the ability to create services, deployments, etc, which are necessary for running the service. Note that
+Windows kubectl seems to need the `--docker-email` parameter also, but the value can be anything.
 
 Setting up the pipeline requires Tekton to be installed, tasks to be created, and the pipeline itself to be configured. The following
 commands build the ace-minimal image and push it to the registry:
