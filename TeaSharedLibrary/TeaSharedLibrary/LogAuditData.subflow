@@ -15,7 +15,7 @@
       <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="95,20" computeExpression="esql://routine/TeaSharedLibrary#LogAuditData_Compute.Main">
         <translation xmi:type="utility:ConstantString" string="Create XML from JSON"/>
       </nodes>
-      <nodes xmi:type="ComIbmTrace.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="280,21" destination="file" filePath="/proc/self/fd/1" pattern="Audit Data:&#xA;${Root.XMLNSC.logData}">
+      <nodes xmi:type="ComIbmTrace.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="280,21" destination="file" filePath="D:\ACE\Toolkit\ACET12\workspace\TEA_SERVER\log\mgk.txt" pattern="Audit Data:&#xA;${Root.XMLNSC.logData}">
         <translation xmi:type="utility:ConstantString" string="LogXMLData"/>
       </nodes>
       <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="426,21" computeExpression="esql://routine/TeaSharedLibrary#LogAuditData_RemoveXML.Main">

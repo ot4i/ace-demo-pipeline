@@ -3,7 +3,7 @@
 xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmWSInput.msgnode="ComIbmWSInput.msgnode" xmlns:ComIbmRouteToLabel.msgnode="ComIbmRouteToLabel.msgnode" xmlns:ComIbmWSReply.msgnode="ComIbmWSReply.msgnode" xmlns:ComIbmLabel.msgnode="ComIbmLabel.msgnode" xmlns:getIndex.subflow="getIndex.subflow" xmlns:postIndex.subflow="postIndex.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" 
 xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="gen/TeaRESTApplication.msgflow" 
 nsPrefix="gen_TeaRESTApplication.msgflow">
-<eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
+<eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" nodeLayoutStyle="RECTANGLE">
 <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
 <translation xmi:type="utility:TranslatableString" key="TeaRESTApplication" bundleName="gen/TeaRESTApplication" pluginId="flowAPIgenerated"/>
 <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/flowAPIgenerated/icons/full/obj16/TeaRESTApplication.gif"/>
@@ -12,10 +12,10 @@ nsPrefix="gen_TeaRESTApplication.msgflow">
 <nodes xmi:type="ComIbmWSInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="25,150" URLSpecifier="/tea*" parseQueryString="true" messageDomainProperty="JSON" faultFormat="HTML">
 <translation xmi:type="utility:ConstantString" string="HTTP Input"/>
 </nodes>
-<nodes xmi:type="ComIbmRouteToLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="125,150">
+<nodes xmi:type="ComIbmRouteToLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="275,150">
 <translation xmi:type="utility:ConstantString" string="Route To Label"/>
 </nodes>
-<nodes xmi:type="ComIbmWSReply.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="525,150">
+<nodes xmi:type="ComIbmWSReply.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="550,150">
 <translation xmi:type="utility:ConstantString" string="HTTP Reply"/>
 </nodes>
 <nodes xmi:type="ComIbmLabel.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_4" location="125,225" labelName="getIndex">

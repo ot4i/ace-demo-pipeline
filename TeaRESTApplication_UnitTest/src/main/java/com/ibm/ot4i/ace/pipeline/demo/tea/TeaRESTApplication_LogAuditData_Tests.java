@@ -58,6 +58,7 @@ public class TeaRESTApplication_LogAuditData_Tests {
             TestMessageAssembly actualMessageAssembly = nodeSpy.propagatedMessageAssembly("out", 1);
 
             assertEquals("Earl Grey", actualMessageAssembly.messagePath("XMLNSC.logData.info.name").getStringValue());
+            //assertEquals("Earl Grey", actualMessageAssembly.messagePath("XMLNSC.logData.info.name").getStringValue());
     }
 	@Test
     public void TeaRESTApplication_LogAuditData_RemoveXML_Test() throws TestException {
@@ -87,7 +88,8 @@ public class TeaRESTApplication_LogAuditData_Tests {
             TestMessageAssembly actualMessageAssembly = nodeSpy.propagatedMessageAssembly("out", 1);
 
             // Make sure the JSON still exists
-            assertEquals("EarlGrey", actualMessageAssembly.messagePath("JSON.Data.name").getStringValue());
+            //assertEquals(123, actualMessageAssembly.messagePath("JSON.Data.id").getLongValue());
+            assertEquals("Earl Grey", actualMessageAssembly.messagePath("JSON.Data.name").getStringValue());
             // And that XMLNSC does not
             Exception exception = assertThrows(TestException.class, () -> {
             	actualMessageAssembly.messagePath("XMLNSC.logData.info.name").getValueAsString();

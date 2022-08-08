@@ -12,6 +12,7 @@
 package com.ibm.ot4i.ace.pipeline.demo.tea;
 
 import java.sql.Connection;
+
 import java.sql.ResultSet;
 import java.sql.Statement;
 
@@ -68,11 +69,16 @@ public class PostIndex_UpdateDB extends MbJavaComputeNode {
       }
       // Unsafe - example only
       int newIndex = 0;
+      int test = -1;
+      boolean wasNull = false;
       rs = stmt.executeQuery("SELECT max(id) from Tea");
       if ( rs.first() )
-      {
-        newIndex = rs.getInt(1) + 1;
+      { 
+    	test = rs.getInt(1);
+        newIndex = test + 1;
+        wasNull = rs.wasNull();
       }
+      System.out.println("JCN INDEX IS: " + newIndex + " TEST IS: " + test + " wasNull: " + wasNull);
       stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
                                   ResultSet.CONCUR_READ_ONLY);
       stmt.executeUpdate("INSERT INTO Tea (id, name) VALUES ("+newIndex+", '"+teaName+"')");

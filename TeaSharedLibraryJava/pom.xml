@@ -16,12 +16,12 @@
       <systemPath>${MQSI_BASE_FILEPATH}/common/classes/IntegrationAPI.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>ACEv12</groupId><artifactId>jackson-core</artifactId><version>12.0.4</version><scope>system</scope>
-      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-core-2.13.1.jar</systemPath>
+      <groupId>ACEv12</groupId><artifactId>jackson-core</artifactId><version>12.0.5</version><scope>system</scope>
+      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-core-2.13.3.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>ACEv12</groupId><artifactId>jackson-databind</artifactId><version>12.0.4</version><scope>system</scope>
-      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-databind-2.13.1.jar</systemPath>
+      <groupId>ACEv12</groupId><artifactId>jackson-databind</artifactId><version>12.0.5</version><scope>system</scope>
+      <systemPath>${MQSI_BASE_FILEPATH}/common/jackson/lib/jackson-databind-2.13.3.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>ACEv12</groupId><artifactId>javacompute</artifactId><version>12.0.4</version><scope>system</scope>
@@ -36,6 +36,8 @@
       <systemPath>${MQSI_BASE_FILEPATH}/server/classes/bipbroker.jar</systemPath>
     </dependency>
   </dependencies>
+
+
 
 
   <build>
