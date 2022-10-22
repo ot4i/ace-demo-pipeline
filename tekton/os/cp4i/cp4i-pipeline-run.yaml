@@ -1,0 +1,11 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: cp4i-pipeline-run-1
+spec:
+  serviceAccountName: ace-tekton-service-account
+  pipelineRef:
+    name: cp4i-pipeline
+  params:
+    - name: dockerRegistry
+      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
