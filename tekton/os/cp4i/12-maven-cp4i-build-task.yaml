@@ -44,6 +44,8 @@ spec:
         # Build and run the tests
         cd /work/ace-demo-pipeline/TeaRESTApplication_ComponentTest
         mvn --no-transfer-progress -Dct.work.directory=/home/aceuser/ace-server verify
+        # Slightly hacky, but quicker than building everything again!
+        (cd /home/aceuser/ace-server/run && tar -cf - * ) | (cd /work/maven-output/ace-server/run && tar -xf - )
       volumeMounts:
         - mountPath: /work
           name: work
