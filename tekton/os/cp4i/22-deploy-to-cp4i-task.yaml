@@ -16,8 +16,8 @@ spec:
         git clone "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
         export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
         echo $REG_WITH_ESCAPED_SLASH
-        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/tea-tekton-deployment.yaml
-        cat /work/ace-demo-pipeline/tekton/tea-tekton-deployment.yaml
+        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/tea-tekton-deployment.yaml
+        cat /work/ace-demo-pipeline/tekton/os/cp4i/tea-tekton-deployment.yaml
       volumeMounts:
         - mountPath: /work
           name: work
@@ -27,17 +27,7 @@ spec:
       args:
         - "apply"
         - "-f"
-        - "/work/ace-demo-pipeline/tekton/tea-tekton-deployment.yaml"
-      volumeMounts:
-        - mountPath: /work
-          name: work
-    - name: create-service
-      image: lachlanevenson/k8s-kubectl
-      command: ["kubectl"]
-      args:
-        - "apply"
-        - "-f"
-        - "/work/ace-demo-pipeline/tekton/tea-tekton-service.yaml"
+        - "/work/ace-demo-pipeline/tekton/os/cp4i/tea-tekton-deployment.yaml"
       volumeMounts:
         - mountPath: /work
           name: work
