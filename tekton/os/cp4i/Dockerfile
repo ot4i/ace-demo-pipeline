@@ -12,8 +12,7 @@ LABEL "maintainer"="trevor.dolby@ibm.com"
 WORKDIR /tmp/maven-output
 
 COPY ace-server /tmp/maven-output/ace-server/
-RUN chown -R aceuser:mqbrkrs /tmp/* && \
-    (cd /tmp/maven-output/ace-server && tar -cf - run/* ) | ( cd /home/aceuser/ace-server/run/ && tar -xf - )
+RUN cp -r /tmp/maven-output/ace-server/run/* /home/aceuser/ace-server/run/
 
 # Kaniko seems to chmod this directory 755 by mistake sometimes, which causes trouble later
-RUN chmod 1777 /tmp
+# RUN chmod 1777 /tmp
