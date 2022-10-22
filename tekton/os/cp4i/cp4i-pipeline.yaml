@@ -7,17 +7,9 @@ spec:
     - name: dockerRegistry
       type: string
   tasks:
-    - name: build-from-source
-      taskRef:
-        name: maven-cp4i-build
-      params:
-        - name: dockerRegistry
-          value: $(params.dockerRegistry)
     - name: deploy-to-cp4i
       taskRef:
         name: deploy-to-cp4i
       params:
         - name: dockerRegistry
           value: $(params.dockerRegistry)
-      runAfter:
-        - build-from-source

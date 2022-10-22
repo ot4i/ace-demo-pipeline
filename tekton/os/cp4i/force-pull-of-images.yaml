@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: force-pull-cp4i
+spec:
+  containers:
+  - name: force-pull-cp4i-base
+    imagePullPolicy: Always
+    image: DOCKER_REGISTRY/tea-tekton-cp4i:latest
+    command: ["sleep"]
+    args: ["10"]
+  restartPolicy: Never

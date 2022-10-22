@@ -18,8 +18,8 @@ spec:
         echo $REG_WITH_ESCAPED_SLASH
         sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/tea-tekton-deployment.yaml
         cat /work/ace-demo-pipeline/tekton/os/cp4i/tea-tekton-deployment.yaml
-        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/force-pull-of-images.yaml
-        cat /work/ace-demo-pipeline/tekton/os/cp4i/force-pull-of-images.yaml
+        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/tea-tekton-deployment.yaml
+        cat /work/ace-demo-pipeline/tekton/os/cp4i/tea-tekton-deployment.yaml
       volumeMounts:
         - mountPath: /work
           name: work
@@ -29,7 +29,7 @@ spec:
       args:
         - "apply"
         - "-f"
-        - "/work/ace-demo-pipeline/tekton/os/cp4i/force-pull-of-images.yaml"
+        - "/work/ace-demo-pipeline/tekton/os/cp4i/tea-tekton-deployment.yaml"
       volumeMounts:
         - mountPath: /work
           name: work
