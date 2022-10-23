@@ -33,7 +33,7 @@ spec:
         if [ "$?" == "0" ]; then
             echo "Found CR; deleting it at " `date`
             kubectl delete -n cp4i IntegrationServer/tea-tekton-cp4i-ct
-            for i in `seq 1 12`
+            for i in `seq 1 24`
             do
               echo $i
               podName=`kubectl get -n cp4i -l release=tea-tekton-cp4i-ct pod -o name`
@@ -54,7 +54,7 @@ spec:
         kubectl apply -f /work/ace-demo-pipeline/tekton/os/cp4i/create-integrationserver-ct.yaml
         rc=1
         echo "Starting polling for operator IS at " `date`
-        for i in `seq 1 30`
+        for i in `seq 1 24`
         do
           echo $i
           kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i-ct
@@ -64,7 +64,7 @@ spec:
             rc=0
             break
           fi
-          sleep 2
+          sleep 5
         done
         if [ "$rc" == "1" ]; then
             echo "Container start failed; giving up at " `date`
@@ -76,10 +76,10 @@ spec:
         fi
         podName=`kubectl get -n cp4i -l release=tea-tekton-cp4i-ct pod -o name`
         echo "Found pod name $podName; sending 'kill -INT 1'"
-        kubectl exec -n cp4i $podName -- ps -ef
+        kubectl exec -n cp4i $podName -- kill -INT 1
         rc=1
         echo "Polling for shutdown at " `date`
-        for i in `seq 1 2`
+        for i in `seq 1 20`
         do
           echo $i
           kubectl exec -n cp4i $podName -- ps -ef > /tmp/ps-output.txt
@@ -102,14 +102,22 @@ spec:
             echo "----------------------------------------"
             cat /tmp/ps-output.txt
             echo "----------------------------------------"
-            #return 1
+            return 1
         fi
         echo "Running tests at " `date`
         kubectl exec -n cp4i $podName -- bash -c "IntegrationServer -w /home/aceuser/ace-server --start-msgflows false --test-project TeaRESTApplication_ComponentTest"
         if [ "$rc" == "0" ]; then
             echo "Test run succeeded at " `date`
+            echo "Deleting component test CR"
+            kubectl delete -n cp4i IntegrationServer/tea-tekton-cp4i-ct
+            echo "Sending second 'kill -INT 1' to trigger pod exit"
+            kubectl exec -n cp4i $podName -- kill -INT 1
         else
             echo "Test run failed at " `date`
+            echo "Deleting component test CR"
+            kubectl delete -n cp4i IntegrationServer/tea-tekton-cp4i-ct
+            echo "Sending second 'kill -INT 1' to trigger pod exit"
+            kubectl exec -n cp4i $podName -- kill -INT 1
             return 1
         fi
       volumeMounts:
