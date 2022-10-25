@@ -1,0 +1,71 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: force-image-pull-cp4i
+  namespace: cp4i
+spec:
+  params:
+    - name: dockerRegistry
+      type: string
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      script: |
+        #!/bin/sh
+        #set -x
+        cd /work
+        git clone "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
+        export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
+        echo Using $REG_WITH_ESCAPED_SLASH as registry name
+        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: pull-images
+      image: lachlanevenson/k8s-kubectl
+      script: |
+        #!/bin/sh
+        #set -x
+        cd /work
+        kubectl get pods -n cp4i
+        
+        echo "Checking for previous componenimage pull pods at " `date`
+        kubectl get pod -n cp4i force-pull-cp4i
+        if [ "$?" == "0" ]; then
+            echo "Found pod; deleting it at " `date`
+            kubectl delete pod -n cp4i force-pull-cp4i
+            sleep 5
+        else
+            echo "No pod found at " `date`
+        fi
+        echo "Creating pod to force the pull of images at " `date`
+        kubectl apply -f /work/ace-demo-pipeline/tekton/os/cp4i/force-pull-cp4i.yaml
+        rc=1
+        echo "Starting polling for pod to finish at " `date`
+        for i in `seq 1 24`
+        do
+          echo $i
+          kubectl get pod -n cp4i force-pull-cp4i
+          lastError=`kubectl get pod -n cp4i force-pull-cp4i --template={{.status.phase}} 2>&1`
+          if [ "$lastError" == "Succeeded" ]; then
+            echo "Pod image pull complete at " `date`
+            kubectl delete pod -n cp4i force-pull-cp4i
+            rc=0
+            break
+          fi
+          sleep 5
+        done
+        if [ "$rc" == "1" ]; then
+            echo "Image pull failed; giving up at " `date`
+            echo "Current state of the pod:"
+            echo "----------------------------------------"
+            kubectl get pod -n cp4i force-pull-cp4i
+            echo "----------------------------------------"
+            return 1
+        fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+  volumes:
+    - name: work
+      emptyDir: {}
