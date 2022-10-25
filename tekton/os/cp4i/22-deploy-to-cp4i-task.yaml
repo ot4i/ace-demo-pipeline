@@ -29,11 +29,11 @@ spec:
         cd /work
         kubectl get pods -n cp4i
         
-        echo "Creating CR for component test at " `date`
+        echo "Creating CR for application at " `date`
         kubectl apply -f /work/ace-demo-pipeline/tekton/os/cp4i/create-integrationserver.yaml
         rc=1
         echo "Starting polling for operator IS at " `date`
-        for i in `seq 1 24`
+        for i in `seq 1 48`
         do
           echo $i
           kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i

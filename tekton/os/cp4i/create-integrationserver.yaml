@@ -11,6 +11,7 @@ spec:
   pod:
     containers:
       runtime:
+        imagePullPolicy: 'Always'
         image: >-
           DOCKER_REGISTRY/tea-tekton-cp4i:latest
         resources:
@@ -20,6 +21,9 @@ spec:
           requests:
             cpu: 300m
             memory: 368Mi
+    # Not clear why this is needed
+    imagePullSecrets:
+    - name: 'regcred'
   adminServerSecure: true
   createDashboardUsers: true
   replicas: 1

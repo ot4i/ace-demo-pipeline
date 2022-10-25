@@ -167,7 +167,8 @@ spec:
         #!/bin/sh
         #set -x
         cd /work
-        echo "Running tests at " `date`
+        podName=`kubectl get -n cp4i -l release=tea-tekton-cp4i-ct pod -o name`
+        echo "Running tests in $podName at " `date`
         kubectl exec -n cp4i $podName -- bash -c "IntegrationServer -w /home/aceuser/ace-server --start-msgflows false --test-project TeaRESTApplication_ComponentTest"
         if [ "$rc" == "0" ]; then
             echo "Test run succeeded at " `date`
