@@ -5,6 +5,8 @@ metadata:
   namespace: cp4i
 spec:
   stepTemplate:
+    securityContext:
+      runAsUser: 0
     env:
       - name: "HOME"
         value: "/tekton/home"
@@ -41,9 +43,6 @@ spec:
           name: work
     - name: component-test
       image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
-      securityContext:
-        runAsGroup: 1000
-        runAsNonRoot: false
       script: |
         #!/bin/bash
         id
@@ -81,11 +80,19 @@ spec:
         ls -l /var/mqsi/
         cd /work/maven-output
         cp /work/ace-demo-pipeline/tekton/os/cp4i/Dockerfile Dockerfile
+        chmod 777 /work/maven-output /work/maven-output/Dockerfile
+        chmod -R a+r /work/maven-output
+        find /work/maven-output -type d -print | xargs chmod 775
+        ls -l /
       volumeMounts:
         - mountPath: /work
           name: work
     - name: docker-build-and-push
-      image: gcr.io/kaniko-project/executor:v0.16.0
+      securityContext:
+        runAsUser: 0
+        capabilities:
+          add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
+      image: gcr.io/kaniko-project/executor:latest
       # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
       env:
         - name: "DOCKER_CONFIG"
