@@ -27,17 +27,26 @@ spec:
       image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
       script: |
         #!/bin/bash
-        id
-        cat /etc/group
-        cat /etc/passwd
-        ls -l /var/mqsi/
-        ls -l /home/aceuser
         export LICENSE=accept
         . /opt/ibm/ace-12/server/bin/mqsiprofile
         export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
         mkdir /work/maven-output
         cd /work/ace-demo-pipeline
         mvn --no-transfer-progress -Dinstall.work.directory=/work/maven-output/ace-server install
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: container-setup
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
+      script: |
+        #!/bin/bash
+        cd /work/maven-output
+        cp /work/ace-demo-pipeline/tekton/os/cp4i/Dockerfile Dockerfile
+        # Fix permissions issues 
+        chmod 777 /work/maven-output /work/maven-output/Dockerfile
+        chmod -R a+r /work/maven-output
+        find /work/maven-output -type d -print | xargs chmod 775
+        ls -l /work/maven-output
       volumeMounts:
         - mountPath: /work
           name: work
@@ -117,7 +126,7 @@ spec:
         - --dockerfile=/work/maven-output/Dockerfile
         - --destination=$(params.dockerRegistry)/tea-tekton-cp4i-ct
         - --context=/work/maven-output
-        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-server-prod:12.0.5.0-r1-lts
+        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/tea-tekton-cp4i
         - --skip-tls-verify
       volumeMounts:
         - mountPath: /work
