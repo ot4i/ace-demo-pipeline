@@ -29,6 +29,8 @@ The test run strategy is as follows:
 - Collect the output and return code from kubectl exec as usual, allowing the pipeline to stop on failed tests.
 - Delete the CR, and then send another kill -INT 1 to make the runaceserver code exit.
 
+See [13-component-test-in-cp4i-task.yaml](13-component-test-in-cp4i-task.yaml) for details on running the tests.
+
 Note that this splits responsibilities between the ACE operator (create the work directory and run the initial server) and the
 ACE product itself (run the tests and report the results); the operator support code in the container does not know anything
 about running tests.
