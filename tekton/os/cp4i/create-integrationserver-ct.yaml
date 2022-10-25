@@ -17,12 +17,14 @@ spec:
         livenessProbe:
           failureThreshold: 1000000
         resources:
+          # Run tests more quickly
           limits:
-            cpu: 300m
-            memory: 368Mi
+            cpu: 2000m
+            memory: 1024Mi
           requests:
-            cpu: 300m
-            memory: 368Mi
+            cpu: 2000m
+            memory: 1024Mi
+    # Not clear why this is needed
     imagePullSecrets:
     - name: 'regcred'
   adminServerSecure: true
