@@ -41,16 +41,32 @@ spec:
       volumeMounts:
         - mountPath: /work
           name: work
+    - name: docker-build-and-push
+      # kaniko is expecting to run as root to build images
+      securityContext:
+        runAsUser: 0
+        capabilities:
+          add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
+      image: gcr.io/kaniko-project/executor:latest
+      # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
+      env:
+        - name: "DOCKER_CONFIG"
+          value: "/tekton/home/.docker/"
+      command:
+        - /kaniko/executor
+      args:
+        - --dockerfile=/work/maven-output/Dockerfile
+        - --destination=$(params.dockerRegistry)/tea-tekton-cp4i
+        - --context=/work/maven-output
+        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-server-prod:12.0.5.0-r1-lts
+        - --skip-tls-verify
+      volumeMounts:
+        - mountPath: /work
+          name: work
     - name: component-test
       image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
       script: |
         #!/bin/bash
-        id
-        cat /etc/group
-        cat /etc/passwd
-        ls -l /var/mqsi/
-        ls -l /home/aceuser
-        ls -l /home/aceuser/ace-server
         export LICENSE=accept
         . /opt/ibm/ace-12/server/bin/mqsiprofile
         export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
@@ -70,16 +86,13 @@ spec:
           name: work
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
-    - name: container-setup
+    - name: container-setup-ct
       image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
       script: |
         #!/bin/bash
-        id
-        cat /etc/group
-        cat /etc/passwd
-        ls -l /var/mqsi/
         cd /work/maven-output
         cp /work/ace-demo-pipeline/tekton/os/cp4i/Dockerfile Dockerfile
+        # Fix permissions issues 
         chmod 777 /work/maven-output /work/maven-output/Dockerfile
         chmod -R a+r /work/maven-output
         find /work/maven-output -type d -print | xargs chmod 775
@@ -87,7 +100,8 @@ spec:
       volumeMounts:
         - mountPath: /work
           name: work
-    - name: docker-build-and-push
+    - name: docker-build-and-push-ct
+      # kaniko is expecting to run as root to build images
       securityContext:
         runAsUser: 0
         capabilities:
@@ -101,7 +115,7 @@ spec:
         - /kaniko/executor
       args:
         - --dockerfile=/work/maven-output/Dockerfile
-        - --destination=$(params.dockerRegistry)/tea-tekton-cp4i
+        - --destination=$(params.dockerRegistry)/tea-tekton-cp4i-ct
         - --context=/work/maven-output
         - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-server-prod:12.0.5.0-r1-lts
         - --skip-tls-verify

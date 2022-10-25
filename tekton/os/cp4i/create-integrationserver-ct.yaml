@@ -11,9 +11,8 @@ spec:
   pod:
     containers:
       runtime:
-        imagePullPolicy: 'Always'
         image: >-
-          DOCKER_REGISTRY/tea-tekton-cp4i:latest
+          DOCKER_REGISTRY/tea-tekton-cp4i-ct:latest
         livenessProbe:
           failureThreshold: 1000000
         resources:

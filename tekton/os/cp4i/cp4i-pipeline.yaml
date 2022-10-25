@@ -14,6 +14,14 @@ spec:
       params:
         - name: dockerRegistry
           value: $(params.dockerRegistry)
+    - name: component-test-in-cp4i
+      taskRef:
+        name: component-test-in-cp4i
+      params:
+        - name: dockerRegistry
+          value: $(params.dockerRegistry)
+      runAfter:
+        - build-from-source
     - name: deploy-to-cp4i
       taskRef:
         name: deploy-to-cp4i
@@ -21,4 +29,4 @@ spec:
         - name: dockerRegistry
           value: $(params.dockerRegistry)
       runAfter:
-        - build-from-source
+        - component-test-in-cp4i
