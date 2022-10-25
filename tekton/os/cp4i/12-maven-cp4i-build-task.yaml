@@ -4,6 +4,8 @@ metadata:
   name: maven-cp4i-build
   namespace: cp4i
 spec:
+  # The security and environment settings are needed for OpenShift in a non-default
+  # namespace such as cp4i. Kaniko is expecting to be root in the container.
   stepTemplate:
     securityContext:
       runAsUser: 0
@@ -16,6 +18,9 @@ spec:
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      #
+      # The script just clones the repo but could be extended.
+      # 
       script: |
         #!/bin/sh
         cd /work
@@ -25,6 +30,10 @@ spec:
           name: work
     - name: maven-build
       image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
+      #
+      # Runs the build and unit test phases, leaving the results in the work directory
+      # for later steps.
+      #
       script: |
         #!/bin/bash
         export LICENSE=accept
@@ -38,6 +47,10 @@ spec:
           name: work
     - name: container-setup
       image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
+      #
+      # Copies files around and changes permissions to allow Kaniko to build the actual
+      # runtime image in the next step. Also copies the Dockerfile into place for Kaniko.
+      #
       script: |
         #!/bin/bash
         cd /work/maven-output
@@ -74,6 +87,14 @@ spec:
           name: work
     - name: component-test
       image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
+      #
+      # Builds and runs the component tests using the JDBC credentials provided from
+      # the secret. Also uses the same init-creds.sh script used by the non-CP4i image
+      # to load credentials at startup.
+      #
+      # Leaves the resulting component test project in the work directory to be picked
+      # up by the second Kaniko build in the next step.
+      #
       script: |
         #!/bin/bash
         export LICENSE=accept
@@ -97,6 +118,10 @@ spec:
           mountPath: /var/run/secrets/jdbc
     - name: container-setup-ct
       image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
+      #
+      # Copies files around and changes permissions to allow Kaniko to build the component
+      # test image in the next step. Also copies the Dockerfile into place for Kaniko.
+      #
       script: |
         #!/bin/bash
         cd /work/maven-output
@@ -105,7 +130,7 @@ spec:
         chmod 777 /work/maven-output /work/maven-output/Dockerfile
         chmod -R a+r /work/maven-output
         find /work/maven-output -type d -print | xargs chmod 775
-        ls -l /
+        ls -l /work/maven-output/ace-server/run
       volumeMounts:
         - mountPath: /work
           name: work
