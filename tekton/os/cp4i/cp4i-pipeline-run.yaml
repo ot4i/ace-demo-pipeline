@@ -2,8 +2,9 @@ apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
   name: cp4i-pipeline-run-1
+  namespace: cp4i
 spec:
-  serviceAccountName: ace-tekton-service-account
+  serviceAccountName: cp4i-tekton-service-account
   pipelineRef:
     name: cp4i-pipeline
   params:

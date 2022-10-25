@@ -2,6 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: cp4i-pipeline
+  namespace: cp4i
 spec:
   params:
     - name: dockerRegistry

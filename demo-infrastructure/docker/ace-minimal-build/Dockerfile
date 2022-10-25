@@ -25,6 +25,8 @@ RUN cd /opt && \
 ENV TZ=Europe/London
 WORKDIR /
 
+USER 1001
+
 # Default command to run
 ENTRYPOINT []
 CMD ["/bin/bash"]

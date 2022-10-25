@@ -2,6 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: deploy-to-cp4i
+  namespace: cp4i
 spec:
   params:
     - name: dockerRegistry

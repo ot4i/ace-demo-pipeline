@@ -2,7 +2,15 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: maven-cp4i-build
+  namespace: cp4i
 spec:
+  stepTemplate:
+    securityContext:
+      runAsGroup: 1000
+      runAsNonRoot: false
+    env:
+      - name: "HOME"
+        value: "/tekton/home"
   params:
     - name: dockerRegistry
       type: string
@@ -20,6 +28,10 @@ spec:
       image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
       script: |
         #!/bin/bash
+        id
+        cat /etc/group
+        cat /etc/passwd
+        ls -l /var/mqsi/
         export LICENSE=accept
         . /opt/ibm/ace-12/server/bin/mqsiprofile
         export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
@@ -33,6 +45,10 @@ spec:
       image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
       script: |
         #!/bin/bash
+        id
+        cat /etc/group
+        cat /etc/passwd
+        ls -l /var/mqsi/
         export LICENSE=accept
         . /opt/ibm/ace-12/server/bin/mqsiprofile
         export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
@@ -55,6 +71,10 @@ spec:
       image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
       script: |
         #!/bin/bash
+        id
+        cat /etc/group
+        cat /etc/passwd
+        ls -l /var/mqsi/
         cd /work/maven-output
         cp /work/ace-demo-pipeline/tekton/os/cp4i/Dockerfile Dockerfile
       volumeMounts:
