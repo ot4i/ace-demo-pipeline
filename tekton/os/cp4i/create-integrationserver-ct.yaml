@@ -23,6 +23,8 @@ spec:
           requests:
             cpu: 300m
             memory: 368Mi
+    imagePullSecrets:
+    - name: 'regcred'
   adminServerSecure: true
   env:  
     - name: MQSI_PREVENT_CONTAINER_SHUTDOWN

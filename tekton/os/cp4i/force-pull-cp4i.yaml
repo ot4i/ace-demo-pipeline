@@ -9,12 +9,12 @@ spec:
     imagePullPolicy: Always
     image: DOCKER_REGISTRY/tea-tekton-cp4i:latest
     command: ["sleep"]
-    args: ["10"]
+    args: ["1"]
   - name: force-pull-cp4i-ct
     imagePullPolicy: Always
     image: DOCKER_REGISTRY/tea-tekton-cp4i-ct:latest  
     command: ["sleep"]
-    args: ["10"]
+    args: ["1"]
   restartPolicy: Never
   imagePullSecrets:
   - name: 'regcred'
