@@ -176,6 +176,7 @@ spec:
             kubectl delete -n cp4i IntegrationServer/tea-tekton-cp4i-ct
             echo "Sending second 'kill -INT 1' to trigger pod exit"
             kubectl exec -n cp4i $podName -- kill -INT 1
+            return 0
         else
             echo "Test run failed at " `date`
             echo "Deleting component test CR"

@@ -25,7 +25,7 @@ spec:
       image: lachlanevenson/k8s-kubectl
       script: |
         #!/bin/sh
-        set -x
+        #set -x
         cd /work
         kubectl get pods -n cp4i
         
@@ -35,8 +35,8 @@ spec:
         echo "Starting polling for operator IS at " `date`
         for i in `seq 1 48`
         do
-          echo $i
-          kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i
+          #echo $i
+          #kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i
           lastError=`kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i --template={{.status.phase}} 2>&1`
           if [ "$lastError" == "Ready" ]; then
             echo "Container is ready at " `date`
