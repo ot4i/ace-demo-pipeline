@@ -43,7 +43,7 @@ in a server.conf.yaml configuration (default-policy).
 
 The initial commands are 
 ```
-kubectl create secret -n cp4i docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password='PASSWORD'
+kubectl create secret -n cp4i docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password==$(oc whoami -t)
 kubectl apply -f tekton/os/cp4i/cp4i-scc.yaml
 kubectl apply -f tekton/os/cp4i/service-account-cp4i.yaml
 oc adm policy add-scc-to-user cp4i-scc -n cp4i -z cp4i-tekton-service-account
