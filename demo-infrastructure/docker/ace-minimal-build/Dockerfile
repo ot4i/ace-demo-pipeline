@@ -29,6 +29,8 @@ WORKDIR /
 RUN chgrp -R mqbrkrs /home/aceuser/ace-server
 RUN chmod -R g+wx /home/aceuser/ace-server
 
+USER 1001
+
 # Default command to run
 ENTRYPOINT []
 CMD ["/bin/bash"]
