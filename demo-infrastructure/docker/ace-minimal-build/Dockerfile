@@ -26,8 +26,7 @@ ENV TZ=Europe/London
 WORKDIR /
 
 # Patch OpenShift issues
-RUN chgrp -R mqbrkrs /home/aceuser/ace-server
-RUN chmod -R g+wx /home/aceuser/ace-server
+RUN chmod -R 777 /home/aceuser/ace-server
 
 # Default command to run
 ENTRYPOINT []

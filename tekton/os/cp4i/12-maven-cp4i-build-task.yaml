@@ -32,6 +32,7 @@ spec:
         cat /etc/group
         cat /etc/passwd
         ls -l /var/mqsi/
+        ls -l /home/aceuser
         export LICENSE=accept
         . /opt/ibm/ace-12/server/bin/mqsiprofile
         export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
@@ -49,11 +50,14 @@ spec:
         cat /etc/group
         cat /etc/passwd
         ls -l /var/mqsi/
+        ls -l /home/aceuser
+        ls -l /home/aceuser/ace-server
         export LICENSE=accept
         . /opt/ibm/ace-12/server/bin/mqsiprofile
         export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
         # Slightly hacky, but quicker than building everything again!
         (cd /work/maven-output/ace-server/run && tar -cf - * ) | (cd /home/aceuser/ace-server/run && tar -xf - )
+        ls -l /home/aceuser/ace-server
         # Set up credentials for the component tests; init-creds.sh looks in /tmp for policy
         cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml /tmp/
         bash /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh
