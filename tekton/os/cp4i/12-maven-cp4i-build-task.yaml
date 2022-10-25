@@ -1,5 +1,14 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
+#
+# This task builds the main application, runs the unit tests, runs the component
+# tests, and builds two images: the first is the main application image, and the
+# second is the component test image (built using the first image as the base).
+#
+# The second image is not used in this task and is intended to be run in CP4i by
+# the next task. Component tests are run in this task as well but do not use the
+# CP4i-style configuration mechanism, so verification in CP4i is needed also.
+#
 metadata:
   name: maven-cp4i-build
   namespace: cp4i

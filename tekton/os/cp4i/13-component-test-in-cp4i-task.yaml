@@ -1,5 +1,19 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
+#
+# This task runs the component tests built in the previous task using containers 
+# started by the CP4i operator, creating a custom resource for the server to get
+# the operator support code to pull in the configurations used for credentials.
+#
+# Once the operator has created the server container, this task stops the actual
+# IntegrationServer executable and then runs the component tests using the usual
+# /home/aceuser/ace-server work directory: the operator support code has already 
+# set the work directory up with the necessary credentials.
+#
+# Note that the operator support code (runaceserver) is not expecting to see the
+# component tests running; this task is responsible for starting the test server
+# correctly, providing the right arguments, etc.
+#
 metadata:
   name: component-test-in-cp4i
   namespace: cp4i
@@ -10,6 +24,9 @@ spec:
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      #
+      # The script clones the repo and fixes up the registry name.
+      # 
       script: |
         #!/bin/sh
         #set -x
@@ -21,8 +38,11 @@ spec:
       volumeMounts:
         - mountPath: /work
           name: work
-    - name: deploy-ct-app
+    - name: clean-up-if-needed
       image: lachlanevenson/k8s-kubectl
+      #
+      # Ensure we start with a clean environment by deleting any existing CR.
+      # 
       script: |
         #!/bin/sh
         #set -x
@@ -51,6 +71,20 @@ spec:
         else
             echo "No CR found at " `date`
         fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: create-ace-cr
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Create the CR to make the operator create a new container and set it up.
+      #
+      # Relies on tekton/os/cp4i/create-integrationserver-ct.yaml
+      #
+      script: |
+        #!/bin/sh
+        #set -x
+        cd /work
         echo "Creating CR for component test at " `date`
         kubectl apply -f /work/ace-demo-pipeline/tekton/os/cp4i/create-integrationserver-ct.yaml
         rc=1
@@ -75,6 +109,22 @@ spec:
             echo "----------------------------------------"
             return 1
         fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: stop-server-process
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Stops the IntegrationServer process started by runaceserver in the container.
+      # 
+      # The CR was created with MQSI_PREVENT_CONTAINER_SHUTDOWN set, so the server process
+      # can be stopped by sending SIGINT to runaceserver; runaceserver will shut the server
+      # down and then wait, which leaves us free to re-use the work directory in the next step.
+      #
+      script: |
+        #!/bin/sh
+        #set -x
+        cd /work
         podName=`kubectl get -n cp4i -l release=tea-tekton-cp4i-ct pod -o name`
         echo "Found pod name $podName; sending 'kill -INT 1'"
         kubectl exec -n cp4i $podName -- kill -INT 1
@@ -105,6 +155,18 @@ spec:
             echo "----------------------------------------"
             return 1
         fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: run-component-tests
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Run the component tests and validate the output.
+      # 
+      script: |
+        #!/bin/sh
+        #set -x
+        cd /work
         echo "Running tests at " `date`
         kubectl exec -n cp4i $podName -- bash -c "IntegrationServer -w /home/aceuser/ace-server --start-msgflows false --test-project TeaRESTApplication_ComponentTest"
         if [ "$rc" == "0" ]; then
