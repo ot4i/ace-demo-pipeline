@@ -34,3 +34,26 @@ ACE product itself (run the tests and report the results); the operator support 
 about running tests.
 
 ## Pipeline setup and run
+
+Many of the steps are the same as the main repo, but use the `cp4i` namespace. Security constraints are more of an issue
+in OpenShift, and Kaniko seems to require quite a lot of extra permissions when not running in the default namespace.
+
+Configurations need to be created for the JDBC credentials (teajdbc-policy and teajdbc) and default policy project name
+in a server.conf.yaml configuration (default-policy).
+
+The initial commands are 
+```
+kubectl create secret -n cp4i docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password='PASSWORD'
+kubectl apply -f tekton/os/cp4i/cp4i-scc.yaml
+kubectl apply -f tekton/os/cp4i/service-account-cp4i.yaml
+oc adm policy add-scc-to-user cp4i-scc -n cp4i -z cp4i-tekton-service-account
+kubectl apply -f tekton/os/cp4i/12-maven-cp4i-build-task.yaml
+kubectl apply -f tekton/os/cp4i/13-component-test-in-cp4i-task.yaml
+kubectl apply -f tekton/os/cp4i/22-deploy-to-cp4i-task.yaml
+kubectl apply -f tekton/os/cp4i/cp4i-pipeline.yaml
+```
+and to run the pipeline
+```
+kubectl apply -f tekton/os/cp4i/cp4i-pipeline-run.yaml
+tkn pipelinerun -n cp4i logs cp4i-pipeline-run-1 -f
+```
