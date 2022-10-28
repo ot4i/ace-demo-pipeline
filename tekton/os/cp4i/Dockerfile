@@ -11,7 +11,8 @@ LABEL "maintainer"="trevor.dolby@ibm.com"
 
 WORKDIR /tmp/maven-output
 
-RUN mkdir /home/aceuser/ace-server/shared-classes && touch /home/aceuser/ace-server/shared-classes/test.txt
+RUN mkdir /home/aceuser/ace-server/shared-classes || /bin/true
+RUN touch /home/aceuser/ace-server/shared-classes/test.txt
 COPY ace-server /tmp/maven-output/ace-server/
 RUN rm -rf /home/aceuser/ace-server/run/* || /bin/true
 RUN cp -r /tmp/maven-output/ace-server/run/* /home/aceuser/ace-server/run/
