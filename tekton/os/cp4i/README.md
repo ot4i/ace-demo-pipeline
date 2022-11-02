@@ -33,7 +33,11 @@ See [13-component-test-in-cp4i-task.yaml](13-component-test-in-cp4i-task.yaml) f
 
 Note that this splits responsibilities between the ACE operator (create the work directory and run the initial server) and the
 ACE product itself (run the tests and report the results); the operator support code in the container does not know anything
-about running tests.
+about running tests. 
+- Anything that would also affect production (such as issues with CP4i configuration formats and other related matters) would fall under CP4i support.
+- Issues with ACE application code, JUnit options, etc, would fall under ACE product support.
+- As the tests are using the operator, the [ot4i/ace-docker](https://github.com/ot4i/ace-docker) repo is not involved, so issues should be 
+  raised with product support (CP4i or ACE itself) rather than in that repo; ace-docker is now intended only for non-operator use cases.
 
 ## Pipeline setup and run
 
