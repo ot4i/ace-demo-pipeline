@@ -1,3 +1,9 @@
+# codespaces-demo-22-11 
+
+This branch contains codespaces enablement and will also fail unit tests to demonstrate how codespaces
+can be used to fix code and try out tests. See [README-codespaces.md](README-codespaces.md) for details
+and to get started.
+
 # ACE demo pipeline
 
 Demo pipeline for ACE to show how ACE solutions can be built in CI/CD pipelines using standard tools. The main focus is on how to use existing ACE
