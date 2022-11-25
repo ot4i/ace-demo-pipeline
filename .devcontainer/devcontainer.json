@@ -1,0 +1,10 @@
+{
+    "name": "ace-demo-pipeline-devcontainer",
+    "image": "tdolby/experimental:ace-minimal-devcontainer-12.0.4.0",
+    "containerEnv": {
+        "LICENSE": "accept"
+    },
+    "remoteEnv": {
+        "REMOTE_LICENSE": "accept"
+    }
+}
