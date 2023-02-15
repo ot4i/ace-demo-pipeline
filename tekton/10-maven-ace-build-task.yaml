@@ -13,8 +13,8 @@ spec:
         #!/bin/sh
         cd /work
         git clone "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
-        id
-        ls -l /work/ace-demo-pipeline/TeaSharedLibraryJava
+        # Slightly hacky but works
+        chmod -R 777 /work/ace-demo-pipeline
       volumeMounts:
         - mountPath: /work
           name: work

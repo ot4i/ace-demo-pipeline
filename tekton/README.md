@@ -50,8 +50,8 @@ and this should build the projects, run the unit tests, create a docker image, a
 ## How to know if the pipeline has succeeded
 
 The end result should be a running container with the tea application deployed, listening for requests on /tea/index at the
-appropriate host and port. An HTTP GET on http://containerHost:containerPort/tea/index/0 should return some JSON, though the 
-name may be null if the database has no entry for id 0.
+appropriate host and port. An HTTP GET on http://containerHost:containerPort/tea/index/1 should return some JSON, though the 
+name may be null if the database has no entry for id 1.
 
 For the IBM Kubernetes Service, the public IP address of the worker node is the easiest way to access the service, but the host
 is not published in the usual external IP field. To find the external IP, use IBM Cloud dashboard to view the "Worker nodes" 
