@@ -45,11 +45,11 @@ Many of the steps are the same as the main repo, but use the `cp4i` namespace. S
 in OpenShift, and Kaniko seems to require quite a lot of extra permissions when not running in the default namespace.
 
 Configurations need to be created for the JDBC credentials (teajdbc-policy and teajdbc) and default policy project name
-in a server.conf.yaml configuration (default-policy).
+in a server.conf.yaml configuration (default-policy). See [configurations/README.md](configurations/README.md) for details.
 
 The initial commands are 
 ```
-kubectl create secret -n cp4i docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password==$(oc whoami -t)
+kubectl create secret -n cp4i docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
 kubectl apply -f tekton/os/cp4i/cp4i-scc.yaml
 kubectl apply -f tekton/os/cp4i/service-account-cp4i.yaml
 oc adm policy add-scc-to-user cp4i-scc -n cp4i -z cp4i-tekton-service-account
