@@ -13,7 +13,7 @@ The tasks rely on several different containers:
 free tier limit of 512MB), and builder variant with Maven added in.  See https://github.com/tdolby-at-uk-ibm-com/ace-docker/tree/master/experimental/ace-minimal
 for more details on the minimal image, and [minimal image build instructions](minimal-image-build/README.md) on how to build the various pre-req images.
 
-For the initial testing, variants of ace-minimal:12.0.4.0-alpine have been pushed to tdolby/experimental on DockerHub, but this is not a
+For the initial testing, variants of ace-minimal:12.0.7.0-alpine have been pushed to tdolby/experimental on DockerHub, but this is not a
 stable location, and the images should be rebuilt by anyone attempting to use this repo.
 
 ## Getting started
@@ -31,7 +31,8 @@ kubectl apply -f tekton/service-account.yaml
 ```
 The service account also has the ability to create services, deployments, etc, which are necessary for running the service.
 
-Setting up the pipeline requires Tekton to be installed, tasks to be created, and the pipeline itself to be configured:
+Setting up the pipeline requires Tekton to be installed (which may already have happend via OpenShift operators, in which case
+skip the first line), tasks to be created, and the pipeline itself to be configured:
 ```
 kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
 kubectl apply -f tekton/10-maven-ace-build-task.yaml
@@ -91,17 +92,17 @@ dashboard HTTP port can be made available locally as follows:
 kubectl --namespace tekton-pipelines port-forward --address 0.0.0.0 svc/tekton-dashboard 9097:9097
 ```
 
-## OpenShift CRC
+## OpenShift
 
 The majority of steps are the same, but the registry authentication is a little different; assuming a session logged in as kubeadmin, it would look as follows:
 ```
-kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
+kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
 ```
 Note that the actual password itself (as opposed to the hash provided by "oc whoami -t") does not work for registry authentication for some reason.
 
 After that, the pipeline run would be
 ```
-kubectl apply -f tekton/os/ace-pipeline-run-crc.yaml
+kubectl apply -f tekton/os/ace-pipeline-run.yaml
 tkn pipelinerun logs ace-pipeline-run-1 -f
 ```
 to pick up the correct registry default. The OpenShift Pipeline operator provides a web interface for the pipeline runs
@@ -111,9 +112,10 @@ To enable external connectivity from within OpenShift to enable testing, run the
 ```
 kubectl apply -f tekton/os/tea-tekton-route.yaml
 ```
-which will create a route at http://tea-route-default.apps-crc.testing (which can be changed in the yaml file).
+which will create a route at http://tea-route-default.apps-crc.testing (which can be changed in the yaml file to
+match the correct domain name for the cluster).
 
-Accessing http://tea-route-default.apps-crc.testing/tea/index/0 should result in the application running and showing
+Accessing http://tea-route-default.apps-crc.testing/tea/index/1 should result in the application running and showing
 JSON result data.
 
 ## Possible enhancements

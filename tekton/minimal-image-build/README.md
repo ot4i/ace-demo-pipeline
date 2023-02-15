@@ -21,8 +21,9 @@ kubectl apply -f tekton/service-account.yaml
 The service account also has the ability to create services, deployments, etc, which are necessary for running the service. Note that
 Windows kubectl seems to need the `--docker-email` parameter also, but the value can be anything.
 
-Setting up the pipeline requires Tekton to be installed, tasks to be created, and the pipeline itself to be configured. The following
-commands build the ace-minimal image and push it to the registry:
+Setting up the pipeline requires Tekton to be installed (which may already have happend via OpenShift operators, in which case
+skip the first line), tasks to be created, and the pipeline itself to be configured. The following commands build the ace-minimal
+image and push it to the registry:
 ```
 kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
 kubectl apply -f tekton/minimal-image-build/01-ace-minimal-image-build-and-push-task.yaml
@@ -49,17 +50,17 @@ kubectl delete pod force-pull
 kubectl apply -f tekton/force-pull-of-images.yaml
 ```
 
-## OpenShift CRC
+## OpenShift
 
 The majority of steps are the same, but the registry authentication is a little different; assuming a session logged in as kubeadmin, it would look as follows:
 ```
-kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
+kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
 ```
 Note that the actual password itself (as opposed to the hash provided by "oc whoami -t") does not work for registry authentication for some reason.
 
 After that, the pipeline runs would be
 ```
-kubectl apply -f tekton/minimal-image-build/os/ace-minimal-image-pipeline-run-crc.yaml
-kubectl apply -f tekton/minimal-image-build/os/ace-minimal-build-image-pipeline-run-crc.yaml
+kubectl apply -f tekton/minimal-image-build/os/ace-minimal-image-pipeline-run.yaml
+kubectl apply -f tekton/minimal-image-build/os/ace-minimal-build-image-pipeline-run.yaml
 ```
 to pick up the correct registry default.

@@ -13,7 +13,7 @@ spec:
         #!/bin/sh
         set -x
         cd /work
-        git clone "https://github.com/ot4i/ace-demo-pipeline"
+        git clone "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
         export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
         echo $REG_WITH_ESCAPED_SLASH
         sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/serverless/tea-tekton-knative-service.yaml

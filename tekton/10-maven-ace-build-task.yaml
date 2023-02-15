@@ -28,8 +28,6 @@ spec:
         mkdir /work/maven-output
         cd /work/ace-demo-pipeline
         id
-        ls -l /work/ace-demo-pipeline/TeaSharedLibraryJava
-        mkdir /work/ace-demo-pipeline/TeaSharedLibraryJava/classes
         mvn --no-transfer-progress -Dinstall.work.directory=/work/maven-output/ace-server install
       volumeMounts:
         - mountPath: /work
