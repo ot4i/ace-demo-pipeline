@@ -18,8 +18,11 @@ ENV LICENSE accept
 
 # The standard Maven packages on most distros bring a lot of extra packages with
 # them so we install Maven directly. 
-RUN cd /opt && \
-    curl -k https://archive.apache.org/dist/maven/maven-3/3.8.4/binaries/apache-maven-3.8.4-bin.tar.gz | tar -xzf - && \
+RUN cd /tmp && \
+    aria2 https://archive.apache.org/dist/maven/maven-3/3.8.4/binaries/apache-maven-3.8.4-bin.tar.gz && \
+    cd /opt && \
+    tar -xf /tmp/apache-maven-3.8.4-bin.tar.gz && \
+    rm /tmp/apache-maven-3.8.4-bin.tar.gz && \
     ln -s /opt/apache-maven-3.8.4/bin/mvn /usr/local/bin/mvn
 
 ENV TZ=Europe/London
