@@ -6,7 +6,7 @@ metadata:
 spec:
   license:
     accept: true
-    license: L-APEH-CCHL5W
+    license: L-APEH-CJUCNR
     use: AppConnectEnterpriseNonProductionFREE
   pod:
     containers:
