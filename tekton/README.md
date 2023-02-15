@@ -118,6 +118,12 @@ match the correct domain name for the cluster).
 Accessing http://tea-route-default.apps-crc.testing/tea/index/1 should result in the application running and showing
 JSON result data.
 
+## CP4i
+
+See [os/cp4i/README.md](os/cp4i/README.md) for details on how to create IntegrationServer CRs for CP4i, along
+with a pipeline that included running component tests in a CP4i container during the build to ensure that the
+configurations are valid.
+
 ## Possible enhancements
 
 The pipeline should use a single git commit to ensure the two tasks are actually using the same source. Alternatively, PVCs could 
