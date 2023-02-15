@@ -76,3 +76,13 @@ and to run the pipeline
 kubectl apply -f tekton/os/cp4i/cp4i-pipeline-run.yaml
 tkn pipelinerun -n cp4i logs cp4i-pipeline-run-1 -f
 ```
+
+## Results
+
+If the pipeline is successful, there should be an integration server CR called `tea-tekton-cp4i` in the cp4i namespace.
+A route should have been created, and the application can be checked by querying the URL
+
+http://tea-tekton-cp4i-http-cp4i.apps.openshift.domain.name/tea/index/1
+
+(with the appropriate domain name) to call the tea application.
+
