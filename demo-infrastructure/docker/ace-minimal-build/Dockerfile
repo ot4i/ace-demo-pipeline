@@ -1,6 +1,6 @@
-# Copyright (c) 2020 Open Technologies for Integration
+# Copyright (c) 2022 Open Technologies for Integration
 # Licensed under the MIT license (see LICENSE for details)
-ARG BASE_IMAGE=ace-minimal:12.0.4.0-alpine
+ARG BASE_IMAGE=ace-minimal:12.0.7.0-alpine
 FROM $BASE_IMAGE
 
 #
@@ -19,7 +19,7 @@ ENV LICENSE accept
 # The standard Maven packages on most distros bring a lot of extra packages with
 # them so we install Maven directly. 
 RUN cd /tmp && \
-    aria2 https://archive.apache.org/dist/maven/maven-3/3.8.4/binaries/apache-maven-3.8.4-bin.tar.gz && \
+    aria2c https://archive.apache.org/dist/maven/maven-3/3.8.4/binaries/apache-maven-3.8.4-bin.tar.gz && \
     cd /opt && \
     tar -xf /tmp/apache-maven-3.8.4-bin.tar.gz && \
     rm /tmp/apache-maven-3.8.4-bin.tar.gz && \
