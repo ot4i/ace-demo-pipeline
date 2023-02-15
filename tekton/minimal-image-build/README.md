@@ -21,6 +21,19 @@ kubectl apply -f tekton/service-account.yaml
 The service account also has the ability to create services, deployments, etc, which are necessary for running the service. Note that
 Windows kubectl seems to need the `--docker-email` parameter also, but the value can be anything.
 
+## Setting the correct product version
+
+The aceDownloadUrl value in ace-minimal-image-pipeline-run.yaml is likely to need updating, either to another version
+in the same server directory (if available) or else to an ACE developer edition URL from the IBM website. In the latter
+case, start at https://www.ibm.com/docs/en/app-connect/12.0?topic=enterprise-download-ace-developer-edition-get-started
+and proceed through the pages until the main download page with a link: 
+
+![download page](ace-dev-edition-download.png)
+
+Copy that link into the aceDownloadUrl parameter, adjusting the version numbers in the other files as needed.
+
+## Running the pipeline
+
 Setting up the pipeline requires Tekton to be installed (which may already have happend via OpenShift operators, in which case
 skip the first line), tasks to be created, and the pipeline itself to be configured. The following commands build the ace-minimal
 image and push it to the registry:
