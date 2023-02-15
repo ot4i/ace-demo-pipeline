@@ -82,7 +82,7 @@ in the policyxml should eliminate this error.
 
 The Tekton dashboard (for non-OpenShift users) can be installed as follows:
 ```
-kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml
 ```
 
 By default, the Tekton dashboard is not accessible outside the cluster; assuming a secure host somewhere, the

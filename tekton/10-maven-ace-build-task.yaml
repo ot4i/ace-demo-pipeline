@@ -12,12 +12,14 @@ spec:
       script: |
         #!/bin/sh
         cd /work
-        git clone "https://github.com/ot4i/ace-demo-pipeline"
+        git clone "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
+        id
+        ls -l /work/ace-demo-pipeline/TeaSharedLibraryJava
       volumeMounts:
         - mountPath: /work
           name: work
     - name: maven-build
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.7.0-alpine
       script: |
         #!/bin/bash
         export LICENSE=accept
@@ -25,12 +27,15 @@ spec:
         export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
         mkdir /work/maven-output
         cd /work/ace-demo-pipeline
+        id
+        ls -l /work/ace-demo-pipeline/TeaSharedLibraryJava
+        mkdir /work/ace-demo-pipeline/TeaSharedLibraryJava/classes
         mvn --no-transfer-progress -Dinstall.work.directory=/work/maven-output/ace-server install
       volumeMounts:
         - mountPath: /work
           name: work
     - name: component-test
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.7.0-alpine
       script: |
         #!/bin/bash
         export LICENSE=accept
@@ -50,7 +55,7 @@ spec:
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
     - name: next-stage-container-setup
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-alpine
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.7.0-alpine
       script: |
         #!/bin/bash
         cd /work/maven-output
@@ -70,7 +75,7 @@ spec:
         - --dockerfile=/work/maven-output/Dockerfile
         - --destination=$(params.dockerRegistry)/tea-tekton
         - --context=/work/maven-output
-        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-minimal:12.0.4.0-alpine
+        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-minimal:12.0.7.0-alpine
         - --skip-tls-verify
       volumeMounts:
         - mountPath: /work
