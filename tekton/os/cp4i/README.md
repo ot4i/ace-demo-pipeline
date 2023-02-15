@@ -8,7 +8,7 @@ allow JDBC connections to be tested using the same CP4i configurations used by t
 
 ## Container builds
 
-The pipeline creates the main applicaiton image first, and then builds the component test image on top of the first image.
+The pipeline creates the main application image first, and then builds the component test image on top of the first image.
 Kaniko is used to build both images in the pipeline, with Maven building the applications and libraries.
 
 ![Container images](images/cp4i-container-images.png)
@@ -44,11 +44,24 @@ about running tests.
 Many of the steps are the same as the main repo, but use the `cp4i` namespace. Security constraints are more of an issue
 in OpenShift, and Kaniko seems to require quite a lot of extra permissions when not running in the default namespace.
 
+The pipeline assumes the CP4i ACE integration server image has been copied to the local image registry to make the
+container builds go faster; the image must match the locations in the YAML files. See 
+https://www.ibm.com/docs/en/app-connect/containers_cd?topic=obtaining-app-connect-enterprise-server-image-from-cloud-container-registry
+for details on the available images.
+
+For example, the following sequence would tage the 12.0.7.0-r3 image and upload to the registry:
+```
+docker pull cp.icr.io/cp/appc/ace-server-prod@sha256:e1940cfedde96de2cdd345a7ca8184a69f57963874faffcd6da670243aecad47
+docker tag cp.icr.io/cp/appc/ace-server-prod@sha256:e1940cfedde96de2cdd345a7ca8184a69f57963874faffcd6da670243aecad47 image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.7.0-r3
+docker push image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.7.0-r3
+```
+
 Configurations need to be created for the JDBC credentials (teajdbc-policy and teajdbc) and default policy project name
 in a server.conf.yaml configuration (default-policy). See [configurations/README.md](configurations/README.md) for details.
 
 The initial commands are 
 ```
+kubectl create secret generic jdbc-secret --from-literal=USERID='USERNAME' --from-literal=PASSWORD='PASSWORD' --from-literal=databaseName='BLUDB' --from-literal=serverName='19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='30699'
 kubectl create secret -n cp4i docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
 kubectl apply -f tekton/os/cp4i/cp4i-scc.yaml
 kubectl apply -f tekton/os/cp4i/service-account-cp4i.yaml
