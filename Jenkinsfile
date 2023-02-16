@@ -27,9 +27,10 @@ pipeline {
         sh  '''#!/bin/bash
             if [ -f "junit-failures-occurred" ]; then
                 echo "testing failed - forcing a failure"
-                return 1
+                /bin/false
+            else
+                /bin/true
             fi
-            /bin/true
             '''
       }
     }
