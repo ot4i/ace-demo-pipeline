@@ -8,12 +8,27 @@ pipeline {
             env | sort
             mqsilist
             id
+            rm -f junit-failures-occurred
             mvn --no-transfer-progress -Dinstall.work.directory=$PWD/ace-server install
+            
+            if [ "$?" != "0" ]; then
+                echo "testing failed"
+                touch junit-failures-occurred
+            fi
+            # Test results have to be copied out of container temporary storage to be visible
             ls -l /tmp/mvn-reports
             cp -r /tmp/mvn-reports .
+            return 0
             '''
-        sh 'ls -l mvn-reports'
         junit 'mvn-reports/TEST*xml'
+        
+        sh  '''#!/bin/bash
+            if [ -f "junit-failures-occurred" ]; then
+                echo "testing failed"
+                return 1
+            fi
+            return 0
+            '''
       }
     }
 
