@@ -10,9 +10,10 @@ pipeline {
             id
             mvn --no-transfer-progress -Dinstall.work.directory=$PWD/ace-server install
             ls -l /tmp/mvn-reports
+            cp -r /tmp/mvn-reports .
             '''
-        sh 'ls -l /tmp/mvn-reports'
-        junit '/tmp/mvn-reports/TEST*xml'
+        sh 'ls -l mvn-reports'
+        junit 'mvn-reports/TEST*xml'
       }
     }
 
