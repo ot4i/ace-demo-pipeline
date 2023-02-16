@@ -59,6 +59,12 @@ docker push image-registry.openshift-image-registry.svc.cluster.local:5000/defau
 Configurations need to be created for the JDBC credentials (teajdbc-policy and teajdbc) and default policy project name
 in a server.conf.yaml configuration (default-policy). See [configurations/README.md](configurations/README.md) for details.
 
+The JDBC credentials also need to be placed in a Kubernetes secret called `jdbc-secret` so that the the non-CP4i 
+component test can access them during the pipeline run. This step (`component-test` in [maven-cp4i-build](12-maven-cp4i-build-task.yaml))
+proves that the code itself is working and connections are possible to the specified DB2 instance, while the later
+[CP4i-based component test](13-component-test-in-cp4i-task.yaml) demonstrates that the configurations are also valid
+and that the ACE server in the certified container can connect to DB2.
+
 The initial commands are 
 ```
 kubectl create secret generic jdbc-secret --from-literal=USERID='USERNAME' --from-literal=PASSWORD='PASSWORD' --from-literal=databaseName='BLUDB' --from-literal=serverName='19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='30699'
