@@ -9,6 +9,8 @@ pipeline {
             mqsilist
             id
             rm -f junit-failures-occurred
+            rm -rf $PWD/ace-server
+            
             mvn --no-transfer-progress -Dinstall.work.directory=$PWD/ace-server install
             
             if [ "$?" != "0" ]; then
