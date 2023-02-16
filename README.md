@@ -22,8 +22,8 @@ being constructed to show pipeline-friendliness rather than being a "best practi
  service, and the instructions contain OpenShift-specific sections for the needed changes. 
 
  There is also a variant of the pipeline that uses the IBM Cloud Pak for Integration and creates
- custom resources to deploy the application (amongst other changes). See the [CP4i README]
- (tekton/os/cp4i/README.md) for details and instructions.
+ custom resources to deploy the application (amongst other changes). See the 
+ [CP4i README](tekton/os/cp4i/README.md) for details and instructions.
  
 ## The application
 
