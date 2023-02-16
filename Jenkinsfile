@@ -18,16 +18,16 @@ pipeline {
             # Test results have to be copied out of container temporary storage to be visible
             ls -l /tmp/mvn-reports
             cp -r /tmp/mvn-reports .
-            return 0
+            /bin/true
             '''
         junit 'mvn-reports/TEST*xml'
         
         sh  '''#!/bin/bash
             if [ -f "junit-failures-occurred" ]; then
                 echo "testing failed"
-                return 1
+                /bin/false
             fi
-            return 0
+            /bin/true
             '''
       }
     }
