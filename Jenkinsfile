@@ -6,13 +6,23 @@ pipeline {
         sh  '''#!/bin/bash
             env | sort
             mqsilist
+            pwd
+            ls -l 
+            df -k
             '''
       }
     }
 
     stage('Test DB interactions') {
       steps {
-        sh 'echo CT'
+        sh  '''#!/bin/bash
+            echo CT
+            env | sort
+            mqsilist
+            pwd
+            ls -l 
+            df -k
+            '''
       }
     }
 
