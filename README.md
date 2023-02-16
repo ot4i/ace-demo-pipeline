@@ -1,7 +1,8 @@
 # ACE demo pipeline
 
-Demo pipeline for ACE to show how ACE solutions can be built in CI/CD pipelines using standard tools. The main focus is on how to use existing ACE
-capabilities in a pipeline, with the application being constructed to show pipeline-friendliness rather than being a "best practice" application.
+Demo pipeline for ACE to show how ACE solutions can be built in CI/CD pipelines using standard 
+tools. The main focus is on how to use existing ACE capabilities in a pipeline, with the application
+being constructed to show pipeline-friendliness rather than being a "best practice" application.
 
 
 ![Pipeline overview](ace-demo-pipeline-tekton-1.png)
@@ -16,7 +17,13 @@ capabilities in a pipeline, with the application being constructed to show pipel
 - IBM Cloud Kubernetes cluster (free tier) for running the application container
 - DB2 on Cloud (free tier) for use by the application container; credentials stored in Kubernetes secrets
 
- This repo can also be built using a GitHub action for CI enablement.
+ This repo can also be built using a GitHub action for CI enablement. It is also possible to run the
+ pipeline using OpenShift with RedHat OpenShift Pipelines instead of using the IBM Cloud Kubernetes 
+ service, and the instructions contain OpenShift-specific sections for the needed changes. 
+
+ There is also a variant of the pipeline that uses the IBM Cloud Pak for Integration and creates
+ custom resources to deploy the application (amongst other changes). See the [CP4i README]
+ (tekton/os/cp4i/README.md) for details and instructions.
  
 ## The application
 
