@@ -6,7 +6,7 @@ pipeline {
         sh  '''#!/bin/bash
             env | sort
             mqsilist
-            export M2_HOME=$PWD
+            id
             mvn --no-transfer-progress -Dinstall.work.directory=$PWD/ace-server install
             '''
       }
