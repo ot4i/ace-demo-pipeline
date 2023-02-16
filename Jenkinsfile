@@ -6,9 +6,7 @@ pipeline {
         sh  '''#!/bin/bash
             env | sort
             mqsilist
-            pwd
-            ls -l 
-            df -k
+            mvn --no-transfer-progress -Dinstall.work.directory=$PWD/ace-server install
             '''
       }
     }
