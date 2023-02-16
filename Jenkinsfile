@@ -10,6 +10,7 @@ pipeline {
             id
             mvn --no-transfer-progress -Dinstall.work.directory=$PWD/ace-server install
             '''
+        junit '/tmp/mvn-reports/TEST*xml'
       }
     }
 
