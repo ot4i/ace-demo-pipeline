@@ -9,7 +9,9 @@ pipeline {
             mqsilist
             id
             mvn --no-transfer-progress -Dinstall.work.directory=$PWD/ace-server install
+            ls -l /tmp/mvn-reports
             '''
+        sh 'ls -l /tmp/mvn-reports'
         junit '/tmp/mvn-reports/TEST*xml'
       }
     }
