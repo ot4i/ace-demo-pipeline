@@ -4,6 +4,7 @@ pipeline {
     stage('Build and UT') {
       steps {
         sh  '''#!/bin/bash
+            export HOME=/tmp
             env | sort
             mqsilist
             id
