@@ -10,7 +10,7 @@ pipeline {
             id
             rm -f junit-failures-occurred
             rm -rf $PWD/ace-server
-            
+
             mvn --no-transfer-progress -Dinstall.work.directory=$PWD/ace-server install
             
             if [ "$?" != "0" ]; then
@@ -26,8 +26,8 @@ pipeline {
         
         sh  '''#!/bin/bash
             if [ -f "junit-failures-occurred" ]; then
-                echo "testing failed"
-                /bin/false
+                echo "testing failed - forcing a failure"
+                return 1
             fi
             /bin/true
             '''
