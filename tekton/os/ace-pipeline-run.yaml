@@ -1,11 +1,11 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: ace-minimal-build-image-pipeline-run-1
+  name: ace-pipeline-run-1
 spec:
   serviceAccountName: ace-tekton-service-account
   pipelineRef:
-    name: ace-minimal-build-image-pipeline
+    name: ace-pipeline
   params:
     - name: dockerRegistry
-      value: "us.icr.io/ace-containers"
+      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"

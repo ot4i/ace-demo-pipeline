@@ -24,15 +24,15 @@ screen.
 The cluster may take a few minutes to provision. After the cluster has been created, then it should be possible
 to login to ibmcloud and then access the cluster:
 ```
-ibmcloud login -a cloud.ibm.com -r us-south -g default --apikey <api key>
+ibmcloud login -a cloud.ibm.com -r us-south --apikey <api key>
 ibmcloud ks cluster config --cluster aceCluster
 ```
 
 ## Docker registry
 
 Create a registry (under "Container Registry" on the IBM Cloud dashboard), then create a namespace 
-with a unique name to store the images used in the demo. This demo has "us.icr.io/ace-registry" set as the 
-default which means that "ace-registry" is already in use and another name must be chosen.
+with a unique name to store the images used in the demo. This demo has "us.icr.io/ace-containers" set as the 
+default which means that "ace-containers" is already in use and another name must be chosen.
 
 The various pipeline-run files in the tekton directories (ace-pipeline-run.yaml,
 minimal-image-build/ace-minimal-image-pipeline-run.yaml, etc) need to be updated with the registry information,
@@ -48,6 +48,6 @@ kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker
 
 Create a DB2 instance via "Create resource" on the IBM Cloud dashboard; create credentials and add them to the Kubernetes cluster as "jdbc-secret" like this:
 ```
-kubectl create secret generic jdbc-secret --from-literal=USERID='blah' --from-literal=PASSWORD='blah' --from-literal=databaseName='BLUDB' --from-literal=serverName='824dfd4d-99de-440d-9991-629c01b3832d.bs2io90l08kqb1od8lcg.databases.appdomain.cloud' --from-literal=portNumber='30119' 
+kubectl create secret generic jdbc-secret --from-literal=USERID='blah' --from-literal=PASSWORD='blah' --from-literal=databaseName='BLUDB' --from-literal=serverName='19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='30699' 
 ```
 with the obvious replacements.

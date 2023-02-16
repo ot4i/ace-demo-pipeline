@@ -1,11 +1,12 @@
 apiVersion: tekton.dev/v1beta1
-kind: TaskRun
+kind: PipelineRun
 metadata:
-  name: knative-deploy-taskrun-1
+  name: cp4i-pipeline-run-1
+  namespace: cp4i
 spec:
-  serviceAccountName: ace-tekton-service-account
-  taskRef:
-    name: knative-deploy
+  serviceAccountName: cp4i-tekton-service-account
+  pipelineRef:
+    name: cp4i-pipeline
   params:
     - name: dockerRegistry
       value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"

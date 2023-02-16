@@ -8,4 +8,4 @@ spec:
     name: ace-pipeline
   params:
     - name: dockerRegistry
-      value: "de.icr.io/ace-registry"
+      value: "us.icr.io/ace-containers"

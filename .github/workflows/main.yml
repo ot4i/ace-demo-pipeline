@@ -1,4 +1,4 @@
-# This is a basic workflow to help you get started with Actions
+# CI build to validate PR changes before merging
 
 name: CI
 
@@ -13,7 +13,6 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
   build:
@@ -48,7 +47,7 @@ jobs:
           ########################################################################
           curl -so moby-download-frozen-image-v2.sh https://raw.githubusercontent.com/moby/moby/master/contrib/download-frozen-image-v2.sh
           mkdir ace-minimal-download
-          bash moby-download-frozen-image-v2.sh ace-minimal-download tdolby/experimental:ace-minimal-12.0.4.0-alpine
+          bash moby-download-frozen-image-v2.sh ace-minimal-download tdolby/experimental:ace-minimal-12.0.7.0-alpine
           mkdir ace-minimal-image-unzip
           cd ace-minimal-download && grep layer.tar manifest.json | tr -d '"' | tr -d ',' | xargs -n 1 tar -C ../ace-minimal-image-unzip -xf && cd - && rm -rf ace-minimal-download
 
@@ -76,12 +75,6 @@ jobs:
           export LICENSE=accept
           export MQSI_WORKPATH=$PWD/ace-minimal-image-unzip/var/mqsi
           . ace-minimal-image-unzip/opt/ibm/ace-12/server/bin/mqsiprofile
-
-          # Using ace-minimal without WXS support
-          # 
-          # Note that this no longer works as of 12.0.4, with ibmint optimize server 
-          # being used instead.
-          #export MQSI_NO_CACHE_SUPPORT=1
 
           ########################################################################
           # 

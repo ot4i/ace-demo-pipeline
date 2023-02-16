@@ -1,0 +1,61 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-to-cp4i
+  namespace: cp4i
+spec:
+  params:
+    - name: dockerRegistry
+      type: string
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      script: |
+        #!/bin/sh
+        set -x
+        cd /work
+        git clone "https://github.com/ot4i/ace-demo-pipeline"
+        export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
+        echo $REG_WITH_ESCAPED_SLASH
+        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: deploy-app
+      image: lachlanevenson/k8s-kubectl
+      script: |
+        #!/bin/sh
+        #set -x
+        cd /work
+        kubectl get pods -n cp4i
+        
+        echo "Creating CR for application at " `date`
+        kubectl apply -f /work/ace-demo-pipeline/tekton/os/cp4i/create-integrationserver.yaml
+        rc=1
+        echo "Starting polling for operator IS at " `date`
+        for i in `seq 1 48`
+        do
+          #echo $i
+          #kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i
+          lastError=`kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i --template={{.status.phase}} 2>&1`
+          if [ "$lastError" == "Ready" ]; then
+            echo "Container is ready at " `date`
+            rc=0
+            break
+          fi
+          sleep 5
+        done
+        if [ "$rc" == "1" ]; then
+            echo "Container start failed; giving up at " `date`
+            echo "Current state of the CR:"
+            echo "----------------------------------------"
+            kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i
+            echo "----------------------------------------"
+            return 1
+        fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+  volumes:
+    - name: work
+      emptyDir: {}
