@@ -7,6 +7,9 @@ pipeline {
     string(name: 'databaseName', defaultValue: 'BLUDB', description: 'JDBC database name')
     string(name: 'serverName',   defaultValue: '19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud', description: 'JDBC database host')
     string(name: 'portNumber',   defaultValue: '30699', description: 'JDBC database port')
+    string(name: 'integrationNodeHost',   defaultValue: '10.0.0.2', description: 'Integration node REST API host or IP address')
+    string(name: 'integrationNodePort',   defaultValue: '4414', description: 'Integration node REST API port')
+    string(name: 'integrationServerName',   defaultValue: 'default', description: 'Integration server name')
   }
   stages {
     stage('Build and UT') {
@@ -77,10 +80,7 @@ pipeline {
 
     stage('Next stage deploy') {
       steps {
-        
-        sh  '''#!/bin/bash
-            mqsideploy -i 10.0.0.2 -p 4414 -e default -a tea-application-combined.bar
-            '''
+        sh "bash -c \"mqsideploy -i 10.0.0.2 -p 4414 -e default -a tea-application-combined.bar\""
       }
     }
 
