@@ -32,6 +32,8 @@ pipeline {
 
     stage('Test DB interactions') {
       steps {
+        sh "echo double quotes ${params.databaseName}"
+        sh 'echo single quote ${params.databaseName}'
         sh  '''#!/bin/bash
             echo CT
             env | sort
