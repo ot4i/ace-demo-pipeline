@@ -42,12 +42,6 @@ pipeline {
             # Set HOME to somewhere writable by Maven
             export HOME=/tmp
 
-            env | sort
-            mqsilist
-            pwd
-            ls -l 
-            df -k
-
             mkdir ${WORKDIR}/run/CTPolicies
             echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns2:policyProjectDescriptor xmlns="http://com.ibm.etools.mft.descriptor.base" xmlns:ns2="http://com.ibm.etools.mft.descriptor.policyProject"><references/></ns2:policyProjectDescriptor>' > ${WORKDIR}/run/CTPolicies/policy.descriptor
             cp /tmp/TEADJDBC.policyxml ${WORKDIR}/run/CTPolicies/
@@ -55,7 +49,6 @@ pipeline {
             sed -i "s/#policyProject: 'DefaultPolicies'/policyProject: 'CTPolicies'/g" ${WORKDIR}/server.conf.yaml
 
             rm -f */maven-reports/TEST*.xml
-
             ( cd TeaRESTApplication_ComponentTest && mvn --no-transfer-progress -Dct.work.directory=${WORKDIR} verify )
             '''
       }
@@ -74,7 +67,11 @@ pipeline {
 
     stage('Next stage deploy') {
       steps {
-        sh 'echo deploy'
+        
+        sh  '''#!/bin/bash
+            mqsideploy -i 10.0.0.2 -p 4414 -e default -a TeaSharedLibrary/tea-shlib.bar
+            mqsideploy -i 10.0.0.2 -p 4414 -e default -a TeaRESTApplication/tea.bar
+            '''
       }
     }
 
