@@ -61,7 +61,17 @@ pipeline {
 
     stage('Next stage BAR build') {
       steps {
-        sh 'echo BAR'
+         sh  '''#!/bin/bash
+            # Build a single BAR file that contains everything rather than deploying two BAR files.
+            # Deploying two BAR files (one for the shared library and the other for the application)
+            # would work, but would take longer on redeploys due to reloading the application on
+            # each deploy.
+            mqsipackagebar -w $PWD -a tea-application-combined.bar -y TeaSharedLibrary -k TeaRESTApplication
+
+            # Optional compile for XMLNSC, DFDL, and map resources. Useful as long as the target 
+            # broker is the same OS, CPU, and installation including ifixes as the build system.
+            # mqsibar --bar-file tea-application-combined.bar --compile
+            '''
       }
     }
 
@@ -69,8 +79,7 @@ pipeline {
       steps {
         
         sh  '''#!/bin/bash
-            mqsideploy -i 10.0.0.2 -p 4414 -e default -a TeaSharedLibrary/tea-shlib.bar
-            mqsideploy -i 10.0.0.2 -p 4414 -e default -a TeaRESTApplication/tea.bar
+            mqsideploy -i 10.0.0.2 -p 4414 -e default -a tea-application-combined.bar
             '''
       }
     }
