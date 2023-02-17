@@ -61,4 +61,7 @@ pipeline {
     }
 
   }
+  environment {
+    CT_JDBC = credentials('CT_JDBC')
+  }
 }
