@@ -70,6 +70,6 @@ public class TeaRESTApplication_GetFromDB_Tests {
 
             // We don't really care about the value here: if we get this far, and the JSON data
             // exists, then we've successfully connected to the database.
-            assertEquals("0", actualMessageAssembly.messagePath("JSON.Data.id").getValueAsString());
+            assertEquals("0", actualMessageAssembly.messagePath("JSON.Data.i").getValueAsString());
     }
 }
