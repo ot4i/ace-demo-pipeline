@@ -80,7 +80,7 @@ pipeline {
 
     stage('Next stage deploy') {
       steps {
-        sh "bash -c \"mqsideploy -i 10.0.0.2 -p 4414 -e default -a tea-application-combined.bar\""
+        sh "bash -c \"mqsideploy -i ${params.integrationNodeHost} -p ${params.integrationNodePort} -e ${params.integrationServerName} -a tea-application-combined.bar\""
       }
     }
 
