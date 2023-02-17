@@ -32,21 +32,26 @@ pipeline {
 
     stage('Test DB interactions') {
       steps {
-        sh "echo double quotes ${params.databaseName}"
-        sh 'echo single quote ${params.databaseName}'
+        sh "cat demo-infrastructure/TEAJDBC.policyxml | sed 's/DATABASE_NAME/${params.databaseName}/g' > /tmp/TEADJDBC.policyxml"
+        sh "sed -i 's/SERVER_NAME/${params.serverName}/g' /tmp/TEADJDBC.policyxml"
+        sh "sed -i 's/PORT_NUMBER/${params.portNumber}/g' /tmp/TEADJDBC.policyxml"
+        
         sh  '''#!/bin/bash
-            echo CT
+            export WORKDIR=$PWD/ace-server
             env | sort
             mqsilist
             pwd
             ls -l 
             df -k
+            #mkdir /home/aceuser/ace-server/run/PreProdPolicies
+            #echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns2:policyProjectDescriptor xmlns="http://com.ibm.etools.mft.descriptor.base" xmlns:ns2="http://com.ibm.etools.mft.descriptor.policyProject"><references/></ns2:policyProjectDescriptor>' > /home/aceuser/ace-server/run/PreProdPolicies/policy.descriptor
+
             echo Database credentials follow
             echo Username: $CT_JDBC_USR
             echo Password: $CT_JDBC_PSW
-            echo Name: ${params.databaseName}
-            echo Host: ${params.serverName}
-            echo Port: ${params.portNumber}
+            cat /tmp/TEADJDBC.policyxml
+
+            ( cd TeaRESTApplication_ComponentTest && mvn --no-transfer-progress -Dct.work.directory=${WORKDIR} verify )
             '''
       }
     }
