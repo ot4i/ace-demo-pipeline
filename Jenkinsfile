@@ -69,6 +69,10 @@ pipeline {
             # Deploying two BAR files (one for the shared library and the other for the application)
             # would work, but would take longer on redeploys due to reloading the application on
             # each deploy.
+            #
+            # The Tekton pipeline doesn't have this issue because the application and library are
+            # unpacked into a work directory in a container image in that pipeline, so there is no
+            # deploy to a running server.
             mqsipackagebar -w $PWD -a tea-application-combined.bar -y TeaSharedLibrary -k TeaRESTApplication
 
             # Optional compile for XMLNSC, DFDL, and map resources. Useful as long as the target 
