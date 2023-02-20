@@ -37,8 +37,7 @@ pipeline {
 
     stage('Test DB interactions') {
       steps {
-        bat  '''echo "Hello!"
-            '''
+        bat  "powershell -Command \"get-content demo-infrastructure\\TEAJDBC.policyxml | %{$_ -replace \\\"DATABASE_NAME\\\",\\\"${params.databaseName}\\\"} | %{$_ -replace \\\"SERVER_NAME\\\",\\\"${params.serverName}\\\"} | %{$_ -replace \\\"PORT_NUMBER\\\",\\\"${params.portNumber}\\\"}"
       }
       
 //      post {
