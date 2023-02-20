@@ -14,7 +14,7 @@ pipeline {
   stages {
     stage('Build and UT') {
       steps {
-        sh  '''echo "Hello!"
+        bat  '''echo "Hello!"
             '''
       }
 //      post {
@@ -26,7 +26,7 @@ pipeline {
 
     stage('Test DB interactions') {
       steps {
-        sh  '''echo "Hello!"
+        bat  '''echo "Hello!"
             '''
       }
       
@@ -40,14 +40,14 @@ pipeline {
 
     stage('Next stage BAR build') {
       steps {
-        sh  '''echo "Hello!"
+        bat  '''echo "Hello!"
             '''
       }
     }
 
     stage('Next stage deploy') {
       steps {
-        sh  '''echo "Hello!"
+        bat  '''echo "Hello!"
             '''
       }
     }
