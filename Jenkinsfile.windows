@@ -16,14 +16,23 @@ pipeline {
       steps {
         bat  '''echo "Hello!"
             dir /o:d
-            "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" mqsilist
+            IF EXIST "%TEMP%\\ace-server" (
+              rmdir /q /s %TEMP%\\ace-server
+            )
+            IF EXIST "junit-reports" (
+              rmdir /q /s junit-reports
+            )
+            "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" mqsicreateworkdir ace-server
+            "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" ibmint deploy --input-path . --output-work-directory %TEMP%\\ace-server --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --project TeaRESTApplication_UnitTest
+            "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" ibmint optimize server --work-dir %TEMP%\\ace-server --disable NodeJS
+            "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" IntegrationServer -w %TEMP%\\ace-server --test-project TeaRESTApplication_UnitTest --test-junit-options --reports-dir=junit-reports
             '''
       }
-//      post {
-//        always {
-//            junit '**/maven-reports/TEST*.xml'
-//        }
-//     }
+      post {
+        always {
+            junit '**/junit-reports/TEST*.xml'
+        }
+      }
     }
 
     stage('Test DB interactions') {
