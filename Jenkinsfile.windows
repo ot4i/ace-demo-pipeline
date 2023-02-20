@@ -17,11 +17,11 @@ pipeline {
         sh  '''echo "Hello!"
             '''
       }
-      post {
+//      post {
 //        always {
 //            junit '**/maven-reports/TEST*.xml'
 //        }
-      }
+//     }
     }
 
     stage('Test DB interactions') {
@@ -30,11 +30,11 @@ pipeline {
             '''
       }
       
-      post {
+//      post {
 //        always {
 //            junit '**/maven-reports/TEST*.xml'
 //        }
-      }
+//      }
       
     }
 
