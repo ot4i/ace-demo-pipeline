@@ -14,7 +14,7 @@ pipeline {
   stages {
     stage('Build and UT') {
       steps {
-        bat  '''echo "Hello!"
+        bat '''echo "Hello!"
             dir /o:d
             IF EXIST "%TEMP%\\ace-server" (
               rmdir /q /s %TEMP%\\ace-server
@@ -37,16 +37,31 @@ pipeline {
 
     stage('Test DB interactions') {
       steps {
-        bat  "powershell -Command \"get-content demo-infrastructure\\TEAJDBC.policyxml | %%{\$_ -replace \\\"DATABASE_NAME\\\",\\\"${params.databaseName}\\\"}\""
-        // | %{\$_ -replace \\\"SERVER_NAME\\\",\\\"${params.serverName}\\\"} | %{\$_ -replace \\\"PORT_NUMBER\\\",\\\"${params.portNumber}\\\"}"
+        bat '''
+            mkdir %TEMP%\\ace-server\\run\\CTPolicies
+            echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns2:policyProjectDescriptor xmlns=\"http://com.ibm.etools.mft.descriptor.base\" xmlns:ns2=\"http://com.ibm.etools.mft.descriptor.policyProject\"><references/></ns2:policyProjectDescriptor>" >  %TEMP%\\ace-server\\run\\CTPolicies\\policy.descriptor
+            echo "Defaults:" > %TEMP%\\ace-server\\overrides\\server.conf.yaml
+            echo "  policyProject: CTPolicies" >> %TEMP%\\ace-server\\overrides\\server.conf.yaml
+            CALL "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" mqsisetdbparms %TEMP%\\ace-server -n jdbc::tea -u $CT_JDBC_USR -p $CT_JDBC_PSW
+            '''
+        bat  "powershell -Command \"get-content demo-infrastructure\\TEAJDBC.policyxml | %%{\$_ -replace \\\"DATABASE_NAME\\\",\\\"${params.databaseName}\\\"} | %%{\$_ -replace \\\"SERVER_NAME\\\",\\\"${params.serverName}\\\"} | %%{\$_ -replace \\\"PORT_NUMBER\\\",\\\"${params.portNumber}\\\"}\" > %TEMP%\\ace-server\\run\\CTPolicies\\TEAJDBC.policyxml"
+        bat '''
+            type %TEMP%\\ace-server\\run\\CTPolicies\\TEAJDBC.policyxml
+            IF EXIST "%TEMP%\\ace-server\\run\\TeaRESTApplication_ComponentTest" (
+              rmdir /q /s %TEMP%\\ace-server\\run\\TeaRESTApplication_ComponentTest
+            )
+            IF EXIST "junit-reports" (
+              rmdir /q /s junit-reports
+            )
+            CALL "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" ibmint deploy --input-path . --output-work-directory %TEMP%\\ace-server --project TeaRESTApplication_ComponentTest
+            CALL "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" IntegrationServer -w %TEMP%\\ace-server --test-project TeaRESTApplication_ComponentTest --test-junit-options --reports-dir=junit-reports
+            '''
       }
-      
-//      post {
-//        always {
-//            junit '**/maven-reports/TEST*.xml'
-//        }
-//      }
-      
+      post {
+        always {
+            junit '**/junit-reports/TEST*.xml'
+        }
+      }
     }
 
     stage('Next stage BAR build') {
