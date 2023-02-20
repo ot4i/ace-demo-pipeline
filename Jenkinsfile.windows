@@ -18,9 +18,9 @@ pipeline {
             '''
       }
       post {
-        always {
-            junit '**/maven-reports/TEST*.xml'
-        }
+//        always {
+//            junit '**/maven-reports/TEST*.xml'
+//        }
       }
     }
 
@@ -29,11 +29,13 @@ pipeline {
         sh  '''echo "Hello!"
             '''
       }
+      
       post {
-        always {
-            junit '**/maven-reports/TEST*.xml'
-        }
+//        always {
+//            junit '**/maven-reports/TEST*.xml'
+//        }
       }
+      
     }
 
     stage('Next stage BAR build') {
