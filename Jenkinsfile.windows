@@ -66,15 +66,18 @@ pipeline {
 
     stage('Next stage BAR build') {
       steps {
-        bat  '''echo "Hello!"
+        bat  '''
+            IF EXIST "tea-application-combined.bar" (
+              del /q tea-application-combined.bar
+            )
+            CALL "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" ibmint package --input-path . --output-bar-file tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication
             '''
       }
     }
 
     stage('Next stage deploy') {
       steps {
-        bat  '''echo "Hello!"
-            '''
+        bat  "CALL \"C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace\" mqsideploy -i ${params.integrationNodeHost} -p ${params.integrationNodePort} -e ${params.integrationServerName} -a tea-application-combined.bar"
       }
     }
 
