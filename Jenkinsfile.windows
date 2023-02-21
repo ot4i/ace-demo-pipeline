@@ -11,10 +11,14 @@ pipeline {
     string(name: 'integrationNodePort',   defaultValue: '4414', description: 'Integration node REST API port')
     string(name: 'integrationServerName',   defaultValue: 'default', description: 'Integration server name')
   }
+  environment {
+    ACE_COMMAND = "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace"
+    CT_JDBC = credentials('CT_JDBC')
+  }
   stages {
     stage('Build and UT') {
       steps {
-        bat '''echo "Hello!"
+        bat '''
             dir /o:d
             IF EXIST "%TEMP%\\ace-server" (
               rmdir /q /s %TEMP%\\ace-server
@@ -22,10 +26,10 @@ pipeline {
             IF EXIST "junit-reports" (
               rmdir /q /s junit-reports
             )
-            CALL "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" mqsicreateworkdir %TEMP%\\ace-server
-            CALL "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" ibmint deploy --input-path . --output-work-directory %TEMP%\\ace-server --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --project TeaRESTApplication_UnitTest
-            CALL "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" ibmint optimize server --work-dir %TEMP%\\ace-server --disable NodeJS
-            CALL "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" IntegrationServer -w %TEMP%\\ace-server --test-project TeaRESTApplication_UnitTest --test-junit-options --reports-dir=junit-reports
+            CALL "%ACE_COMMAND%" mqsicreateworkdir %TEMP%\\ace-server
+            CALL "%ACE_COMMAND%" ibmint deploy --input-path . --output-work-directory %TEMP%\\ace-server --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --project TeaRESTApplication_UnitTest
+            CALL "%ACE_COMMAND%" ibmint optimize server --work-dir %TEMP%\\ace-server --disable NodeJS
+            CALL "%ACE_COMMAND%" IntegrationServer -w %TEMP%\\ace-server --test-project TeaRESTApplication_UnitTest --test-junit-options --reports-dir=junit-reports
             '''
       }
       post {
@@ -42,7 +46,7 @@ pipeline {
             echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><ns2:policyProjectDescriptor xmlns=\"http://com.ibm.etools.mft.descriptor.base\" xmlns:ns2=\"http://com.ibm.etools.mft.descriptor.policyProject\"><references/></ns2:policyProjectDescriptor>" >  %TEMP%\\ace-server\\run\\CTPolicies\\policy.descriptor
             echo.Defaults: > %TEMP%\\ace-server\\overrides\\server.conf.yaml
             echo.  policyProject: CTPolicies >> %TEMP%\\ace-server\\overrides\\server.conf.yaml
-            CALL "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" mqsisetdbparms -w %TEMP%\\ace-server -n jdbc::tea -u %CT_JDBC_USR% -p %CT_JDBC_PSW%
+            CALL "%ACE_COMMAND%" mqsisetdbparms -w %TEMP%\\ace-server -n jdbc::tea -u %CT_JDBC_USR% -p %CT_JDBC_PSW%
             '''
         bat  "powershell -Command \"get-content demo-infrastructure\\TEAJDBC.policyxml | %%{\$_ -replace \\\"DATABASE_NAME\\\",\\\"${params.databaseName}\\\"} | %%{\$_ -replace \\\"SERVER_NAME\\\",\\\"${params.serverName}\\\"} | %%{\$_ -replace \\\"PORT_NUMBER\\\",\\\"${params.portNumber}\\\"}\" > %TEMP%\\ace-server\\run\\CTPolicies\\TEAJDBC.policyxml"
         bat '''
@@ -53,8 +57,8 @@ pipeline {
             IF EXIST "junit-reports" (
               rmdir /q /s junit-reports
             )
-            CALL "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" ibmint deploy --input-path . --output-work-directory %TEMP%\\ace-server --project TeaRESTApplication_ComponentTest
-            CALL "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" IntegrationServer -w %TEMP%\\ace-server --test-project TeaRESTApplication_ComponentTest --test-junit-options --reports-dir=junit-reports
+            CALL "%ACE_COMMAND%" ibmint deploy --input-path . --output-work-directory %TEMP%\\ace-server --project TeaRESTApplication_ComponentTest
+            CALL "%ACE_COMMAND%" IntegrationServer -w %TEMP%\\ace-server --test-project TeaRESTApplication_ComponentTest --test-junit-options --reports-dir=junit-reports
             '''
       }
       post {
@@ -70,19 +74,16 @@ pipeline {
             IF EXIST "tea-application-combined.bar" (
               del /q tea-application-combined.bar
             )
-            CALL "C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace" ibmint package --input-path . --output-bar-file tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication
+            CALL "%ACE_COMMAND%" ibmint package --input-path . --output-bar-file tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication
             '''
       }
     }
 
     stage('Next stage deploy') {
       steps {
-        bat  "CALL \"C:\\Program Files\\IBM\\ACE\\12.0.7.0\\ace\" mqsideploy -i ${params.integrationNodeHost} -p ${params.integrationNodePort} -e ${params.integrationServerName} -a tea-application-combined.bar"
+        bat  "CALL \"%ACE_COMMAND%\" mqsideploy -i ${params.integrationNodeHost} -p ${params.integrationNodePort} -e ${params.integrationServerName} -a tea-application-combined.bar"
       }
     }
 
-  }
-  environment {
-    CT_JDBC = credentials('CT_JDBC')
   }
 }
