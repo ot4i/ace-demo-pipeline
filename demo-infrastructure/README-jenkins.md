@@ -7,7 +7,7 @@ credentials having been set up, and will run on Windows or via docker on Unix pl
 
 ## Running Jenkins
 
-Jenkins can be run from a command line as follows once downloaded:
+Jenkins can be run from a command line (using Java11) as follows once downloaded:
 ```
 java -jar jenkins.war --httpPort=8080
 ```
@@ -97,6 +97,26 @@ C:\>curl http://localhost:7800/tea/index/1
 To add tea to the index, curl can be used:
 ```
 curl -X POST --data '{"name": "Assam", "strength": 5}' http://localhost:7800/tea/index
+```
+## Common errors
+
+Incorrect credentials in Jenkins can cause component test failures while leaving the unit 
+tests running successfully.
+
+Missing TEAJDBC policy in the integration node causes runtime errors:
+```
+BIP2230E: Error detected whilst processing a message in node &apos;gen.TeaRESTApplication.getIndex (Implementation).GetFromDB.Get DB record&apos;. <br>
+BIP6253E: Error in node: getIndex (Implementation).GetFromDB.Get DB record. Could not locate JDBC Provider policy
+&apos;TEAJDBC&apos;, in the specified or default policy project, for the data source name property on this node.
+```
+
+Missing JDBC credentials shows a different runtime error:
+```
+BIP2230E: Error detected whilst processing a message in node &apos;gen.TeaRESTApplication.getIndex (Implementation).GetFromDB.Get DB record&apos;. <br>
+BIP6278E: Node &apos;getIndex (Implementation).GetFromDB.Get DB record&apos; is unable to create a connection 
+with the datasource represented by JDBCProviders policy name &apos;TEAJDBC&apos;, because of incomplete configuration
+settings. The JDBCProviders policy has been configured with securityIdentity property value &apos;tea&apos;, which 
+has not been defined by using the mqsisetdbparms or mqsicredentials command.
 ```
 
 ## Possible enhancements
