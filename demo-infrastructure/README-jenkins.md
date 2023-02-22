@@ -25,6 +25,9 @@ or Jenkinsfile.windows depending on which platform is used:
 - integrationNodePort
 - integrationServerName
 
+For Windows, the ACE_COMMAND environment variable may need to be changed to match a locally-installed
+version of ACE (currently set to 12.0.7).
+
 Once those values have been updated, then the pipeline can be constructed, but it may be a good
 idea to change "GitHub API usage" under "Configure System" in the Jenkins settings as otherwise
 messages such as the following may appear regularly:
