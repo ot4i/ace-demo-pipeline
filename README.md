@@ -25,6 +25,9 @@ being constructed to show pipeline-friendliness rather than being a "best practi
  custom resources to deploy the application (amongst other changes). See the 
  [CP4i README](tekton/os/cp4i/README.md) for details and instructions.
  
+ Jenkins can also be used to run the pipeline and deploy the application to an integration node.
+ See the [Jenkins README](demo-infrastructure/README-jenkins.md) for details and instructions.
+ 
 ## The application
 
 The application used to demonstrate the pipeline consists of a REST API that accepts JSON and interacts 
