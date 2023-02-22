@@ -183,6 +183,8 @@
 		<argument>--no-nodejs</argument>
 		<argument>--admin-rest-api</argument>
 		<argument>-1</argument>
+		<argument>--test-junit-options</argument>
+		<argument>--reports-dir=maven-reports</argument>
 		<argument>--test-project</argument>
 		<argument>TeaRESTApplication_UnitTest</argument>
 	      </arguments>
