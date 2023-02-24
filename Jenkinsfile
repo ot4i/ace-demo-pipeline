@@ -47,7 +47,7 @@ pipeline {
 
             mkdir ${WORKDIR}/run/CTPolicies
             echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns2:policyProjectDescriptor xmlns="http://com.ibm.etools.mft.descriptor.base" xmlns:ns2="http://com.ibm.etools.mft.descriptor.policyProject"><references/></ns2:policyProjectDescriptor>' > ${WORKDIR}/run/CTPolicies/policy.descriptor
-            cp /tmp/TEADJDBC.policyxml ${WORKDIR}/run/CTPolicies/
+            cp /tmp/TEAJDBC.policyxml ${WORKDIR}/run/CTPolicies/
             mqsisetdbparms -w ${WORKDIR} -n jdbc::tea -u $CT_JDBC_USR -p $CT_JDBC_PSW
             sed -i "s/#policyProject: 'DefaultPolicies'/policyProject: 'CTPolicies'/g" ${WORKDIR}/server.conf.yaml
 
