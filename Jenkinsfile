@@ -35,9 +35,9 @@ pipeline {
 
     stage('Test DB interactions') {
       steps {
-        sh "cat demo-infrastructure/TEAJDBC.policyxml | sed 's/DATABASE_NAME/${params.databaseName}/g' > /tmp/TEADJDBC.policyxml"
-        sh "sed -i 's/SERVER_NAME/${params.serverName}/g' /tmp/TEADJDBC.policyxml"
-        sh "sed -i 's/PORT_NUMBER/${params.portNumber}/g' /tmp/TEADJDBC.policyxml"
+        sh "cat demo-infrastructure/TEAJDBC.policyxml | sed 's/DATABASE_NAME/${params.databaseName}/g' > /tmp/TEAJDBC.policyxml"
+        sh "sed -i 's/SERVER_NAME/${params.serverName}/g' /tmp/TEAJDBC.policyxml"
+        sh "sed -i 's/PORT_NUMBER/${params.portNumber}/g' /tmp/TEAJDBC.policyxml"
         
         sh  '''#!/bin/bash
             # Should alread have the projects unpacked
