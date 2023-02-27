@@ -13,6 +13,8 @@ spec:
       params:
         - name: dockerRegistry
           value: $(params.dockerRegistry)
+        - name: useTransientDatabase
+          value: true
     - name: deploy-to-cluster
       taskRef:
         name: deploy-to-cluster
