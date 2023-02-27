@@ -65,6 +65,24 @@ then
     echo ""  >> /home/aceuser/ace-server/overrides/server.conf.yaml    
 fi
 
+if [[ -e "/work/jdbc/serverName" ]]
+then
+    # Component test DB2 container
+    echo "Component test DB2 container"
+    echo "policy ${TEMPLATE_POLICYXML} before"
+    cat ${TEMPLATE_POLICYXML}
+    sed -i "s/DATABASE_NAME/`cat /work/jdbc/databaseName`/g" ${TEMPLATE_POLICYXML}
+    sed -i "s/SERVER_NAME/`cat /work/jdbc/serverName`/g" ${TEMPLATE_POLICYXML}
+    sed -i "s/PORT_NUMBER/`cat /work/jdbc/portNumber`/g" ${TEMPLATE_POLICYXML}
+    sed -i "s/sslConnection=true/sslConnection=false/g" ${TEMPLATE_POLICYXML}
+    
+    echo "policy ${TEMPLATE_POLICYXML} after"
+    cat ${TEMPLATE_POLICYXML}
+    cp ${TEMPLATE_POLICYXML} /home/aceuser/ace-server/run/PreProdPolicies/
+    
+    mqsisetdbparms -w /home/aceuser/ace-server -n jdbc::tea -u `cat /work/jdbc/USERID` -p `cat /work/jdbc/PASSWORD`
+fi
+
 if [[ -e "/home/aceuser/ace-server/run/PreProdPolicies/TEAJDBC.policyxml" ]]
 then
     # Already completed

@@ -12,7 +12,7 @@ spec:
       script: |
         #!/bin/sh
         cd /work
-        git clone "https://github.com/ot4i/ace-demo-pipeline"
+        git clone "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
         # Slightly hacky but works
         chmod -R 777 /work/ace-demo-pipeline
       volumeMounts:
@@ -29,6 +29,24 @@ spec:
         cd /work/ace-demo-pipeline
         id
         mvn --no-transfer-progress -Dinstall.work.directory=/work/maven-output/ace-server install
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: optional-launch-db2
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Create the DB2 database container if needed
+      #
+      script: |
+        #!/bin/sh
+        #set -x
+        cd /work
+        ls -l 
+        ls -l /work/ace-demo-pipeline
+        ls -l /work/ace-demo-pipeline/tekton
+        /work/ace-demo-pipeline/tekton/start-db2-container.sh
+        echo "Finished starting DB2"
+        ls -lR /work/jdbc
       volumeMounts:
         - mountPath: /work
           name: work
