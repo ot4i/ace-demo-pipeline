@@ -40,11 +40,12 @@ spec:
       script: |
         #!/bin/sh
         #set -x
+        apk add bash
         cd /work
         ls -l 
         ls -l /work/ace-demo-pipeline
         ls -l /work/ace-demo-pipeline/tekton
-        /work/ace-demo-pipeline/tekton/start-db2-container.sh
+        bash /work/ace-demo-pipeline/tekton/start-db2-container.sh
         echo "Finished starting DB2"
         ls -lR /work/jdbc
       volumeMounts:

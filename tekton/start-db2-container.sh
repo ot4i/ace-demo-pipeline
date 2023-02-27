@@ -59,7 +59,7 @@ kubectl get pods -n ${NS}
 
 
 echo "Creating credentials in /work/jdbc at " `date`
-podIP=$(kubectl get pod  tea-tekton-dd9844556-5hrhj  --template '{{.status.podIP}}')
+podIP=$(kubectl get pod -n ${NS} ${POD_NAME} --template '{{.status.podIP}}')
 echo "Found podIP $podIP"
 mkdir -p /work/jdbc
 echo db2inst1 > /work/jdbc/USERID
