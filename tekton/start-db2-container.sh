@@ -92,5 +92,5 @@ EOF
 #cat $scriptFile
 chmod 775 $scriptFile
 kubectl cp $scriptFile ${NS}/${POD_NAME}:/tmp/shutdown-script.sh
-kubectl exec db2-test-pod -- /tmp/shutdown-script.sh
+# kubectl exec db2-test-pod -- /tmp/shutdown-script.sh
 rm $scriptFile
