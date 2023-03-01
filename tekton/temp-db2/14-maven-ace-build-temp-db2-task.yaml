@@ -6,15 +6,38 @@ spec:
   params:
     - name: dockerRegistry
       type: string
+    - name: useTransientDatabase
+      type: string
+      description: "Start a temporary DB2 database for use in testing; may be slow to start depending on cluster capabilities."
+      default: "false"
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
       script: |
         #!/bin/sh
         cd /work
-        git clone "https://github.com/ot4i/ace-demo-pipeline"
+        git clone "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
         # Slightly hacky but works
         chmod -R 777 /work/ace-demo-pipeline
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: optional-start-db2
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Create the DB2 database container if needed
+      #
+      script: |
+        #!/bin/sh
+        #set -x
+        if [ "$(params.useTransientDatabase)" = "true" ]; then
+          echo PROD
+          apk add bash
+          cd /work
+          ls -l /work/ace-demo-pipeline/tekton
+          bash /work/ace-demo-pipeline/tekton/start-db2-container.sh
+          echo "Finished starting DB2"
+        fi
       volumeMounts:
         - mountPath: /work
           name: work
@@ -29,6 +52,26 @@ spec:
         cd /work/ace-demo-pipeline
         id
         mvn --no-transfer-progress -Dinstall.work.directory=/work/maven-output/ace-server install
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: optional-wait-for-db2
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Waits for the DB2 database container if needed
+      #
+      script: |
+        #!/bin/sh
+        #set -x
+        if [ "$(params.useTransientDatabase)" = "true" ]; then
+          echo PROD
+          apk add bash
+          cd /work
+          ls -l /work/ace-demo-pipeline/tekton
+          bash /work/ace-demo-pipeline/tekton/wait-for-db2-container.sh
+          echo "Finished starting DB2"
+          ls -lR /work/jdbc
+        fi
       volumeMounts:
         - mountPath: /work
           name: work
@@ -52,6 +95,25 @@ spec:
           name: work
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
+    - name: optional-stop-db2
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Stop the DB2 database container if needed
+      #
+      script: |
+        #!/bin/sh
+        #set -x
+        if [ "$(params.useTransientDatabase)" = "true" ]; then
+          echo PROD
+          apk add bash
+          cd /work
+          ls -l /work/ace-demo-pipeline/tekton
+          bash /work/ace-demo-pipeline/tekton/stop-db2-container.sh
+          echo "Finished stopping DB2"
+        fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
     - name: next-stage-container-setup
       image: $(params.dockerRegistry)/ace-minimal-build:12.0.7.0-alpine
       script: |
