@@ -20,7 +20,7 @@ do
 done
 
 if [ "$rc" == "1" ]; then
-    echo "Container start failed; giving up at " `date`
+    echo "Database start failed; giving up at " `date`
     echo "Current logs from the pod:"
     echo "----------------------------------------"
     kubectl logs -n ${NS} Pod/${POD_NAME}
@@ -38,30 +38,3 @@ echo SecurePassw0rd > /work/jdbc/PASSWORD
 echo TESTDB > /work/jdbc/databaseName # From pod yaml
 echo $podIP > /work/jdbc/serverName
 echo 50000 > /work/jdbc/portNumber # default
-
-echo "Setting up auto-shutdown script at " `date`
-
-scriptFile=$(mktemp)
-cat <<EOF > $scriptFile
-#!/bin/bash
-
-# Create second script to shut the container down after 30 minutes
-
-echo "#!/bin/bash"   > /tmp/timed-shutdown.sh
-echo 'echo "### Sleeping for 1800 seconds" >> /proc/1/fd/1' >> /tmp/timed-shutdown.sh
-echo "sleep 1800"   >> /tmp/timed-shutdown.sh
-echo 'echo "### Sending SIGTERM to process 1" >> /proc/1/fd/1' >> /tmp/timed-shutdown.sh
-echo "kill -TERM 1" >> /tmp/timed-shutdown.sh
-chmod 775 /tmp/timed-shutdown.sh
-
-echo "### Starting timed shutdown script" >> /proc/1/fd/1
-cd /tmp
-echo "" | nohup /tmp/timed-shutdown.sh > /dev/null 2>&1 &
-echo "Timer script launched; exiting"
-EOF
-
-#cat $scriptFile
-chmod 775 $scriptFile
-kubectl cp $scriptFile ${NS}/${POD_NAME}:/tmp/shutdown-script.sh
-kubectl exec db2-test-pod -- /tmp/shutdown-script.sh
-rm $scriptFile
