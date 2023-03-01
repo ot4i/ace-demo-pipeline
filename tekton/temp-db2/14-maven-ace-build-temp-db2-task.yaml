@@ -24,7 +24,7 @@ spec:
       volumeMounts:
         - mountPath: /work
           name: work
-    - name: optional-start-db2
+    - name: start-db2
       image: lachlanevenson/k8s-kubectl
       #
       # Create the DB2 database container if needed
@@ -57,7 +57,7 @@ spec:
       volumeMounts:
         - mountPath: /work
           name: work
-    - name: optional-wait-for-db2
+    - name: wait-for-db2
       image: lachlanevenson/k8s-kubectl
       #
       # Waits for the DB2 database container if needed
@@ -97,7 +97,7 @@ spec:
           name: work
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
-    - name: optional-stop-db2
+    - name: stop-db2
       image: lachlanevenson/k8s-kubectl
       #
       # Stop the DB2 database container if needed
