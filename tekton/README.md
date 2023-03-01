@@ -3,7 +3,7 @@
 Used to run the pipeline stages via Tekton. Relies on the same IBM Cloud kubernetes cluster as before, with the JDBC
 credentials having been set up, and can also be run using OpenShift Code-Ready Containers (tested on 1.27).
 
-![Pipeline overview](../ace-demo-pipeline-tekton-1.png)
+![Pipeline overview](ace-demo-pipeline-tekton-1.png)
 
 The tasks rely on several different containers:
 

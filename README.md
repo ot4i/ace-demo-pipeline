@@ -5,7 +5,7 @@ tools. The main focus is on how to use existing ACE capabilities in a pipeline, 
 being constructed to show pipeline-friendliness rather than being a "best practice" application.
 
 
-![Pipeline overview](ace-demo-pipeline-tekton-1.png)
+![Pipeline overview](tekton/ace-demo-pipeline-tekton-1.png)
 
 ## Constituent parts
 
@@ -56,7 +56,7 @@ Component testing is run from TeaRESTApplication_ComponentTest and relies on JDB
 To replicate the pipeline locally, do the following:
 
 1) Fork this repo and then clone it locally; although cloning it locally straight from the ot4i repo would allow building locally, for the pipeline itself to work some of the files need to be updated. The source also needs to be accessible to the IBM Cloud Kubernetes workers, and a public github repo forked from this one is the easiest way to do this. Cloning can be achieved with the git command line, or via the ACE v12 toolkit; the ACE v12 product can be downloaded from [the IBM website](https://www.ibm.com/marketing/iwm/iwm/web/pickUrxNew.do?source=swg-wmbfd).
-2) Acquire an IBM Cloud account and create a Kubernetes cluster called "aceCluster", a Docker registry, and a DB2 on Cloud instance. More info in [cloud resources description](cloud-resources.md).
+2) Acquire an IBM Cloud account and create a Kubernetes cluster called "aceCluster", a Docker registry, and a DB2 on Cloud instance. More info in [cloud resources description](demo-infrastructure/cloud-resources.md).
 3) Build the pre-req docker images and create the required credentials; see instructions in the [demo-infrastructure](demo-infrastructure) and [tekton/minimal-image-build](tekton/minimal-image-build) directories.
 4) Component testing relies on the same DB2 on Cloud instance as the eventual application image; this is not a best practice, but does keep the demo simpler to get going, and so getting the DB2 instance credentials set up in Kubernetes and/or locally is necessary for the component tests.
 5) Try running the pipeline using the instructions in the [tekton](tekton) directory.
