@@ -9,7 +9,7 @@ spec:
     - name: useTransientDatabase
       type: string
       description: "Start a temporary DB2 database for use in testing; may be slow to start depending on cluster capabilities."
-      default: "false"
+      default: "true"
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
@@ -35,7 +35,7 @@ spec:
           apk add bash
           cd /work
           ls -l /work/ace-demo-pipeline/tekton
-          bash /work/ace-demo-pipeline/tekton/start-db2-container.sh
+          bash /work/ace-demo-pipeline/tekton/temp-db2/start-db2-container.sh
           echo "Finished starting DB2"
         fi
       volumeMounts:
@@ -68,7 +68,7 @@ spec:
           apk add bash
           cd /work
           ls -l /work/ace-demo-pipeline/tekton
-          bash /work/ace-demo-pipeline/tekton/wait-for-db2-container.sh
+          bash /work/ace-demo-pipeline/tekton/temp-db2/wait-for-db2-container.sh
           echo "Finished starting DB2"
           ls -lR /work/jdbc
         fi
@@ -108,7 +108,7 @@ spec:
           apk add bash
           cd /work
           ls -l /work/ace-demo-pipeline/tekton
-          bash /work/ace-demo-pipeline/tekton/stop-db2-container.sh
+          bash /work/ace-demo-pipeline/tekton/temp-db2/stop-db2-container.sh
           echo "Finished stopping DB2"
         fi
       volumeMounts:

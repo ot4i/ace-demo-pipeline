@@ -28,4 +28,4 @@ else
 fi
 
 echo "Creating DB2 container for component test at " `date`
-cat /work/ace-demo-pipeline/tekton/db2-test-pod.yaml | sed 's/PASSWORD_REPLACEMENT_STRING/SecurePassw0rd/g' | kubectl apply -f -
+cat /work/ace-demo-pipeline/tekton/temp-db2/db2-test-pod.yaml | sed 's/PASSWORD_REPLACEMENT_STRING/SecurePassw0rd/g' | kubectl apply -f -
