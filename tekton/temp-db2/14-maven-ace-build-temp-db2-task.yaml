@@ -2,6 +2,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: maven-ace-build
+  labels:
+    variant: temp-db2
 spec:
   params:
     - name: dockerRegistry
