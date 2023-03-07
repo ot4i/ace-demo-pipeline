@@ -1,0 +1,32 @@
+apiVersion: appconnect.ibm.com/v1beta1
+kind: IntegrationRuntime
+metadata:
+  annotations:
+    appconnect.ibm.com/hibernate: 'false'
+  name: tea-tekton-cp4i
+  namespace: cp4i
+spec:
+  flowType:
+    toolkitFlow: true
+  license:
+    accept: true
+    license: L-APEH-CJUCNR
+    use: AppConnectEnterpriseNonProductionFREE
+  configurations:
+    - teajdbc-policy
+    - default-policy
+    - teajdbc
+  template:
+    spec:
+      containers:
+        - image: >-
+            DOCKER_REGISTRY/tea-tekton-cp4i:latest
+          imagePullPolicy: Always
+          name: runtime
+          resources:
+            requests:
+              cpu: 300m
+              memory: 368Mi
+      imagePullSecrets:
+        - name: regcred
+  version: 12.0.7.0-r3
