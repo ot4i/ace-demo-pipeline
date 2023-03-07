@@ -13,10 +13,13 @@ WORKDIR /tmp/maven-output
 
 RUN mkdir /home/aceuser/ace-server/shared-classes || /bin/true
 RUN touch /home/aceuser/ace-server/shared-classes/test.txt
+
+RUN ln -s /tmp/maven-output /home/aceuser/ace-server/test-symlink-for-ir
+
 COPY ace-server /tmp/maven-output/ace-server/
 RUN rm -rf /home/aceuser/ace-server/run/* || /bin/true
 RUN cp -r /tmp/maven-output/ace-server/run/* /home/aceuser/ace-server/run/
 
 # This is needed for IntegrationRuntime support - IRs try to move the whole
 # run directory to a volume mount and fail on permissions issues.
-RUN chmod -R 777 /home/aceuser/ace-server || /bin/true
+# RUN chmod -R 777 /home/aceuser/ace-server || /bin/true
