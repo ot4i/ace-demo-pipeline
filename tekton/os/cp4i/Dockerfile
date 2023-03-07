@@ -16,4 +16,4 @@ RUN touch /home/aceuser/ace-server/shared-classes/test.txt
 COPY ace-server /tmp/maven-output/ace-server/
 RUN rm -rf /home/aceuser/ace-server/run/* || /bin/true
 RUN cp -r /tmp/maven-output/ace-server/run/* /home/aceuser/ace-server/run/
-RUN chmod -R 777 /home/aceuser/ace-server
+RUN chmod -R 777 /home/aceuser/ace-server || /bin/true
