@@ -25,4 +25,4 @@ RUN ln -s /tmp/dummy-file /home/aceuser/ace-server/run/TeaRESTApplication/META-I
 
 # This is needed for IntegrationRuntime support - IRs try to move the whole
 # run directory to a volume mount and fail on permissions issues.
-# RUN chmod -R 777 /home/aceuser/ace-server || /bin/true
+RUN chmod -R 777 /home/aceuser/ace-server || /bin/true
