@@ -48,9 +48,13 @@ should be configured to look for `Jenkinsfile.windows`, while the default of `Je
 appropriate for other platforms.
 
 Once the pipeline has been created and branches configured, the JDBC credentials need to be provided
-as a username/password credential called `CT_JDBC`. As well as creating the Jenkins credentials, the
-samevalues must be provided to the destination integration node along with a JDBC policy called 
-TEAJDBC. Using mqsisetdbparms for the credentials would look as follows
+as a username/password credential called `CT_JDBC`. The credentials can be spcified for the pipeline
+using the Jenkins UI:
+![jenkins-credential-create](jenkins-credential-create.png)
+
+As well as creating the Jenkins credentials, the same values must be provided to the destination
+integration node along with a JDBC policy called TEAJDBC. Using mqsisetdbparms for the 
+credentials would look as follows:
 ```
 mqsisetdbparms <integration node> -n jdbc::tea -u <db2user> -p <db2password>
 ```
