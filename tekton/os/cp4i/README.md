@@ -92,3 +92,10 @@ http://tea-tekton-cp4i-http-cp4i.apps.openshift.domain.name/tea/index/1
 
 (with the appropriate domain name) to call the tea application.
 
+
+## IntegrationServer CR
+
+As of ACE 12.0.7, this pipeline creates IntegrationRuntime CRs for the application. It is also
+possible to create IntegrationServer CRs (the default for previous releases), and the files to
+do this are in the [integrationserver](integrationserver) directory. The two task YAML files
+should be applied in place of the equivalent in this directory.

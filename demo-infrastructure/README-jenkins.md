@@ -28,9 +28,15 @@ or Jenkinsfile.windows depending on which platform is used:
 For Windows, the ACE_COMMAND environment variable may need to be changed to match a locally-installed
 version of ACE (currently set to 12.0.7).
 
-Once those values have been updated, then the pipeline can be constructed, but it may be a good
-idea to change "GitHub API usage" under "Configure System" in the Jenkins settings as otherwise
-messages such as the following may appear regularly:
+For Linux, the ACE build container image may need to be created first. The use of a container 
+to run ACE commands ensures that the Jenkins environment (for example, Java level) does not
+affect ACE commands, and ensures a consistent environment for building ACE artifacts. 
+See the [ace-minimal-build](/demo-infrastructure/docker/ace-minimal-build) directory for 
+information on building the image.
+
+Once those values have been updated and containers built if needed, then the pipeline can be 
+constructed, but it may be a good idea to change "GitHub API usage" under "Configure System" 
+in the Jenkins settings as otherwise messages such as the following may appear regularly:
 ```
 17:07:37 Jenkins-Imposed API Limiter: Current quota for Github API usage has 52 remaining (1 over budget). Next quota of 60 in 58 min. Sleeping for 4 min 9 sec.
 17:07:37 Jenkins is attempting to evenly distribute GitHub API requests. To configure a different rate limiting strategy, such as having Jenkins restrict GitHub API requests only when near or above the GitHub rate limit, go to "GitHub API usage" under "Configure System" in the Jenkins settings.
@@ -42,9 +48,14 @@ should be configured to look for `Jenkinsfile.windows`, while the default of `Je
 appropriate for other platforms.
 
 Once the pipeline has been created and branches configured, the JDBC credentials need to be provided
-as a username/password credential called `CT_JDBC`. As well as creating the Jenkins credentials, the
-samevalues must be provided to the destination integration node along with a JDBC policy called 
-TEAJDBC. Using mqsisetdbparms for the credentials would look as follows
+as a username/password credential called `CT_JDBC`. The credentials can be spcified for the pipeline
+using the Jenkins UI:
+
+![jenkins-credential-create](jenkins-credential-create.png)
+
+As well as creating the Jenkins credentials, the same values must be provided to the destination
+integration node along with a JDBC policy called TEAJDBC. Using mqsisetdbparms for the 
+credentials would look as follows:
 ```
 mqsisetdbparms <integration node> -n jdbc::tea -u <db2user> -p <db2password>
 ```
@@ -84,6 +95,17 @@ and be deployed to the default policy project for the integration server specifi
 Assuming the pipeline parameters have been modified in the Jenkinsfile, the pipeline can be run
 using "Build with Parameters" on the desired branch. This should start the pipeline, which will
 then pull the source down, compile and test it, and then deploy it to the integration node.
+
+If the pipeline fails immediately with logs ending in
+```
+...
+[Pipeline] // node
+[Pipeline] End of Pipeline
+ERROR: CT_JDBC
+Finished: FAILURE
+```
+then this is usually a credentials issue; verify that the credentials are created correctly
+with the correct name and contents.
 
 Once the pipeline has completed successfully, the application can be tested by using a browser
 or curl to access the application API endpoint at http://localhost:7800/tea/index/1 (assuming a
