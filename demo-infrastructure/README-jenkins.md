@@ -28,9 +28,14 @@ or Jenkinsfile.windows depending on which platform is used:
 For Windows, the ACE_COMMAND environment variable may need to be changed to match a locally-installed
 version of ACE (currently set to 12.0.7).
 
-Once those values have been updated, then the pipeline can be constructed, but it may be a good
-idea to change "GitHub API usage" under "Configure System" in the Jenkins settings as otherwise
-messages such as the following may appear regularly:
+For Linux, the ACE build container image may need to be created first. Using a container stops
+the Jenkins environment (for example, Java level) from affecting ACE commands, and ensures a 
+consistent environment for building ACE artifacts. See the [ace-minimal-build](/demo-infrastructure/docker/ace-minimal-build)
+directory for information on building the image.
+
+Once those values have been updated and containers built if needed, then the pipeline can be 
+constructed, but it may be a good idea to change "GitHub API usage" under "Configure System" 
+in the Jenkins settings as otherwise messages such as the following may appear regularly:
 ```
 17:07:37 Jenkins-Imposed API Limiter: Current quota for Github API usage has 52 remaining (1 over budget). Next quota of 60 in 58 min. Sleeping for 4 min 9 sec.
 17:07:37 Jenkins is attempting to evenly distribute GitHub API requests. To configure a different rate limiting strategy, such as having Jenkins restrict GitHub API requests only when near or above the GitHub rate limit, go to "GitHub API usage" under "Configure System" in the Jenkins settings.
