@@ -6,7 +6,7 @@ kind: Task
 # the operator support code to pull in the configurations used for credentials.
 #
 # Once the operator has created the server container, this task stops the actual
-# IntegrationRuntime executable and then runs the component tests using the usual
+# IntegrationServer executable and then runs the component tests using the usual
 # /home/aceuser/ace-server work directory: the operator support code has already 
 # set the work directory up with the necessary credentials.
 #
@@ -31,10 +31,11 @@ spec:
         #!/bin/sh
         #set -x
         cd /work
-        git clone "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
+        git clone "https://github.com/ot4i/ace-demo-pipeline"
         export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
         echo Using $REG_WITH_ESCAPED_SLASH as registry name
         sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/integrationserver/*.yaml
       volumeMounts:
         - mountPath: /work
           name: work
@@ -50,14 +51,14 @@ spec:
         kubectl get pods -n cp4i
         
         echo "Checking for previous component test leftovers at " `date`
-        kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
+        kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i-ct
         if [ "$?" == "0" ]; then
             echo "Found CR; deleting it at " `date`
-            kubectl delete -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
+            kubectl delete -n cp4i IntegrationServer/tea-tekton-cp4i-ct
             for i in `seq 1 24`
             do
               #echo $i
-              podName=`kubectl get -n cp4i -l app.kubernetes.io/name=tea-tekton-cp4i-ct pod -o name`
+              podName=`kubectl get -n cp4i -l release=tea-tekton-cp4i-ct pod -o name`
               if [ "$podName" == "" ]; then
                 echo "Pods not running at " `date`
                 rc=0
@@ -79,21 +80,21 @@ spec:
       #
       # Create the CR to make the operator create a new container and set it up.
       #
-      # Relies on tekton/os/cp4i/create-integrationruntime-ct.yaml
+      # Relies on tekton/os/cp4i/integrationserver/create-integrationserver-ct.yaml
       #
       script: |
         #!/bin/sh
         #set -x
         cd /work
         echo "Creating CR for component test at " `date`
-        kubectl apply -f /work/ace-demo-pipeline/tekton/os/cp4i/create-integrationruntime-ct.yaml
+        kubectl apply -f /work/ace-demo-pipeline/tekton/os/cp4i/integrationserver/create-integrationserver-ct.yaml
         rc=1
-        echo "Starting polling for operator IR at " `date`
+        echo "Starting polling for operator IS at " `date`
         for i in `seq 1 24`
         do
           #echo $i
-          #kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
-          lastError=`kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct --template={{.status.phase}} 2>&1`
+          #kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i-ct
+          lastError=`kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i-ct --template={{.status.phase}} 2>&1`
           if [ "$lastError" == "Ready" ]; then
             echo "Container is ready at " `date`
             rc=0
@@ -105,7 +106,7 @@ spec:
             echo "Container start failed; giving up at " `date`
             echo "Current state of the CR:"
             echo "----------------------------------------"
-            kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
+            kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i-ct
             echo "----------------------------------------"
             return 1
         fi
@@ -125,7 +126,7 @@ spec:
         #!/bin/sh
         #set -x
         cd /work
-        podName=`kubectl get -n cp4i -l app.kubernetes.io/name=tea-tekton-cp4i-ct pod -o name`
+        podName=`kubectl get -n cp4i -l release=tea-tekton-cp4i-ct pod -o name`
         echo "Found pod name $podName; sending 'kill -INT 1'"
         kubectl exec -n cp4i $podName -- kill -INT 1
         rc=1
@@ -147,7 +148,7 @@ spec:
             echo "Server stop failed; giving up at " `date`
             echo "Current state of the CR:"
             echo "----------------------------------------"
-            kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
+            kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i-ct
             echo "----------------------------------------"
             echo "Last ps output:"
             echo "----------------------------------------"
@@ -167,21 +168,21 @@ spec:
         #!/bin/sh
         #set -x
         cd /work
-        podName=`kubectl get -n cp4i -l app.kubernetes.io/name=tea-tekton-cp4i-ct pod -o name`
+        podName=`kubectl get -n cp4i -l release=tea-tekton-cp4i-ct pod -o name`
         echo "Running tests in $podName at " `date`
         kubectl exec -n cp4i $podName -- bash -c "IntegrationServer -w /home/aceuser/ace-server --start-msgflows false --test-project TeaRESTApplication_ComponentTest"
         if [ "$?" == "0" ]; then
             echo "Test run succeeded at " `date`
             echo "Deleting component test CR"
-            kubectl delete -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
-            echo "Sending second 'kill -INT 1' to trigger pod exit (may fail if pod has already been deleted)"
+            kubectl delete -n cp4i IntegrationServer/tea-tekton-cp4i-ct
+            echo "Sending second 'kill -INT 1' to trigger pod exit"
             kubectl exec -n cp4i $podName -- kill -INT 1
             return 0
         else
             echo "Test run failed at " `date`
             echo "Deleting component test CR"
-            kubectl delete -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
-            echo "Sending second 'kill -INT 1' to trigger pod exit (may fail if pod has already been deleted)"
+            kubectl delete -n cp4i IntegrationServer/tea-tekton-cp4i-ct
+            echo "Sending second 'kill -INT 1' to trigger pod exit"
             kubectl exec -n cp4i $podName -- kill -INT 1
             return 1
         fi

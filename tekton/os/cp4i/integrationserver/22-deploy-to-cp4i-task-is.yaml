@@ -14,10 +14,11 @@ spec:
         #!/bin/sh
         set -x
         cd /work
-        git clone "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
+        git clone "https://github.com/ot4i/ace-demo-pipeline"
         export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
         echo $REG_WITH_ESCAPED_SLASH
         sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/integrationserver/*.yaml
       volumeMounts:
         - mountPath: /work
           name: work
@@ -30,14 +31,14 @@ spec:
         kubectl get pods -n cp4i
         
         echo "Creating CR for application at " `date`
-        kubectl apply -f /work/ace-demo-pipeline/tekton/os/cp4i/create-integrationruntime.yaml
+        kubectl apply -f /work/ace-demo-pipeline/tekton/os/cp4i/integrationserver/create-integrationserver.yaml
         rc=1
-        echo "Starting polling for operator IR at " `date`
+        echo "Starting polling for operator IS at " `date`
         for i in `seq 1 48`
         do
           #echo $i
-          #kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i
-          lastError=`kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i --template={{.status.phase}} 2>&1`
+          #kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i
+          lastError=`kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i --template={{.status.phase}} 2>&1`
           if [ "$lastError" == "Ready" ]; then
             echo "Container is ready at " `date`
             rc=0
@@ -49,7 +50,7 @@ spec:
             echo "Container start failed; giving up at " `date`
             echo "Current state of the CR:"
             echo "----------------------------------------"
-            kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i
+            kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i
             echo "----------------------------------------"
             return 1
         fi
