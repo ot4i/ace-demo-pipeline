@@ -28,10 +28,11 @@ or Jenkinsfile.windows depending on which platform is used:
 For Windows, the ACE_COMMAND environment variable may need to be changed to match a locally-installed
 version of ACE (currently set to 12.0.7).
 
-For Linux, the ACE build container image may need to be created first. Using a container stops
-the Jenkins environment (for example, Java level) from affecting ACE commands, and ensures a 
-consistent environment for building ACE artifacts. See the [ace-minimal-build](/demo-infrastructure/docker/ace-minimal-build)
-directory for information on building the image.
+For Linux, the ACE build container image may need to be created first. The use of a container 
+to run ACE commands ensures that the Jenkins environment (for example, Java level) does not
+affect ACE commands, and ensures a consistent environment for building ACE artifacts. 
+See the [ace-minimal-build](/demo-infrastructure/docker/ace-minimal-build) directory for 
+information on building the image.
 
 Once those values have been updated and containers built if needed, then the pipeline can be 
 constructed, but it may be a good idea to change "GitHub API usage" under "Configure System" 
