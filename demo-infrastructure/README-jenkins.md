@@ -96,6 +96,17 @@ Assuming the pipeline parameters have been modified in the Jenkinsfile, the pipe
 using "Build with Parameters" on the desired branch. This should start the pipeline, which will
 then pull the source down, compile and test it, and then deploy it to the integration node.
 
+If the pipeline fails immediately with logs ending in
+```
+...
+[Pipeline] // node
+[Pipeline] End of Pipeline
+ERROR: CT_JDBC
+Finished: FAILURE
+```
+then this is usually a credentials issue; verify that the credentials are created correctly
+with the correct name and contents.
+
 Once the pipeline has completed successfully, the application can be tested by using a browser
 or curl to access the application API endpoint at http://localhost:7800/tea/index/1 (assuming a
 node without MQ on the default HTTP per-server listener port), which is likely to return null
