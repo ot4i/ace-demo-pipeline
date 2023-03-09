@@ -32,6 +32,9 @@ WORKDIR /
 RUN chgrp -R mqbrkrs /home/aceuser/ace-server
 RUN chmod -R g+wx /home/aceuser/ace-server
 
+# Patch Jenkins issues
+RUN chmod -R ugo+rwx /var/mqsi
+
 USER 1001
 
 # Default command to run
