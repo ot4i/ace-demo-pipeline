@@ -26,7 +26,7 @@ or Jenkinsfile.windows depending on which platform is used:
 - integrationServerName
 
 For Windows, the ACE_COMMAND environment variable may need to be changed to match a locally-installed
-version of ACE (currently set to 12.0.7).
+version of ACE (currently set to 12.0.7). Container support is not required.
 
 For Linux, the ACE build container image may need to be created first. The use of a container 
 to run ACE commands ensures that the Jenkins environment (for example, Java level) does not
@@ -45,7 +45,13 @@ in the Jenkins settings as otherwise messages such as the following may appear r
 To create the pipeline (and following the Jenkins pipeline tour instructions), a "multibranch 
 pipeline" should be created and pointed at the github repo. For Windows users, the pipeline 
 should be configured to look for `Jenkinsfile.windows`, while the default of `Jenkinsfile` is
-appropriate for other platforms.
+appropriate for other platforms:
+
+![jenkinsfile-windows-configuration](jenkinsfile-windows-configuration.png)
+
+If the default `Jenkinsfile` is used, then Jenkins is likely to ask for Docker support on
+Windows, which is not necessary: the Windows configuration will run ACE commands directly
+without needing a container. Docker support is require on Linux, as described above.
 
 Once the pipeline has been created and branches configured, the JDBC credentials need to be provided
 as a username/password credential called `CT_JDBC`. The credentials can be spcified for the pipeline
