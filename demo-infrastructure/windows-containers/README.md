@@ -16,9 +16,11 @@ mount the Jenkins build workspace from the host:
 The [ace-docker](https://github.com/trevor-dolby-at-ibm-com/ace-docker/tree/main/experimental/windows)
 repo contains an [ace-basic](https://github.com/trevor-dolby-at-ibm-com/ace-docker/tree/main/experimental/windows/ace-basic)
 directory that can be used to build a Jenkins agent container. See the ace-basic link for details 
-on how the image is built.
+on the image itself, and how it is constructed.
 
-The repo must be cloned locally, then run the following in the experimental/windows/ace-basic directory
+The repo must be cloned locally, possibly configured with a download URL (see 
+[ace-basic](https://github.com/trevor-dolby-at-ibm-com/ace-docker/tree/main/experimental/windows/ace-basic)),
+and then the following command should be run in the experimental/windows/ace-basic directory
 ```
 docker build --build-arg FROMIMAGE=jenkins/agent:windowsservercore-ltsc2019 -t ace-jenkins:12.0.7.0-windows  .
 ```
