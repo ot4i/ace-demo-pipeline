@@ -1,5 +1,5 @@
 pipeline {
-  agent { docker { image 'ace-basic:12.0.7.0-windows' } }
+  agent { docker { image 'ace-jenkins:12.0.7.0-windows' } }
   parameters {
     /* These values would be better moved to a configuration file and provided by */
     /* the Config File Provider plugin (or equivalent), but this is good enough   */
@@ -46,7 +46,8 @@ pipeline {
             netsh interface ip set dns name="Ethernet" static 8.8.8.8
             
             mkdir %TEMP%\\ace-server\\run\\CTPolicies
-            copy demo-infrastructure\\policy.descriptor %TEMP%\\ace-server\\run\\CTPolicies\\policy.descriptor
+            REM echo with single quotes gets corrupted when running in a Jenkins container
+            copy demo-infrastructure\\windows-containers\\policy.descriptor %TEMP%\\ace-server\\run\\CTPolicies\\policy.descriptor
             echo.Defaults: > %TEMP%\\ace-server\\overrides\\server.conf.yaml
             echo.  policyProject: CTPolicies >> %TEMP%\\ace-server\\overrides\\server.conf.yaml
             CALL "%ACE_COMMAND%" mqsisetdbparms -w %TEMP%\\ace-server -n jdbc::tea -u %CT_JDBC_USR% -p %CT_JDBC_PSW%
