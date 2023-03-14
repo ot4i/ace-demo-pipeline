@@ -32,3 +32,8 @@ jobs:
         run: |
           cd /tmp/build
           docker build --file Dockerfile --build-arg BASE_IMAGE=tdolby/experimental:ace-minimal-12.0.7.0-alpine -t tdolby/experimental:tea-github-action-latest .
+
+      - name: Push the image
+        run: |
+          cd /tmp/build
+          docker push tdolby/experimental:tea-github-action-latest
