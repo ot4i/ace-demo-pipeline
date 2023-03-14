@@ -20,8 +20,7 @@ jobs:
         run: |
           rm -rf /tmp/build
           mkdir -p /tmp/build
-          . /etc/profile.d/profile-with-product-java-paths.sh
-          mvn --no-transfer-progress -Dinstall.work.directory=/tmp/build/ace-server install
+          bash -c ". /etc/profile.d/profile-with-product-java-paths.sh && mvn --no-transfer-progress -Dinstall.work.directory=/tmp/build/ace-server install"
           cp tekton/Dockerfile /tmp/build/Dockerfile
         
       - name: Install docker
