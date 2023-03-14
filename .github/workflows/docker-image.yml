@@ -8,6 +8,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      - name: Build the Docker image
+        run: |
+          mkdir -p /tmp/build/ace-server
+          touch /tmp/build/ace-server/dummy-file
+          cp tekton/Dockerfile /tmp/build/Dockerfile
+          cd /tmp/build
+          docker build . --file Dockerfile --build-arg BASE_IMAGE=tdolby/experimental:ace-minimal-12.0.7.0-alpine tdolby/experimental:tea-github-action-latest
