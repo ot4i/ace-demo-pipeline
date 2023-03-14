@@ -16,6 +16,7 @@ jobs:
           rm -rf /tmp/build
           mkdir -p /tmp/build
           #mvn --no-transfer-progress -Dinstall.work.directory=/tmp/build/ace-server install
+          mkdir -p /tmp/build/ace-server
           touch /tmp/build/ace-server/ace-startup-script.sh
           touch /tmp/build/ace-server/read-xml-creds.sh
           touch /tmp/build/ace-server/read-hashicorp-creds.sh
