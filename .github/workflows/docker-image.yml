@@ -1,0 +1,45 @@
+name: Docker Image
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: tdolby/experimental:ace-minimal-build-12.0.7.0-alpine
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+      options: -u 0
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: Build the application
+        run: |
+          rm -rf /tmp/build
+          mkdir -p /tmp/build
+          bash -c ". /etc/profile.d/profile-with-product-java-paths.sh && mvn --no-transfer-progress -Dinstall.work.directory=/tmp/build/ace-server install"
+          cp tekton/Dockerfile /tmp/build/Dockerfile
+        
+      - name: Install docker
+        run: |
+          unset LD_LIBRARY_PATH || /bin/true
+          apk add docker
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build the image
+        run: |
+          cd /tmp/build
+          docker build --file Dockerfile --build-arg BASE_IMAGE=tdolby/experimental:ace-minimal-12.0.7.0-alpine -t tdolby/experimental:tea-github-action-latest .
+
+      - name: Push the image
+        run: |
+          cd /tmp/build
+          docker push tdolby/experimental:tea-github-action-latest
