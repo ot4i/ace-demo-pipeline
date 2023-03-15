@@ -21,14 +21,16 @@ jobs:
         username: ${{ secrets.CP_USERNAME }}
         password: ${{ secrets.CP_PASSWORD }}
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-      
-      - name: Install Maven
+      - name: Install prereqs
         run: |
+          echo "Installing tar"
+          microdnf install tar
           echo "Installing Maven"
           microdnf install maven
           
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      
       - name: Build the application and test it
         shell: bash
         run: |
