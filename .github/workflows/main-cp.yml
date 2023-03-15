@@ -39,4 +39,4 @@ jobs:
           . /opt/ibm/ace-12/server/bin/mqsiprofile
           echo "Running Maven build and unit test"
           # RedHat UBI8 Maven is too old for --no-transfer-progress
-          mvn --no-transfer-progress -Dinstall.work.directory=/tmp/maven-output/ace-server verify
+          mvn -Dinstall.work.directory=/tmp/maven-output/ace-server verify
