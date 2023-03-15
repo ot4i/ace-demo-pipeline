@@ -17,6 +17,9 @@ jobs:
     container: 
       image: cp.icr.io/cp/appc/ace:12.0.7.0-r1
       options: -u 0
+    credentials:
+      username: ${{ secrets.CP_USERNAME }}
+      password: ${{ secrets.CP_PASSWORD }}
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
