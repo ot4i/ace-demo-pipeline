@@ -20,14 +20,23 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: tdolby/experimental:ace-minimal-build-12.0.7.0-alpine
-      #options: -u 0
+      options: -u 0
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-
+      
+      - name: Install gradle
+        run: |
+          # ace-minimal doesn't have gradle so we install it here.
+          
+          # LD_LIBRARY_PATH includes glibc to make ACE work but that
+          # breaks apk so we unset it.
+          unset LD_LIBRARY_PATH || /bin/true
+          apk add gradle
+          
       - name: Build the application and test it
         shell: bash
         run: |
           # This shell has mqsiprofile already loaded
-          echo "Running Maven build and unit test"
-          mvn --no-transfer-progress -Dinstall.work.directory=/tmp/maven-output/ace-server verify
+          echo "Running Gradle build and unit test"
+          gradle -PCLASSPATH=$CLASSPATH
