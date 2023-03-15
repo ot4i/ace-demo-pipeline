@@ -34,6 +34,9 @@ jobs:
       - name: Build the application and test it
         shell: bash
         run: |
+          echo "Loading ACE profile"
+          export LICENSE=accept
+          . /opt/ibm/ace-12/server/bin/mqsiprofile
           echo "Running Maven build and unit test"
           # RedHat UBI8 Maven is too old for --no-transfer-progress
           mvn -Dinstall.work.directory=/tmp/maven-output/ace-server verify
