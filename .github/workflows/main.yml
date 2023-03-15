@@ -27,10 +27,16 @@ jobs:
       
       - name: Install gradle
         run: |
+          # ace-minimal doesn't have gradle so we install it here.
+          
+          # LD_LIBRARY_PATH includes glibc to make ACE work but that
+          # breaks apk so we unset it.
           unset LD_LIBRARY_PATH || /bin/true
           apk add gradle
           
       - name: Build the application and test it
+        shell: bash
         run: |
+          # This shell has mqsiprofile already loaded
           echo "Running Gradle build and unit test"
-          bash -c ". /etc/profile.d/profile-with-product-java-paths.sh && gradle -PCLASSPATH=$CLASSPATH"
+          gradle -PCLASSPATH=$CLASSPATH
