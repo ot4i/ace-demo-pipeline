@@ -1,0 +1,34 @@
+apiVersion: appconnect.ibm.com/v1beta1
+kind: IntegrationServer
+metadata:
+  name: tea-tekton-cp4i
+  namespace: cp4i
+spec:
+  license:
+    accept: true
+    license: L-APEH-CJUCNR
+    use: AppConnectEnterpriseNonProductionFREE
+  pod:
+    containers:
+      runtime:
+        imagePullPolicy: 'Always'
+        image: >-
+          DOCKER_REGISTRY/tea-tekton-cp4i:latest
+        resources:
+          limits:
+            cpu: 300m
+            memory: 368Mi
+          requests:
+            cpu: 300m
+            memory: 368Mi
+    # Not clear why this is needed
+    imagePullSecrets:
+    - name: 'regcred'
+  adminServerSecure: true
+  createDashboardUsers: true
+  replicas: 1
+  configurations:
+    - teajdbc-policy
+    - default-policy
+    - teajdbc
+  version: '12.0.7.0-r3'

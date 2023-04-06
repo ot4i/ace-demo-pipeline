@@ -1,0 +1,33 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: tea-azure-kv-service
+spec:
+  ports:
+    - protocol: TCP
+      port: 7800
+      targetPort: 7800
+  selector:
+    app: tea-azure-kv
+  type: NodePort
+  sessionAffinity: None
+  externalTrafficPolicy: Cluster
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aks-tea-azure-kv
+  annotations:
+    kubernetes.io/ingress.class: addon-http-application-routing
+spec:
+  rules:
+  - host: aks-tea-azure-kv.b3729271f59e4049ada6.eastus2.aksapp.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service: 
+            name: tea-azure-kv-service
+            port: 
+              number: 7800

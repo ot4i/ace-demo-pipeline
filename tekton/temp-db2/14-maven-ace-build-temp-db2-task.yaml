@@ -1,0 +1,150 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: maven-ace-build
+  labels:
+    variant: temp-db2
+spec:
+  params:
+    - name: dockerRegistry
+      type: string
+    - name: useTransientDatabase
+      type: string
+      description: "Start a temporary DB2 database for use in testing; may be slow to start depending on cluster capabilities."
+      default: "true"
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      script: |
+        #!/bin/sh
+        cd /work
+        git clone "https://github.com/ot4i/ace-demo-pipeline"
+        # Slightly hacky but works
+        chmod -R 777 /work/ace-demo-pipeline
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: start-db2
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Create the DB2 database container if needed
+      #
+      script: |
+        #!/bin/sh
+        #set -x
+        if [ "$(params.useTransientDatabase)" = "true" ]; then
+          echo PROD
+          apk add bash
+          cd /work
+          ls -l /work/ace-demo-pipeline/tekton
+          bash /work/ace-demo-pipeline/tekton/temp-db2/start-db2-container.sh
+          echo "Finished starting DB2"
+        fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: maven-build
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.7.0-alpine
+      script: |
+        #!/bin/bash
+        export LICENSE=accept
+        . /opt/ibm/ace-12/server/bin/mqsiprofile
+        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+        mkdir /work/maven-output
+        cd /work/ace-demo-pipeline
+        id
+        mvn --no-transfer-progress -Dinstall.work.directory=/work/maven-output/ace-server install
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: wait-for-db2
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Waits for the DB2 database container if needed
+      #
+      script: |
+        #!/bin/sh
+        #set -x
+        if [ "$(params.useTransientDatabase)" = "true" ]; then
+          echo PROD
+          apk add bash
+          cd /work
+          ls -l /work/ace-demo-pipeline/tekton
+          bash /work/ace-demo-pipeline/tekton/temp-db2/wait-for-db2-container.sh
+          echo "Finished starting DB2"
+          ls -lR /work/jdbc
+        fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: component-test
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.7.0-alpine
+      script: |
+        #!/bin/bash
+        export LICENSE=accept
+        . /opt/ibm/ace-12/server/bin/mqsiprofile
+        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+        # Slightly hacky, but quicker than building everything again!
+        (cd /work/maven-output/ace-server/run && tar -cf - * ) | (cd /home/aceuser/ace-server/run && tar -xf - )
+        # Set up credentials for the component tests; init-creds.sh looks in /tmp for policy
+        cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml /tmp/
+        bash /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh
+        # Build and run the tests
+        cd /work/ace-demo-pipeline/TeaRESTApplication_ComponentTest
+        mvn --no-transfer-progress -Dct.work.directory=/home/aceuser/ace-server verify
+      volumeMounts:
+        - mountPath: /work
+          name: work
+        - name: secret-volume-2
+          mountPath: /var/run/secrets/jdbc
+    - name: stop-db2
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Stop the DB2 database container if needed
+      #
+      script: |
+        #!/bin/sh
+        #set -x
+        if [ "$(params.useTransientDatabase)" = "true" ]; then
+          echo PROD
+          apk add bash
+          cd /work
+          ls -l /work/ace-demo-pipeline/tekton
+          bash /work/ace-demo-pipeline/tekton/temp-db2/stop-db2-container.sh
+          echo "Finished stopping DB2"
+        fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: next-stage-container-setup
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.7.0-alpine
+      script: |
+        #!/bin/bash
+        cd /work/maven-output
+        cp /work/ace-demo-pipeline/tekton/Dockerfile Dockerfile
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: docker-build-and-push
+      image: gcr.io/kaniko-project/executor:v0.16.0
+      # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
+      env:
+        - name: "DOCKER_CONFIG"
+          value: "/tekton/home/.docker/"
+      command:
+        - /kaniko/executor
+      args:
+        - --dockerfile=/work/maven-output/Dockerfile
+        - --destination=$(params.dockerRegistry)/tea-tekton
+        - --context=/work/maven-output
+        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-minimal:12.0.7.0-alpine
+        - --skip-tls-verify
+      volumeMounts:
+        - mountPath: /work
+          name: work
+  volumes:
+    - name: work
+      emptyDir: {}
+    - name: secret-volume-2
+      secret:
+        secretName: jdbc-secret

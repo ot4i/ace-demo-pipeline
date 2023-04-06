@@ -8,4 +8,4 @@ spec:
     name: maven-ace-build
   params:
     - name: dockerRegistry
-      value: "us.icr.io/ace-registry"
+      value: "us.icr.io/ace-containers"

@@ -3,7 +3,7 @@
 Used to run the pipeline stages via Tekton. Relies on the same IBM Cloud kubernetes cluster as before, with the JDBC
 credentials having been set up, and can also be run using OpenShift Code-Ready Containers (tested on 1.27).
 
-![Pipeline overview](../ace-demo-pipeline-tekton-1.png)
+![Pipeline overview](ace-demo-pipeline-tekton-1.png)
 
 The tasks rely on several different containers:
 
@@ -13,12 +13,12 @@ The tasks rely on several different containers:
 free tier limit of 512MB), and builder variant with Maven added in.  See https://github.com/tdolby-at-uk-ibm-com/ace-docker/tree/master/experimental/ace-minimal
 for more details on the minimal image, and [minimal image build instructions](minimal-image-build/README.md) on how to build the various pre-req images.
 
-For the initial testing, variants of ace-minimal:12.0.2.0-alpine have been pushed to tdolby/experimental on DockerHub, but this is not a
+For the initial testing, variants of ace-minimal:12.0.7.0-alpine have been pushed to tdolby/experimental on DockerHub, but this is not a
 stable location, and the images should be rebuilt by anyone attempting to use this repo.
 
 ## Getting started
 
- Most of the specific registry names need to be customised: us.icr.io may not be the right region, for example, and us.icr.io/ace-registry 
+ Most of the specific registry names need to be customised: us.icr.io may not be the right region, for example, and us.icr.io/ace-containers 
 is unlikely to be writable. Creating registries and so on (though essential) is beyond the scope of this document, but customisation of
 the artifacts in this repo (such as ace-pipeline-run.yaml) will almost certainly be necessary.
 
@@ -31,7 +31,8 @@ kubectl apply -f tekton/service-account.yaml
 ```
 The service account also has the ability to create services, deployments, etc, which are necessary for running the service.
 
-Setting up the pipeline requires Tekton to be installed, tasks to be created, and the pipeline itself to be configured:
+Setting up the pipeline requires Tekton to be installed (which may already have happend via OpenShift operators, in which case
+skip the first line), tasks to be created, and the pipeline itself to be configured:
 ```
 kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
 kubectl apply -f tekton/10-maven-ace-build-task.yaml
@@ -50,8 +51,8 @@ and this should build the projects, run the unit tests, create a docker image, a
 ## How to know if the pipeline has succeeded
 
 The end result should be a running container with the tea application deployed, listening for requests on /tea/index at the
-appropriate host and port. An HTTP GET on http://containerHost:containerPort/tea/index/0 should return some JSON, though the 
-name may be null if the database has no entry for id 0.
+appropriate host and port. An HTTP GET on http://containerHost:containerPort/tea/index/1 should return some JSON, though the 
+name may be null if the database has no entry for id 1.
 
 For the IBM Kubernetes Service, the public IP address of the worker node is the easiest way to access the service, but the host
 is not published in the usual external IP field. To find the external IP, use IBM Cloud dashboard to view the "Worker nodes" 
@@ -82,7 +83,7 @@ in the policyxml should eliminate this error.
 
 The Tekton dashboard (for non-OpenShift users) can be installed as follows:
 ```
-kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml
 ```
 
 By default, the Tekton dashboard is not accessible outside the cluster; assuming a secure host somewhere, the
@@ -91,17 +92,17 @@ dashboard HTTP port can be made available locally as follows:
 kubectl --namespace tekton-pipelines port-forward --address 0.0.0.0 svc/tekton-dashboard 9097:9097
 ```
 
-## OpenShift CRC
+## OpenShift
 
 The majority of steps are the same, but the registry authentication is a little different; assuming a session logged in as kubeadmin, it would look as follows:
 ```
-kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
+kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
 ```
 Note that the actual password itself (as opposed to the hash provided by "oc whoami -t") does not work for registry authentication for some reason.
 
 After that, the pipeline run would be
 ```
-kubectl apply -f tekton/os/ace-pipeline-run-crc.yaml
+kubectl apply -f tekton/os/ace-pipeline-run.yaml
 tkn pipelinerun logs ace-pipeline-run-1 -f
 ```
 to pick up the correct registry default. The OpenShift Pipeline operator provides a web interface for the pipeline runs
@@ -111,10 +112,17 @@ To enable external connectivity from within OpenShift to enable testing, run the
 ```
 kubectl apply -f tekton/os/tea-tekton-route.yaml
 ```
-which will create a route at http://tea-route-default.apps-crc.testing (which can be changed in the yaml file).
+which will create a route at http://tea-route-default.apps-crc.testing (which can be changed in the yaml file to
+match the correct domain name for the cluster).
 
-Accessing http://tea-route-default.apps-crc.testing/tea/index/0 should result in the application running and showing
+Accessing http://tea-route-default.apps-crc.testing/tea/index/1 should result in the application running and showing
 JSON result data.
+
+## CP4i
+
+See [os/cp4i/README.md](os/cp4i/README.md) for details on how to create IntegrationServer CRs for CP4i, along
+with a pipeline that included running component tests in a CP4i container during the build to ensure that the
+configurations are valid.
 
 ## Possible enhancements
 

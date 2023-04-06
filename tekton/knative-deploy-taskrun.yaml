@@ -8,4 +8,4 @@ spec:
     name: knative-deploy
   params:
     - name: dockerRegistry
-      value: "image-registry.openshift-image-registry.svc:5000/default"
+      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"

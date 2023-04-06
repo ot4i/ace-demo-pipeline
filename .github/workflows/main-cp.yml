@@ -1,0 +1,42 @@
+# CI build to validate PR changes before merging
+
+name: cp
+
+# Controls when the action will run. 
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    # Set the cp.icr.io ace container as runtime.
+    # Running as root (-u 0) allows the installation of the docker binaries.
+    container: 
+      image: cp.icr.io/cp/appc/ace:12.0.7.0-r1
+      options: -u 0
+      credentials:
+        username: ${{ secrets.CP_USERNAME }}
+        password: ${{ secrets.CP_PASSWORD }}
+    steps:
+      - name: Install prereqs
+        run: |
+          echo "Installing tar"
+          microdnf install tar
+          echo "Installing Maven"
+          microdnf install maven
+          
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      
+      - name: Build the application and test it
+        shell: bash
+        run: |
+          echo "Loading ACE profile"
+          export LICENSE=accept
+          . /opt/ibm/ace-12/server/bin/mqsiprofile
+          echo "Running Maven build and unit test"
+          # RedHat UBI8 Maven is too old for --no-transfer-progress
+          mvn -Dinstall.work.directory=/tmp/maven-output/ace-server verify

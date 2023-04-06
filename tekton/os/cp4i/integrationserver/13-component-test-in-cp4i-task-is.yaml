@@ -1,0 +1,194 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+#
+# This task runs the component tests built in the previous task using containers 
+# started by the CP4i operator, creating a custom resource for the server to get
+# the operator support code to pull in the configurations used for credentials.
+#
+# Once the operator has created the server container, this task stops the actual
+# IntegrationServer executable and then runs the component tests using the usual
+# /home/aceuser/ace-server work directory: the operator support code has already 
+# set the work directory up with the necessary credentials.
+#
+# Note that the operator support code (runaceserver) is not expecting to see the
+# component tests running; this task is responsible for starting the test server
+# correctly, providing the right arguments, etc.
+#
+metadata:
+  name: component-test-in-cp4i
+  namespace: cp4i
+spec:
+  params:
+    - name: dockerRegistry
+      type: string
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      #
+      # The script clones the repo and fixes up the registry name.
+      # 
+      script: |
+        #!/bin/sh
+        #set -x
+        cd /work
+        git clone "https://github.com/ot4i/ace-demo-pipeline"
+        export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
+        echo Using $REG_WITH_ESCAPED_SLASH as registry name
+        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/integrationserver/*.yaml
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: clean-up-if-needed
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Ensure we start with a clean environment by deleting any existing CR.
+      # 
+      script: |
+        #!/bin/sh
+        #set -x
+        cd /work
+        kubectl get pods -n cp4i
+        
+        echo "Checking for previous component test leftovers at " `date`
+        kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i-ct
+        if [ "$?" == "0" ]; then
+            echo "Found CR; deleting it at " `date`
+            kubectl delete -n cp4i IntegrationServer/tea-tekton-cp4i-ct
+            for i in `seq 1 24`
+            do
+              #echo $i
+              podName=`kubectl get -n cp4i -l release=tea-tekton-cp4i-ct pod -o name`
+              if [ "$podName" == "" ]; then
+                echo "Pods not running at " `date`
+                rc=0
+                break
+              else
+                echo "Found pod $podName at " `date`
+              fi
+              sleep 5
+            done
+            sleep 10
+        else
+            echo "No CR found at " `date`
+        fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: create-ace-cr
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Create the CR to make the operator create a new container and set it up.
+      #
+      # Relies on tekton/os/cp4i/integrationserver/create-integrationserver-ct.yaml
+      #
+      script: |
+        #!/bin/sh
+        #set -x
+        cd /work
+        echo "Creating CR for component test at " `date`
+        kubectl apply -f /work/ace-demo-pipeline/tekton/os/cp4i/integrationserver/create-integrationserver-ct.yaml
+        rc=1
+        echo "Starting polling for operator IS at " `date`
+        for i in `seq 1 24`
+        do
+          #echo $i
+          #kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i-ct
+          lastError=`kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i-ct --template={{.status.phase}} 2>&1`
+          if [ "$lastError" == "Ready" ]; then
+            echo "Container is ready at " `date`
+            rc=0
+            break
+          fi
+          sleep 5
+        done
+        if [ "$rc" == "1" ]; then
+            echo "Container start failed; giving up at " `date`
+            echo "Current state of the CR:"
+            echo "----------------------------------------"
+            kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i-ct
+            echo "----------------------------------------"
+            return 1
+        fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: stop-server-process
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Stops the IntegrationServer process started by runaceserver in the container.
+      # 
+      # The CR was created with MQSI_PREVENT_CONTAINER_SHUTDOWN set, so the server process
+      # can be stopped by sending SIGINT to runaceserver; runaceserver will shut the server
+      # down and then wait, which leaves us free to re-use the work directory in the next step.
+      #
+      script: |
+        #!/bin/sh
+        #set -x
+        cd /work
+        podName=`kubectl get -n cp4i -l release=tea-tekton-cp4i-ct pod -o name`
+        echo "Found pod name $podName; sending 'kill -INT 1'"
+        kubectl exec -n cp4i $podName -- kill -INT 1
+        rc=1
+        echo "Polling for shutdown at " `date`
+        for i in `seq 1 30`
+        do
+          #echo $i
+          kubectl exec -n cp4i $podName -- ps -ef > /tmp/ps-output.txt
+          lastValue=`cat /tmp/ps-output.txt | tr ' ' '\n' | grep IntegrationServer`
+          if [ "$lastValue" == "IntegrationServer" ]; then
+            echo "Server still running at " `date`
+          else
+            rc=0
+            break
+          fi
+          sleep 5
+        done
+        if [ "$rc" == "1" ]; then
+            echo "Server stop failed; giving up at " `date`
+            echo "Current state of the CR:"
+            echo "----------------------------------------"
+            kubectl get -n cp4i IntegrationServer/tea-tekton-cp4i-ct
+            echo "----------------------------------------"
+            echo "Last ps output:"
+            echo "----------------------------------------"
+            cat /tmp/ps-output.txt
+            echo "----------------------------------------"
+            return 1
+        fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: run-component-tests
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Run the component tests and validate the output.
+      # 
+      script: |
+        #!/bin/sh
+        #set -x
+        cd /work
+        podName=`kubectl get -n cp4i -l release=tea-tekton-cp4i-ct pod -o name`
+        echo "Running tests in $podName at " `date`
+        kubectl exec -n cp4i $podName -- bash -c "IntegrationServer -w /home/aceuser/ace-server --start-msgflows false --test-project TeaRESTApplication_ComponentTest"
+        if [ "$?" == "0" ]; then
+            echo "Test run succeeded at " `date`
+            echo "Deleting component test CR"
+            kubectl delete -n cp4i IntegrationServer/tea-tekton-cp4i-ct
+            echo "Sending second 'kill -INT 1' to trigger pod exit"
+            kubectl exec -n cp4i $podName -- kill -INT 1
+            return 0
+        else
+            echo "Test run failed at " `date`
+            echo "Deleting component test CR"
+            kubectl delete -n cp4i IntegrationServer/tea-tekton-cp4i-ct
+            echo "Sending second 'kill -INT 1' to trigger pod exit"
+            kubectl exec -n cp4i $podName -- kill -INT 1
+            return 1
+        fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+  volumes:
+    - name: work
+      emptyDir: {}

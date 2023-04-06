@@ -17,7 +17,7 @@ spec:
         - mountPath: /work
           name: work
     - name: maven-build
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.2.0-ubuntu-s390x
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-ubuntu-s390x
       script: |
         #!/bin/bash
         export LICENSE=accept
@@ -32,7 +32,7 @@ spec:
         - mountPath: /work
           name: work
     - name: component-test
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.2.0-ubuntu-s390x
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-ubuntu-s390x
       script: |
         #!/bin/bash
         export LICENSE=accept
@@ -54,7 +54,7 @@ spec:
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
     - name: next-stage-container-setup
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.2.0-ubuntu-s390x
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.4.0-ubuntu-s390x
       script: |
         #!/bin/bash
         cd /work/maven-output
@@ -74,7 +74,7 @@ spec:
         - --dockerfile=/work/maven-output/Dockerfile
         - --destination=$(params.dockerRegistry)/tea-tekton
         - --context=/work/maven-output
-        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-minimal:12.0.2.0-ubuntu-s390x
+        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-minimal:12.0.4.0-ubuntu-s390x
         - --skip-tls-verify
       volumeMounts:
         - mountPath: /work
