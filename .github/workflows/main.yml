@@ -21,6 +21,8 @@ jobs:
     container: 
       image: tdolby/experimental:ace-minimal-12.0.8.0-alpine
       options: -u 0
+      env:
+        LICENSE: accept
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
