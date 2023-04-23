@@ -15,6 +15,7 @@
 *.class
 
 TeaSharedLibrary/TeaSharedLibraryJava.jar
+**/maven-reports/*
 **/maven-status/*
 **/maven-archiver/*
 **/*-maven.jar
