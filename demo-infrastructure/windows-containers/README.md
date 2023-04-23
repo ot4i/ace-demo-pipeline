@@ -22,7 +22,7 @@ The repo must be cloned locally, possibly configured with a download URL (see
 [ace-basic](https://github.com/trevor-dolby-at-ibm-com/ace-docker/tree/main/experimental/windows/ace-basic)),
 and then the following command should be run in the experimental/windows/ace-basic directory
 ```
-docker build --build-arg FROMIMAGE=jenkins/agent:windowsservercore-ltsc2019 -t ace-jenkins:12.0.7.0-windows  .
+docker build --build-arg FROMIMAGE=jenkins/agent:windowsservercore-ltsc2019 -t ace-jenkins:12.0.8.0-windows  .
 ```
 to create the ace-jenkins image used by this pipeline.
 

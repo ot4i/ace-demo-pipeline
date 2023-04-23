@@ -26,7 +26,7 @@ or Jenkinsfile.windows depending on which platform is used:
 - integrationServerName
 
 For Windows, the ACE_COMMAND environment variable may need to be changed to match a locally-installed
-version of ACE (currently set to 12.0.7). Container support is not required.
+version of ACE (currently set to 12.0.8). Container support is not required.
 
 For Linux, the ACE build container image may need to be created first. The use of a container 
 to run ACE commands ensures that the Jenkins environment (for example, Java level) does not
