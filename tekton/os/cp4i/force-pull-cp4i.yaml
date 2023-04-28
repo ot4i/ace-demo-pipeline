@@ -17,12 +17,12 @@ spec:
     args: ["1"]
   - name: force-pull-cp4i-base
     imagePullPolicy: Always
-    image: DOCKER_REGISTRY/ace-minimal:12.0.7.0-alpine
+    image: DOCKER_REGISTRY/ace-minimal:12.0.8.0-alpine
     command: ["sleep"]
     args: ["1"]
   - name: force-pull-cp4i-ct
     imagePullPolicy: Always
-    image: DOCKER_REGISTRY/ace-minimal-build:12.0.7.0-alpine
+    image: DOCKER_REGISTRY/ace-minimal-build:12.0.8.0-alpine
     command: ["sleep"]
     args: ["1"]
   restartPolicy: Never

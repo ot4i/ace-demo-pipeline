@@ -38,7 +38,7 @@ spec:
         - mountPath: /work
           name: work
     - name: maven-build
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.7.0-alpine
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.8.0-alpine
       #
       # Runs the build and unit test phases, leaving the results in the work directory
       # for later steps.
@@ -55,7 +55,7 @@ spec:
         - mountPath: /work
           name: work
     - name: container-setup
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.7.0-alpine
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.8.0-alpine
       #
       # Copies files around and changes permissions to allow Kaniko to build the actual
       # runtime image in the next step. Also copies the Dockerfile into place for Kaniko.
@@ -89,13 +89,13 @@ spec:
         - --dockerfile=/work/maven-output/Dockerfile
         - --destination=$(params.dockerRegistry)/tea-tekton-cp4i
         - --context=/work/maven-output
-        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-server-prod:12.0.7.0-r3
+        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-server-prod:12.0.8.0-r1
         - --skip-tls-verify
       volumeMounts:
         - mountPath: /work
           name: work
     - name: component-test
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.7.0-alpine
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.8.0-alpine
       #
       # Builds and runs the component tests using the JDBC credentials provided from
       # the secret. Also uses the same init-creds.sh script used by the non-CP4i image
@@ -126,7 +126,7 @@ spec:
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
     - name: container-setup-ct
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.7.0-alpine
+      image: $(params.dockerRegistry)/ace-minimal-build:12.0.8.0-alpine
       #
       # Copies files around and changes permissions to allow Kaniko to build the component
       # test image in the next step. Also copies the Dockerfile into place for Kaniko.

@@ -49,11 +49,18 @@ container builds go faster; the image must match the locations in the YAML files
 https://www.ibm.com/docs/en/app-connect/containers_cd?topic=obtaining-app-connect-enterprise-server-image-from-cloud-container-registry
 for details on the available images.
 
-For example, the following sequence would tage the 12.0.7.0-r3 image and upload to the registry:
+For example, the following sequence would tage the 12.0.8.0-r1 image and upload to the registry:
 ```
-docker pull cp.icr.io/cp/appc/ace-server-prod@sha256:e1940cfedde96de2cdd345a7ca8184a69f57963874faffcd6da670243aecad47
-docker tag cp.icr.io/cp/appc/ace-server-prod@sha256:e1940cfedde96de2cdd345a7ca8184a69f57963874faffcd6da670243aecad47 image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.7.0-r3
-docker push image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.7.0-r3
+docker pull cp.icr.io/cp/appc/ace-server-prod@sha256:c41154c17a30bbbb6e1e4593c965f49ef3c86260e71143b8f33a6fbca277a3b9
+docker tag cp.icr.io/cp/appc/ace-server-prod@sha256:c41154c17a30bbbb6e1e4593c965f49ef3c86260e71143b8f33a6fbca277a3b9 image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.8.0-r1
+docker push image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.8.0-r1
+```
+
+Note that the ACE operator often uses the version-and-date form of the image tag when creating
+containers, which would also work; the following tags refer to the same image:
+```
+cp.icr.io/cp/appc/ace-server-prod:12.0.8.0-r1-20230421-154140
+cp.icr.io/cp/appc/ace-server-prod@sha256:c41154c17a30bbbb6e1e4593c965f49ef3c86260e71143b8f33a6fbca277a3b9
 ```
 
 Configurations need to be created for the JDBC credentials (teajdbc-policy and teajdbc) and default policy project name
