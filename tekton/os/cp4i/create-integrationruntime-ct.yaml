@@ -10,7 +10,7 @@ spec:
     toolkitFlow: true
   license:
     accept: true
-    license: L-APEH-CJUCNR
+    license: L-MJTK-WUU8HE
     use: AppConnectEnterpriseNonProductionFREE
   configurations:
     - teajdbc-policy
@@ -38,4 +38,4 @@ spec:
               memory: 1024Mi
       imagePullSecrets:
         - name: regcred
-  version: 12.0.7.0-r3
+  version: 12.0.8.0-r1

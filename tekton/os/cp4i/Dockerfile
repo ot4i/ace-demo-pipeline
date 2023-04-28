@@ -2,7 +2,7 @@
 # Licensed under the MIT license (see LICENSE for details)
 
 #FROM tdolby/experimental:ace-minimal-11.0.0.11-alpine
-ARG BASE_IMAGE=ace-server-prod:12.0.7.0-r3
+ARG BASE_IMAGE=ace-server-prod:12.0.8.0-r1
 FROM $BASE_IMAGE
 
 # Used for tekton and Maven containers
