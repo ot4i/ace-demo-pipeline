@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: kaniko-cache-warmer-cp4i
+  namespace: cp4i
+spec:
+  # The security and environment settings are needed for OpenShift in a non-default
+  # namespace such as cp4i. Kaniko is expecting to be root in the container.
+  stepTemplate:
+    securityContext:
+      runAsUser: 0
+    env:
+      - name: "HOME"
+        value: "/tekton/home"
+  steps:
+    - name: kaniko-warmer
+      # kaniko is expecting to run as root to build images
+      securityContext:
+        runAsUser: 0
+        capabilities:
+          add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
+      image: gcr.io/kaniko-project/warmer:latest
+      # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
+      env:
+        - name: "DOCKER_CONFIG"
+          value: "/tekton/home/.docker/"
+      args:
+        - --image=cp.icr.io/cp/appc/ace-server-prod:12.0.8.0-r1-20230421-154140
+        - --cache-dir=/cache
+      volumeMounts:
+        - name: kaniko-cache
+          mountPath: /cache
+  volumes:
+    - name: kaniko-cache
+      persistentVolumeClaim:
+        claimName: kaniko-cache-pvc

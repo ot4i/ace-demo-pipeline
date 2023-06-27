@@ -1,0 +1,9 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: cp4i-kaniko-cache-warmer-taskrun-1
+  namespace: cp4i
+spec:
+  serviceAccountName: cp4i-tekton-service-account
+  taskRef:
+    name: kaniko-cache-warmer-cp4i

@@ -89,11 +89,15 @@ spec:
         - --dockerfile=/work/maven-output/Dockerfile
         - --destination=$(params.dockerRegistry)/tea-tekton-cp4i
         - --context=/work/maven-output
-        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-server-prod:12.0.8.0-r1
+        - --build-arg=BASE_IMAGE=cp.icr.io/cp/appc/ace-server-prod:12.0.8.0-r1-20230421-154140
         - --skip-tls-verify
+        - --cache-dir=/cache
+        - --cache=true
       volumeMounts:
         - mountPath: /work
           name: work
+        - name: kaniko-cache
+          mountPath: /cache
     - name: component-test
       image: $(params.dockerRegistry)/ace-minimal-build:12.0.8.0-alpine
       #
@@ -162,12 +166,19 @@ spec:
         - --context=/work/maven-output
         - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/tea-tekton-cp4i
         - --skip-tls-verify
+        - --cache-dir=/cache
+        - --cache=true
       volumeMounts:
         - mountPath: /work
           name: work
+        - name: kaniko-cache
+          mountPath: /cache
   volumes:
     - name: work
       emptyDir: {}
     - name: secret-volume-2
       secret:
         secretName: jdbc-secret
+    - name: kaniko-cache
+      persistentVolumeClaim:
+        claimName: kaniko-cache-pvc
