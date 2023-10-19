@@ -58,6 +58,8 @@ spec:
         #!/bin/bash
         cd /work/maven-output
         cp /work/ace-demo-pipeline/tekton/Dockerfile Dockerfile
+        echo Contents of /work/maven-output/ace-server/server.components.yaml
+        cat /work/maven-output/ace-server/server.components.yaml || /bin/true
       volumeMounts:
         - mountPath: /work
           name: work
@@ -73,7 +75,7 @@ spec:
         - --dockerfile=/work/maven-output/Dockerfile
         - --destination=$(params.dockerRegistry)/tea-tekton
         - --context=/work/maven-output
-        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-minimal:12.0.10.0-alpine
+        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-minimal:12.0.10.0-alpine-java11
         - --skip-tls-verify
       volumeMounts:
         - mountPath: /work

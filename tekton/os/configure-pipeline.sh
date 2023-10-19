@@ -5,6 +5,7 @@ kubectl create secret docker-registry regcred --docker-server=image-registry.ope
 kubectl apply -f tekton/service-account.yaml
 
 kubectl apply -f tekton/minimal-image-build/01-ace-minimal-image-build-and-push-task.yaml
+kubectl apply -f tekton/minimal-image-build/03-ace-minimal-java11-image-build-and-push-task.yaml
 kubectl apply -f tekton/minimal-image-build/ace-minimal-image-pipeline.yaml
 kubectl apply -f tekton/minimal-image-build/02-ace-minimal-build-image-build-and-push-task.yaml
 kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline.yaml

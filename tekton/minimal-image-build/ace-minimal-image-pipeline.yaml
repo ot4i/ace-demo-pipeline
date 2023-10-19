@@ -11,7 +11,7 @@ spec:
   tasks:
     - name: build-images
       taskRef:
-        name: ace-minimal-image-build-and-push
+        name: ace-minimal-java11-image-build-and-push
       params:
         - name: dockerRegistry
           value: $(params.dockerRegistry)

@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: ace-minimal-java11-image-build-and-push
+spec:
+  params:
+    - name: dockerRegistry
+      type: string
+    - name: aceDownloadUrl
+      type: string
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      script: |
+        #!/bin/sh
+        cd /work
+        git clone "https://github.com/trevor-dolby-at-ibm-com/ace-docker"
+        ls -l /work/ace-docker/experimental/ace-minimal
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: ace-minimal-push
+      image: gcr.io/kaniko-project/executor:v0.16.0
+      # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
+      env:
+        - name: "DOCKER_CONFIG"
+          value: "/tekton/home/.docker/"
+      command:
+        - /kaniko/executor
+      args:
+        - --dockerfile=/work/ace-docker/experimental/ace-minimal/Dockerfile.alpine-java11
+        - --destination=$(params.dockerRegistry)/ace-minimal:12.0.10.0-alpine-java11
+        - --context=/work/ace-docker/experimental/ace-minimal
+        - --build-arg=DOWNLOAD_URL=$(params.aceDownloadUrl)
+        - --skip-tls-verify
+      volumeMounts:
+        - mountPath: /work
+          name: work
+  volumes:
+    - name: work
+      emptyDir: {}
