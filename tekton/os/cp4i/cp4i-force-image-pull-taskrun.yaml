@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: cp4i-force-image-pull-taskrun-1
+  namespace: cp4i
+spec:
+  serviceAccountName: cp4i-tekton-service-account
+  taskRef:
+    name: force-image-pull-cp4i
+  params:
+    - name: dockerRegistry
+      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"

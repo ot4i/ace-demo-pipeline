@@ -15,14 +15,14 @@ spec:
     image: DOCKER_REGISTRY/tea-tekton-cp4i-ct:latest  
     command: ["sleep"]
     args: ["1"]
-  - name: force-pull-cp4i-base
+  - name: force-pull-minimal
     imagePullPolicy: Always
-    image: DOCKER_REGISTRY/ace-minimal:12.0.8.0-alpine
+    image: DOCKER_REGISTRY/ace-minimal:12.0.10.0-alpine
     command: ["sleep"]
     args: ["1"]
-  - name: force-pull-cp4i-ct
+  - name: force-pull-minimal-build
     imagePullPolicy: Always
-    image: DOCKER_REGISTRY/ace-minimal-build:12.0.8.0-alpine
+    image: DOCKER_REGISTRY/ace-minimal-build:12.0.10.0-alpine
     command: ["sleep"]
     args: ["1"]
   restartPolicy: Never

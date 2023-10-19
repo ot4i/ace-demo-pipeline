@@ -1,5 +1,5 @@
 pipeline {
-  agent { docker { image 'ace-minimal-build:12.0.8.0-alpine' } }
+  agent { docker { image 'ace-minimal-build:12.0.10.0-alpine' } }
   parameters {
     /* These values would be better moved to a configuration file and provided by */
     /* the Config File Provider plugin (or equivalent), but this is good enough   */
