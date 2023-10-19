@@ -4,7 +4,7 @@ metadata:
   name: tea-route
   namespace: default
 spec:
-  host: tea-route-default.apps-crc.testing
+  host: tea-route-default.apps.openshift-20230428.dolbyfamily.org
   to:
     kind: Service
     name: tea-tekton-service
