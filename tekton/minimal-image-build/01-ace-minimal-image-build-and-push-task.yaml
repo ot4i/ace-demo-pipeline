@@ -8,13 +8,21 @@ spec:
       type: string
     - name: aceDownloadUrl
       type: string
+    - name: url
+      type: string
+    - name: revision
+      type: string
+    - name: runtimeImage
+      type: string
+    - name: aceDockerFile
+      type: string
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
       script: |
         #!/bin/sh
         cd /work
-        git clone "https://github.com/trevor-dolby-at-ibm-com/ace-docker"
+        git clone -b $(params.revision) $(params.url)
         ls -l /work/ace-docker/experimental/ace-minimal
       volumeMounts:
         - mountPath: /work
@@ -28,8 +36,8 @@ spec:
       command:
         - /kaniko/executor
       args:
-        - --dockerfile=/work/ace-docker/experimental/ace-minimal/Dockerfile.alpine
-        - --destination=$(params.dockerRegistry)/ace-minimal:12.0.10.0-alpine
+        - --dockerfile=/work/ace-docker/$(params.aceDockerFile)
+        - --destination=$(params.dockerRegistry)/$(params.runtimeImage)
         - --context=/work/ace-docker/experimental/ace-minimal
         - --build-arg=DOWNLOAD_URL=$(params.aceDownloadUrl)
         - --skip-tls-verify

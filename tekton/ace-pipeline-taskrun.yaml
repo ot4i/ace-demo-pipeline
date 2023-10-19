@@ -9,3 +9,15 @@ spec:
   params:
     - name: dockerRegistry
       value: "us.icr.io/ace-containers"
+    - name: url
+      type: string
+      default: "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
+    - name: revision
+      type: string
+      default: "main"
+    - name: buildImage
+      type: string
+      default: "ace-minimal-build:12.0.10.0-alpine"
+    - name: runtimeImage
+      type: string
+      default: "ace-minimal:12.0.10.0-alpine"
