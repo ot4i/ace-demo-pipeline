@@ -10,7 +10,7 @@ spec:
     toolkitFlow: true
   license:
     accept: true
-    license: L-MJTK-WUU8HE
+    license: L-UTKS-P46KK2
     use: AppConnectEnterpriseNonProductionFREE
   template:
     spec:
