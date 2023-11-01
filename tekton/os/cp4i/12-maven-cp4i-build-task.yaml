@@ -24,6 +24,14 @@ spec:
   params:
     - name: dockerRegistry
       type: string
+    - name: url
+      type: string
+    - name: revision
+      type: string
+    - name: buildImage
+      type: string
+    - name: runtimeImage
+      type: string
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
@@ -33,12 +41,12 @@ spec:
       script: |
         #!/bin/sh
         cd /work
-        git clone "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
+        git clone -b $(params.revision) $(params.url)
       volumeMounts:
         - mountPath: /work
           name: work
     - name: maven-build
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.10.0-alpine
+      image: $(params.dockerRegistry)/$(params.buildImage)
       #
       # Runs the build and unit test phases, leaving the results in the work directory
       # for later steps.
@@ -48,6 +56,8 @@ spec:
         export LICENSE=accept
         . /opt/ibm/ace-12/server/bin/mqsiprofile
         export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+        which javac
+        javac -version
         mkdir /work/maven-output
         cd /work/ace-demo-pipeline
         mvn --no-transfer-progress -Dinstall.work.directory=/work/maven-output/ace-server install
@@ -55,7 +65,7 @@ spec:
         - mountPath: /work
           name: work
     - name: container-setup
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.10.0-alpine
+      image: $(params.dockerRegistry)/$(params.buildImage)
       #
       # Copies files around and changes permissions to allow Kaniko to build the actual
       # runtime image in the next step. Also copies the Dockerfile into place for Kaniko.
@@ -89,17 +99,17 @@ spec:
         - --dockerfile=/work/maven-output/Dockerfile
         - --destination=$(params.dockerRegistry)/tea-tekton-cp4i
         - --context=/work/maven-output
-        - --build-arg=BASE_IMAGE=cp.icr.io/cp/appc/ace-server-prod:12.0.10.0-r1-20230421-154140
+        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/$(params.runtimeImage)
         - --skip-tls-verify
-        - --cache-dir=/cache
-        - --cache=true
+        #- --cache-dir=/cache
+        #- --cache=true
       volumeMounts:
         - mountPath: /work
           name: work
-        - name: kaniko-cache
-          mountPath: /cache
+        #- name: kaniko-cache
+        #  mountPath: /cache
     - name: component-test
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.10.0-alpine
+      image: $(params.dockerRegistry)/$(params.buildImage)
       #
       # Builds and runs the component tests using the JDBC credentials provided from
       # the secret. Also uses the same init-creds.sh script used by the non-CP4i image
@@ -130,7 +140,7 @@ spec:
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
     - name: container-setup-ct
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.10.0-alpine
+      image: $(params.dockerRegistry)/$(params.buildImage)
       #
       # Copies files around and changes permissions to allow Kaniko to build the component
       # test image in the next step. Also copies the Dockerfile into place for Kaniko.
@@ -166,19 +176,19 @@ spec:
         - --context=/work/maven-output
         - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/tea-tekton-cp4i
         - --skip-tls-verify
-        - --cache-dir=/cache
-        - --cache=true
+        #- --cache-dir=/cache
+        #- --cache=true
       volumeMounts:
         - mountPath: /work
           name: work
-        - name: kaniko-cache
-          mountPath: /cache
+        #- name: kaniko-cache
+        #  mountPath: /cache
   volumes:
     - name: work
       emptyDir: {}
     - name: secret-volume-2
       secret:
         secretName: jdbc-secret
-    - name: kaniko-cache
-      persistentVolumeClaim:
-        claimName: kaniko-cache-pvc
+    #- name: kaniko-cache
+    #  persistentVolumeClaim:
+    #    claimName: kaniko-cache-pvc

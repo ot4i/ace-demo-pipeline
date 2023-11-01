@@ -21,6 +21,10 @@ spec:
   params:
     - name: dockerRegistry
       type: string
+    - name: url
+      type: string
+    - name: revision
+      type: string
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
@@ -31,7 +35,7 @@ spec:
         #!/bin/sh
         #set -x
         cd /work
-        git clone "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
+        git clone -b $(params.revision) $(params.url)
         export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
         echo Using $REG_WITH_ESCAPED_SLASH as registry name
         sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml

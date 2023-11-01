@@ -9,3 +9,7 @@ spec:
   params:
     - name: dockerRegistry
       value: "us.icr.io/ace-containers"
+#    - name: buildImage
+#      value: "ace-minimal-build:12.0.10.0-alpine-java11"
+#    - name: runtimeImage
+#      value: "ace-minimal:12.0.10.0-alpine-java11"

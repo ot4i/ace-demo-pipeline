@@ -47,20 +47,25 @@ in OpenShift, and Kaniko seems to require quite a lot of extra permissions when 
 The pipeline assumes the CP4i ACE integration server image has been copied to the local image registry to make the
 container builds go faster; the image must match the locations in the YAML files. See 
 https://www.ibm.com/docs/en/app-connect/containers_cd?topic=obtaining-app-connect-enterprise-server-image-from-cloud-container-registry
-for details on the available images.
-
-For example, the following sequence would tage the 12.0.7.0-r1 image and upload to the registry:
+for details on the available images, and it may be helpful to use port forwarding to pull and push the images from
+a local system using a command such as 
 ```
-docker pull cp.icr.io/cp/appc/ace-server-prod@sha256:c41154c17a30bbbb6e1e4593c965f49ef3c86260e71143b8f33a6fbca277a3b9
-docker tag cp.icr.io/cp/appc/ace-server-prod@sha256:c41154c17a30bbbb6e1e4593c965f49ef3c86260e71143b8f33a6fbca277a3b9 image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.7.0-r1
-docker push image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.7.0-r1
+kubectl --namespace openshift-image-registry port-forward --address 0.0.0.0 svc/image-registry 5000:5000
+```
+at which point the OpenShift registry will be accessible from localhost:5000.
+
+As an example, the following sequence would tage the 12.0.10.0-r1 image and upload to the registry:
+```
+docker pull cp.icr.io/cp/appc/ace-server-prod@sha256:d0e4347ce61007aaba0242e26ac5f0dc82296cfbc59857170c7059e2f4e4b4fc
+docker tag cp.icr.io/cp/appc/ace-server-prod@sha256:d0e4347ce61007aaba0242e26ac5f0dc82296cfbc59857170c7059e2f4e4b4fc image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.10.0-r1
+docker push image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.10.0-r1
 ```
 
 Note that the ACE operator often uses the version-and-date form of the image tag when creating
 containers, which would also work; the following tags refer to the same image:
 ```
-cp.icr.io/cp/appc/ace-server-prod:12.0.7.0-r1-20230421-154140
-cp.icr.io/cp/appc/ace-server-prod@sha256:c41154c17a30bbbb6e1e4593c965f49ef3c86260e71143b8f33a6fbca277a3b9
+cp.icr.io/cp/appc/ace-server-prod:12.0.10.0-r1-20231023-073732
+cp.icr.io/cp/appc/ace-server-prod@sha256:d0e4347ce61007aaba0242e26ac5f0dc82296cfbc59857170c7059e2f4e4b4fc
 ```
 
 Configurations need to be created for the JDBC credentials (teajdbc-policy and teajdbc) and default policy project name
@@ -88,6 +93,12 @@ and to run the pipeline
 ```
 kubectl apply -f tekton/os/cp4i/cp4i-pipeline-run.yaml
 tkn pipelinerun -n cp4i logs cp4i-pipeline-run-1 -f
+```
+
+If the Tekton pipeline tasks fail to start with image pull errors saying "authentication needed", it may be
+necessary to pull the containers onto the node being used for the build; creating the "force pull" pod may resolve this:
+```
+kubectl apply -f tekton/os/cp4i/force-pull-cp4i.yaml
 ```
 
 ## Results
