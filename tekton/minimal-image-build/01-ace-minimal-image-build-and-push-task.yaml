@@ -22,7 +22,7 @@ spec:
       script: |
         #!/bin/sh
         cd /work
-        git clone -b $(params.revision) $(params.url)
+        git clone "https://github.com/trevor-dolby-at-ibm-com/ace-docker"
         ls -l /work/ace-docker/experimental/ace-minimal
       volumeMounts:
         - mountPath: /work
