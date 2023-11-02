@@ -11,7 +11,7 @@ spec:
       value: "us.icr.io/ace-containers"
     - name: url
       type: string
-      default: "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
+      default: "https://github.com/ot4i/ace-demo-pipeline"
     - name: revision
       type: string
       default: "main"
