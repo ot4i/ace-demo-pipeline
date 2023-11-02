@@ -101,6 +101,8 @@ spec:
         - --context=/work/maven-output
         - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/$(params.runtimeImage)
         - --skip-tls-verify
+        - --snapshot-mode=redo
+        - --use-new-run
         #- --cache-dir=/cache
         #- --cache=true
       volumeMounts:
@@ -176,6 +178,8 @@ spec:
         - --context=/work/maven-output
         - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/tea-tekton-cp4i
         - --skip-tls-verify
+        - --snapshot-mode=redo
+        - --use-new-run
         #- --cache-dir=/cache
         #- --cache=true
       volumeMounts:
