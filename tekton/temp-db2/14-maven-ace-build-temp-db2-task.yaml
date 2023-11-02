@@ -8,6 +8,14 @@ spec:
   params:
     - name: dockerRegistry
       type: string
+    - name: url
+      type: string
+    - name: revision
+      type: string
+    - name: buildImage
+      type: string
+    - name: runtimeImage
+      type: string
     - name: useTransientDatabase
       type: string
       description: "Start a temporary DB2 database for use in testing; may be slow to start depending on cluster capabilities."
@@ -18,7 +26,7 @@ spec:
       script: |
         #!/bin/sh
         cd /work
-        git clone "https://github.com/ot4i/ace-demo-pipeline"
+        git clone -b $(params.revision) $(params.url)
         # Slightly hacky but works
         chmod -R 777 /work/ace-demo-pipeline
       volumeMounts:
@@ -44,12 +52,14 @@ spec:
         - mountPath: /work
           name: work
     - name: maven-build
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.8.0-alpine
+      image: $(params.dockerRegistry)/$(params.buildImage)
       script: |
         #!/bin/bash
         export LICENSE=accept
         . /opt/ibm/ace-12/server/bin/mqsiprofile
         export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+        which javac
+        javac -version
         mkdir /work/maven-output
         cd /work/ace-demo-pipeline
         id
@@ -78,7 +88,7 @@ spec:
         - mountPath: /work
           name: work
     - name: component-test
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.8.0-alpine
+      image: $(params.dockerRegistry)/$(params.buildImage)
       script: |
         #!/bin/bash
         export LICENSE=accept
@@ -117,7 +127,7 @@ spec:
         - mountPath: /work
           name: work
     - name: next-stage-container-setup
-      image: $(params.dockerRegistry)/ace-minimal-build:12.0.8.0-alpine
+      image: $(params.dockerRegistry)/$(params.buildImage)
       script: |
         #!/bin/bash
         cd /work/maven-output
@@ -137,7 +147,7 @@ spec:
         - --dockerfile=/work/maven-output/Dockerfile
         - --destination=$(params.dockerRegistry)/tea-tekton
         - --context=/work/maven-output
-        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-minimal:12.0.8.0-alpine
+        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/$(params.runtimeImage)
         - --skip-tls-verify
       volumeMounts:
         - mountPath: /work

@@ -7,22 +7,22 @@ spec:
   containers:
   - name: force-pull-cp4i-base
     imagePullPolicy: Always
-    image: DOCKER_REGISTRY/tea-tekton-cp4i:latest
+    image: image-registry.openshift-image-registry.svc.cluster.local:5000/default/tea-tekton-cp4i:latest
     command: ["sleep"]
     args: ["1"]
   - name: force-pull-cp4i-ct
     imagePullPolicy: Always
-    image: DOCKER_REGISTRY/tea-tekton-cp4i-ct:latest  
+    image: image-registry.openshift-image-registry.svc.cluster.local:5000/default/tea-tekton-cp4i-ct:latest  
     command: ["sleep"]
     args: ["1"]
-  - name: force-pull-cp4i-base
+  - name: force-pull-minimal
     imagePullPolicy: Always
-    image: DOCKER_REGISTRY/ace-minimal:12.0.8.0-alpine
+    image: image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.10.0-r1
     command: ["sleep"]
     args: ["1"]
-  - name: force-pull-cp4i-ct
+  - name: force-pull-minimal-build
     imagePullPolicy: Always
-    image: DOCKER_REGISTRY/ace-minimal-build:12.0.8.0-alpine
+    image: image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal-build:12.0.10.0-alpine
     command: ["sleep"]
     args: ["1"]
   restartPolicy: Never

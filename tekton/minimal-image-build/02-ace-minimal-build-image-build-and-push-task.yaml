@@ -6,13 +6,21 @@ spec:
   params:
     - name: dockerRegistry
       type: string
+    - name: url
+      type: string
+    - name: revision
+      type: string
+    - name: buildImage
+      type: string
+    - name: runtimeImage
+      type: string
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
       script: |
         #!/bin/sh
         cd /work
-        git clone "https://github.com/ot4i/ace-demo-pipeline"
+        git clone -b $(params.revision) $(params.url)
       volumeMounts:
         - mountPath: /work
           name: work
@@ -26,9 +34,9 @@ spec:
         - /kaniko/executor
       args:
         - --dockerfile=/work/ace-demo-pipeline/demo-infrastructure/docker/ace-minimal-build/Dockerfile
-        - --destination=$(params.dockerRegistry)/ace-minimal-build:12.0.8.0-alpine
+        - --destination=$(params.dockerRegistry)/$(params.buildImage)
         - --context=/work/ace-demo-pipeline/demo-infrastructure/docker/ace-minimal-build
-        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/ace-minimal:12.0.8.0-alpine
+        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/$(params.runtimeImage)
         - --skip-tls-verify
       volumeMounts:
         - mountPath: /work

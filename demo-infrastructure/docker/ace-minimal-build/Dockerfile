@@ -1,6 +1,6 @@
 # Copyright (c) 2022 Open Technologies for Integration
 # Licensed under the MIT license (see LICENSE for details)
-ARG BASE_IMAGE=ace-minimal:12.0.8.0-alpine
+ARG BASE_IMAGE=ace-minimal:12.0.10.0-alpine
 FROM $BASE_IMAGE
 
 #
@@ -10,7 +10,7 @@ FROM $BASE_IMAGE
 # this image contains only the parts needed for the build and unit test phase.
 #
 
-LABEL "maintainer"="tdolby@uk.ibm.com"
+LABEL "maintainer"="trevor.dolby@ibm.com"
 USER root
 
 # For dev pipeline use we can accept the ACE license automatically

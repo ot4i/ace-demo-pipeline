@@ -9,3 +9,7 @@ spec:
   params:
     - name: dockerRegistry
       value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
+#    - name: url
+#      value: "https://github.com/ot4i/ace-demo-pipeline"
+#    - name: revision
+#      value: "main"
