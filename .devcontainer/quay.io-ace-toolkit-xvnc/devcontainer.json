@@ -1,0 +1,10 @@
+{
+    "name": "ace-demo-pipeline-quay.io-toolkit-xvnc-devcontainer",
+    "image": "quay.io/trevor_dolby/ace-devcontainer-xvnc:12.0.10.0",
+    "containerEnv": {
+        "LICENSE": "accept"
+    },
+    "remoteEnv": {
+        "REMOTE_LICENSE": "accept"
+    }
+}
