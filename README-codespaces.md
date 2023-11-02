@@ -22,10 +22,9 @@ The first Maven run will download lots of plugins, and subsequent runs will be f
 
 ## Use cases
 
-As the ACE toolkit is not available (the web console is taken up with vscode and there is
-no X-Windows display), codespaces are most useful for incremental coding and fixing issues.
-Although it is possible to create message flows with a text editor, and this is supported
-as long as the format is exactly right, the toolkit is a much more efficient way to do this!
+The default container does not have the ACE toolkit available (the web console is taken
+up with vscode and there is no X-Windows display) and so these codespaces are most useful 
+for incremental coding and fixing issues. 
 
 For ESQL or Java coding, unit testing, or fixing CI build breaks, codespaces provide an
 easy-to-start environment that removes the need to install the product locally while still
@@ -36,3 +35,11 @@ allowing building and testing with the actual product.
 Codespaces for this repo use the [ace-minimal devcontainer](https://github.com/ot4i/ace-docker/tree/main/experimental/devcontainers)
 which is built on the standard Ubuntu devcontainer with ACE and Maven installed. The container
 is pre-built for faster startup, but could also be run as a docker build during codespace startup.
+
+## Toolkit-enabled container
+
+This repo has a "toolkit-xvnc" option for codespaces which will use an ACE devcontainer that
+can run the toolkit in a browser session; see https://github.com/trevor-dolby-at-ibm-com/ace-vnc-devcontainer 
+for details on how to access the toolkit. This option takes significantly longer to start than
+the default devcontainer.
+
