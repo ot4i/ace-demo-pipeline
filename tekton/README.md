@@ -10,7 +10,7 @@ The tasks rely on several different containers:
 - The Tekton git-init image to run the initial git clones.
 - Kaniko for building the container images.
 - The ace-minimal image for a small Alpine-based runtime container (~420MB, which fits into the IBM Cloud container registry
-free tier limit of 512MB), and builder variant with Maven added in.  See https://github.com/tdolby-at-uk-ibm-com/ace-docker/tree/master/experimental/ace-minimal
+free tier limit of 512MB), and builder variant with Maven added in.  See https://github.com/trevor-dolby-at-ibm-com/ace-docker/tree/master/experimental/ace-minimal
 for more details on the minimal image, and [minimal image build instructions](minimal-image-build/README.md) on how to build the various pre-req images.
 
 For the initial testing, variants of ace-minimal:12.0.10.0-alpine have been pushed to tdolby/experimental on DockerHub, but this is not a
