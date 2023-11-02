@@ -19,7 +19,7 @@ FROM $BASE_IMAGE
 # docker run --rm -ti -v <local JDBC directory>:/run/secrets/jdbc -p 7800:7800 tea-tekton-test
 #
 
-LABEL "maintainer"="tdolby@uk.ibm.com"
+LABEL "maintainer"="trevor.dolby@ibm.com"
 USER root
 WORKDIR /tmp/maven-output
 

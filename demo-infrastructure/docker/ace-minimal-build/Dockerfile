@@ -10,7 +10,7 @@ FROM $BASE_IMAGE
 # this image contains only the parts needed for the build and unit test phase.
 #
 
-LABEL "maintainer"="tdolby@uk.ibm.com"
+LABEL "maintainer"="trevor.dolby@ibm.com"
 USER root
 
 # For dev pipeline use we can accept the ACE license automatically
