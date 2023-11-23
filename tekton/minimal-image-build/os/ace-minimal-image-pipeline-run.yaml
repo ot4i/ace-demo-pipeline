@@ -3,7 +3,7 @@ kind: PipelineRun
 metadata:
   name: ace-minimal-image-pipeline-run-1
 spec:
-  serviceAccountName: ace-tekton-service-account
+  serviceAccountName: cp4i-tekton-service-account
   pipelineRef:
     name: ace-minimal-image-pipeline
   params:

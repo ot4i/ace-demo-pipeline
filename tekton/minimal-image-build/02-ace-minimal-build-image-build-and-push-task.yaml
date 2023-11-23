@@ -3,6 +3,14 @@ kind: Task
 metadata:
   name: ace-minimal-build-image-build-and-push
 spec:
+  # The security and environment settings are needed for OpenShift in a non-default
+  # namespace such as cp4i. Kaniko is expecting to be root in the container.
+  stepTemplate:
+    securityContext:
+      runAsUser: 0
+    env:
+      - name: "HOME"
+        value: "/tekton/home"
   params:
     - name: dockerRegistry
       type: string
