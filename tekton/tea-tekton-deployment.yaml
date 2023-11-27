@@ -25,6 +25,7 @@ spec:
         image: DOCKER_REGISTRY/tea-tekton:latest
         ports:
         - containerPort: 7800
+        imagePullPolicy: Always
         volumeMounts:
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
