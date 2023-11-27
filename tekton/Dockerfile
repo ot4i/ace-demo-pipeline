@@ -34,7 +34,7 @@ RUN chown -R aceuser:mqbrkrs /tmp/* && \
 RUN chmod 1777 /tmp
 
 # Needed for OpenShift support due to random userids at runtime
-RUN chmod -R 777 /home/aceuser/ace-server || /bin/true
+RUN chmod -R 777 /home/aceuser/ace-server /var/mqsi || /bin/true
 
 USER aceuser
 
