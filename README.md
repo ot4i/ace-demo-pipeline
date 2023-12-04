@@ -7,6 +7,8 @@ being constructed to show pipeline-friendliness rather than being a "best practi
 
 ![Pipeline overview](tekton/ace-demo-pipeline-tekton-1.png)
 
+Note on 20231204: IBM Kubernetes Service no longer offers free clusters, and this demo is being adjusted to use other solutions.
+
 ## Constituent parts
 
 - This repo, containing the application source and tests plus the DB2 client JAR.
