@@ -83,33 +83,28 @@ spec:
         - mountPath: /work
           name: work
     - name: docker-build-and-push
-      # kaniko is expecting to run as root to build images
+      #image: quay.io/buildah/stable:v1
+      image: registry.redhat.io/rhel8/buildah
       securityContext:
         runAsUser: 0
         capabilities:
           add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
-      image: gcr.io/kaniko-project/executor:latest
-      # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
+      # specifying DOCKER_CONFIG is required to allow buildah to detect docker credential
       env:
         - name: "DOCKER_CONFIG"
           value: "/tekton/home/.docker/"
-      command:
-        - /kaniko/executor
-      args:
-        - --dockerfile=/work/maven-output/Dockerfile
-        - --destination=$(params.dockerRegistry)/tea-tekton-cp4i
-        - --context=/work/maven-output
-        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/$(params.runtimeImage)
-        - --skip-tls-verify
-        - --snapshot-mode=redo
-        - --use-new-run
-        #- --cache-dir=/cache
-        #- --cache=true
+      script: |
+        buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
+          --build-arg BASE_IMAGE=$(params.dockerRegistry)/$(params.runtimeImage) \
+          -f /work/maven-output/Dockerfile -t $(params.dockerRegistry)/tea-tekton-cp4i /work/maven-output
+        buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
+          $(params.dockerRegistry)/tea-tekton-cp4i  "docker://$(params.dockerRegistry)/tea-tekton-cp4i"
+        printf '%s' "$(params.dockerRegistry)/tea-tekton-cp4i"
       volumeMounts:
         - mountPath: /work
           name: work
-        #- name: kaniko-cache
-        #  mountPath: /cache
+        - name: varlibcontainers
+          mountPath: /var/lib/containers
     - name: component-test
       image: $(params.dockerRegistry)/$(params.buildImage)
       #
@@ -160,33 +155,28 @@ spec:
         - mountPath: /work
           name: work
     - name: docker-build-and-push-ct
-      # kaniko is expecting to run as root to build images
+      #image: quay.io/buildah/stable:v1
+      image: registry.redhat.io/rhel8/buildah
       securityContext:
         runAsUser: 0
         capabilities:
           add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
-      image: gcr.io/kaniko-project/executor:latest
-      # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
+      # specifying DOCKER_CONFIG is required to allow buildah to detect docker credential
       env:
         - name: "DOCKER_CONFIG"
           value: "/tekton/home/.docker/"
-      command:
-        - /kaniko/executor
-      args:
-        - --dockerfile=/work/maven-output/Dockerfile
-        - --destination=$(params.dockerRegistry)/tea-tekton-cp4i-ct
-        - --context=/work/maven-output
-        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/tea-tekton-cp4i
-        - --skip-tls-verify
-        - --snapshot-mode=redo
-        - --use-new-run
-        #- --cache-dir=/cache
-        #- --cache=true
+      script: |
+        buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
+          --build-arg BASE_IMAGE=$(params.dockerRegistry)/tea-tekton-cp4i \
+          -f /work/maven-output/Dockerfile -t $(params.dockerRegistry)/tea-tekton-cp4i-ct /work/maven-output
+        buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
+          $(params.dockerRegistry)/tea-tekton-cp4i-ct  "docker://$(params.dockerRegistry)/tea-tekton-cp4i-ct"
+        printf '%s' "$(params.dockerRegistry)/tea-tekton-cp4i-ct"
       volumeMounts:
         - mountPath: /work
           name: work
-        #- name: kaniko-cache
-        #  mountPath: /cache
+        - name: varlibcontainers
+          mountPath: /var/lib/containers
   volumes:
     - name: work
       emptyDir: {}
@@ -196,3 +186,6 @@ spec:
     #- name: kaniko-cache
     #  persistentVolumeClaim:
     #    claimName: kaniko-cache-pvc
+    - name: varlibcontainers
+      persistentVolumeClaim:
+        claimName: buildah-cache
