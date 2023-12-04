@@ -3,6 +3,14 @@ kind: Task
 metadata:
   name: ace-minimal-image-build-and-push
 spec:
+  # The security and environment settings are needed for OpenShift in a non-default
+  # namespace such as cp4i. Kaniko is expecting to be root in the container.
+  stepTemplate:
+    securityContext:
+      runAsUser: 0
+    env:
+      - name: "HOME"
+        value: "/tekton/home"
   params:
     - name: dockerRegistry
       type: string
@@ -23,12 +31,13 @@ spec:
         #!/bin/sh
         cd /work
         git clone "https://github.com/trevor-dolby-at-ibm-com/ace-docker"
+        sed -i 's/alpine:3.18/quay.io\/trevor_dolby\/alpine:3.18/g' /work/ace-docker/experimental/ace-minimal/Dockerfile.alpine
         ls -l /work/ace-docker/experimental/ace-minimal
       volumeMounts:
         - mountPath: /work
           name: work
     - name: ace-minimal-push
-      image: gcr.io/kaniko-project/executor:v0.16.0
+      image: gcr.io/kaniko-project/executor:latest
       # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
       env:
         - name: "DOCKER_CONFIG"
