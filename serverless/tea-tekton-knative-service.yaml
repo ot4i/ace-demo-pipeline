@@ -2,7 +2,6 @@ apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
   name: tea-tekton-knative
-  namespace: default
 spec:
   template:
     spec:
@@ -10,6 +9,8 @@ spec:
       - name: secret-volume-2
         secret:
           secretName: jdbc-secret
+      imagePullSecrets:
+      - name: regcred
       containers:
       - name: tea-tekton-knative
         image: DOCKER_REGISTRY/tea-tekton:latest

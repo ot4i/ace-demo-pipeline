@@ -2,7 +2,6 @@ kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
   name: tea-route
-  namespace: default
 spec:
   host: tea-route-default.apps.openshift.mycompany.com
   to:
