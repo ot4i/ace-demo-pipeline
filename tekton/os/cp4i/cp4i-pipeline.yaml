@@ -18,11 +18,12 @@ spec:
       default: "ace-minimal-build:12.0.10.0-alpine"
     - name: runtimeImage
       type: string
-      default: "ace-server-prod:12.0.10.0-r1"
+      default: "ace-server-prod:12.0.11.1-r1"
+      #default: "ace-server-prod:12.0.10.0-r1"
   tasks:
     - name: build-from-source
       taskRef:
-        name: maven-cp4i-build
+        name: cp4i-build
       params:
         - name: dockerRegistry
           value: $(params.dockerRegistry)

@@ -93,7 +93,7 @@ spec:
         kubectl apply -f /work/ace-demo-pipeline/tekton/os/cp4i/create-integrationruntime-ct.yaml
         rc=1
         echo "Starting polling for operator IR at " `date`
-        for i in `seq 1 24`
+        for i in `seq 1 60`
         do
           #echo $i
           #kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
