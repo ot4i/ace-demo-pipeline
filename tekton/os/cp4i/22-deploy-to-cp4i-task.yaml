@@ -26,9 +26,10 @@ spec:
         export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
         echo $REG_WITH_ESCAPED_SLASH
         sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+        export SHA=$(params.sha)
         export TAG=$(params.tag)
-        echo Using $TAG as image tag
-        sed -i "s/IMAGE_TAG/$TAG/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+        echo Using $TAG@$SHA as image tag
+        sed -i "s/IMAGE_TAG/$TAG@$SHA/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
       volumeMounts:
         - mountPath: /work
           name: work
