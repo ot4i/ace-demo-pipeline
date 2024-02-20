@@ -45,6 +45,10 @@ spec:
           value: $(params.url)
         - name: revision
           value: $(params.revision)
+        - name: tag
+          value: "$(tasks.build-from-source.results.tag)"
+        - name: ctsha
+          value: "$(tasks.build-from-source.results.ctsha)"
       runAfter:
         - build-from-source
     - name: deploy-to-cp4i
@@ -57,5 +61,9 @@ spec:
           value: $(params.url)
         - name: revision
           value: $(params.revision)
+        - name: tag
+          value: "$(tasks.build-from-source.results.tag)"
+        - name: sha
+          value: "$(tasks.build-from-source.results.sha)"
       runAfter:
         - component-test-in-cp4i
