@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - image: >-
-            DOCKER_REGISTRY/tea-tekton-cp4i-ct:latest
+            DOCKER_REGISTRY/tea-tekton-cp4i-ct:IMAGE_TAG
           env:  
             - name: MQSI_PREVENT_CONTAINER_SHUTDOWN
               value: 'true'

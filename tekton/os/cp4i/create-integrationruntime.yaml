@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - image: >-
-            DOCKER_REGISTRY/tea-tekton-cp4i:latest
+            DOCKER_REGISTRY/tea-tekton-cp4i:IMAGE_TAG
           imagePullPolicy: Always
           name: runtime
           resources:
