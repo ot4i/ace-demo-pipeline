@@ -32,16 +32,30 @@ spec:
       type: string
     - name: runtimeImage
       type: string
+  results:
+    - name: tag
+      description: image tag of the form 20240220135127-6fe9106
+    - name: sha
+      description: container image hash for the application container
+    - name: ctsha
+      description: container image hash for the component test container
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
       #
-      # The script just clones the repo but could be extended.
+      # The script clones the repo and sets the TAG result
       # 
       script: |
         #!/bin/sh
+        set -e # Fail on error
         cd /work
         git clone -b $(params.revision) $(params.url)
+        cd ace-demo-pipeline
+        export DATE=$(date '+%Y%m%d%H%M%S')
+        export COMMIT=$(git log -1 --pretty=%h)
+        export TAG="$DATE"-"$COMMIT"
+        echo Setting container tag to "$TAG"
+        echo -n "$TAG" > $(results.tag.path)
       volumeMounts:
         - mountPath: /work
           name: work
@@ -84,7 +98,7 @@ spec:
           name: work
     - name: docker-build-and-push
       #image: quay.io/buildah/stable:v1
-      image: registry.redhat.io/rhel8/buildah
+      image: registry.redhat.io/rhel8/buildah:8.9-5
       securityContext:
         runAsUser: 0
         # Needed for hostPath volumes on OpenShift
@@ -97,13 +111,17 @@ spec:
           value: "/tekton/home/.docker/"
       script: |
         date
+        export TAG=`cat $(results.tag.path)`
+        echo Using $TAG as image tag
         buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
           --build-arg BASE_IMAGE=$(params.dockerRegistry)/$(params.runtimeImage) \
-          -f /work/maven-output/Dockerfile -t $(params.dockerRegistry)/tea-tekton-cp4i /work/maven-output
+          -f /work/maven-output/Dockerfile -t $(params.dockerRegistry)/tea-tekton-cp4i:$TAG /work/maven-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.dockerRegistry)/tea-tekton-cp4i  "docker://$(params.dockerRegistry)/tea-tekton-cp4i"
-        printf '%s' "$(params.dockerRegistry)/tea-tekton-cp4i"
+          $(params.dockerRegistry)/tea-tekton-cp4i:$TAG  "docker://$(params.dockerRegistry)/tea-tekton-cp4i:$TAG"
+        echo image digest:
+        cat /tmp/image-digest && echo
+        cat /tmp/image-digest >> $(results.sha.path)
         date
       volumeMounts:
         - mountPath: /work
@@ -161,7 +179,7 @@ spec:
           name: work
     - name: docker-build-and-push-ct
       #image: quay.io/buildah/stable:v1
-      image: registry.redhat.io/rhel8/buildah
+      image: registry.redhat.io/rhel8/buildah:8.9-5
       securityContext:
         runAsUser: 0
         # Needed for hostPath volumes on OpenShift
@@ -174,14 +192,18 @@ spec:
           value: "/tekton/home/.docker/"
       script: |
         date
+        export TAG=`cat $(results.tag.path)`
+        echo Using $TAG as image tag
         buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
-          --build-arg BASE_IMAGE=$(params.dockerRegistry)/tea-tekton-cp4i \
-          -f /work/maven-output/Dockerfile -t $(params.dockerRegistry)/tea-tekton-cp4i-ct /work/maven-output
+          --build-arg BASE_IMAGE=$(params.dockerRegistry)/tea-tekton-cp4i:$TAG \
+          -f /work/maven-output/Dockerfile -t $(params.dockerRegistry)/tea-tekton-cp4i-ct:$TAG /work/maven-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.dockerRegistry)/tea-tekton-cp4i-ct  "docker://$(params.dockerRegistry)/tea-tekton-cp4i-ct"
+          $(params.dockerRegistry)/tea-tekton-cp4i-ct:$TAG  "docker://$(params.dockerRegistry)/tea-tekton-cp4i-ct:$TAG"
+        echo image digest:
+        cat /tmp/image-digest && echo
+        cat /tmp/image-digest >> $(results.ctsha.path)
         date
-        printf '%s' "$(params.dockerRegistry)/tea-tekton-cp4i-ct"
       volumeMounts:
         - mountPath: /work
           name: work
@@ -196,8 +218,8 @@ spec:
     # 
     # Default buildah approach using emptyDir; takes about 2 minutes on a test SNO cluster
     # 
-    - name: varlibcontainers
-      emptyDir: {}
+    #- name: varlibcontainers
+    #  emptyDir: {}
     # 
     # Local directory for this pipeline; takes a few seconds after initial pull
     # 
@@ -215,9 +237,9 @@ spec:
     # 
     # Local disk using LVM operator on SNO; same speed as hostPath
     # 
-    #- name: varlibcontainers
-    #  persistentVolumeClaim:
-    #    claimName: buildah-cache
+    - name: varlibcontainers
+      persistentVolumeClaim:
+        claimName: buildah-cache
     # 
     # NFS mount from same subnet; initial pull took 35 minutes, and
     # subsequent builds took around 9 minutes.

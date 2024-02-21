@@ -43,7 +43,7 @@ spec:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
       #
-      # The script just clones the repo but could be extended.
+      # The script clones the repo and sets the TAG result
       # 
       script: |
         #!/bin/sh
@@ -132,13 +132,11 @@ spec:
           -f /work/ibmint-output/Dockerfile -t $(params.dockerRegistry)/tea-tekton-cp4i:$TAG /work/ibmint-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.dockerRegistry)/tea-tekton-cp4i  "docker://$(params.dockerRegistry)/tea-tekton-cp4i:$TAG"
-        #printf '%s' "$(params.dockerRegistry)/tea-tekton-cp4i"
+          $(params.dockerRegistry)/tea-tekton-cp4i:$TAG  "docker://$(params.dockerRegistry)/tea-tekton-cp4i:$TAG"
         echo image digest:
         cat /tmp/image-digest && echo
         cat /tmp/image-digest >> $(results.sha.path)
         date
-
       volumeMounts:
         - mountPath: /work
           name: work
@@ -219,11 +217,11 @@ spec:
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
         buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
-          --build-arg BASE_IMAGE=$(params.dockerRegistry)/tea-tekton-cp4i \
+          --build-arg BASE_IMAGE=$(params.dockerRegistry)/tea-tekton-cp4i:$TAG \
           -f /work/ibmint-output/Dockerfile -t $(params.dockerRegistry)/tea-tekton-cp4i-ct:$TAG /work/ibmint-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.dockerRegistry)/tea-tekton-cp4i-ct  "docker://$(params.dockerRegistry)/tea-tekton-cp4i-ct:$TAG"
+          $(params.dockerRegistry)/tea-tekton-cp4i-ct:$TAG  "docker://$(params.dockerRegistry)/tea-tekton-cp4i-ct:$TAG"
         echo image digest:
         cat /tmp/image-digest && echo
         cat /tmp/image-digest >> $(results.ctsha.path)
