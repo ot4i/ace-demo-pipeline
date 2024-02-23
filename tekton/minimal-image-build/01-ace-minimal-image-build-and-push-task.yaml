@@ -12,7 +12,7 @@ spec:
       - name: "HOME"
         value: "/tekton/home"
   params:
-    - name: dockerRegistry
+    - name: outputRegistry
       type: string
     - name: aceDownloadUrl
       type: string
@@ -46,7 +46,7 @@ spec:
         - /kaniko/executor
       args:
         - --dockerfile=/work/ace-docker/$(params.aceDockerFile)
-        - --destination=$(params.dockerRegistry)/$(params.runtimeImage)
+        - --destination=$(params.outputRegistry)/$(params.runtimeImage)
         - --context=/work/ace-docker/experimental/ace-minimal
         - --build-arg=DOWNLOAD_URL=$(params.aceDownloadUrl)
         - --skip-tls-verify

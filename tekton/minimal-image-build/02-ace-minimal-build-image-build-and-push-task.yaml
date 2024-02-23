@@ -12,7 +12,7 @@ spec:
       - name: "HOME"
         value: "/tekton/home"
   params:
-    - name: dockerRegistry
+    - name: outputRegistry
       type: string
     - name: url
       type: string
@@ -42,9 +42,9 @@ spec:
         - /kaniko/executor
       args:
         - --dockerfile=/work/ace-demo-pipeline/demo-infrastructure/docker/ace-minimal-build/Dockerfile
-        - --destination=$(params.dockerRegistry)/$(params.buildImage)
+        - --destination=$(params.outputRegistry)/$(params.buildImage)
         - --context=/work/ace-demo-pipeline/demo-infrastructure/docker/ace-minimal-build
-        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/$(params.runtimeImage)
+        - --build-arg=BASE_IMAGE=$(params.outputRegistry)/$(params.runtimeImage)
         - --skip-tls-verify
       volumeMounts:
         - mountPath: /work

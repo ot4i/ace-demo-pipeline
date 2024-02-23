@@ -7,6 +7,7 @@ spec:
   params:
     - name: dockerRegistry
       type: string
+      default: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
     - name: url
       type: string
       default: "https://github.com/ot4i/ace-demo-pipeline"
@@ -15,17 +16,18 @@ spec:
       default: "main"
     - name: buildImage
       type: string
-      default: "ace-minimal-build:12.0.10.0-alpine"
-    - name: runtimeImage
+      default: "cp.icr.io/cp/appc/ace:12.0.11.0-r1"
+      #default: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal-build:12.0.10.0-alpine"
+    - name: runtimeBaseImage
       type: string
-      default: "ace-server-prod:12.0.11.1-r1"
-      #default: "ace-server-prod:12.0.10.0-r1"
+      default: "cp.icr.io/cp/appc/ace-server-prod:12.0.11.1-r1-20240125-170703"
+      #default: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.11.1-r1-20240125-170703"
   tasks:
     - name: build-from-source
       taskRef:
         name: cp4i-build
       params:
-        - name: dockerRegistry
+        - name: outputRegistry
           value: $(params.dockerRegistry)
         - name: url
           value: $(params.url)
@@ -33,8 +35,8 @@ spec:
           value: $(params.revision)
         - name: buildImage
           value: $(params.buildImage)
-        - name: runtimeImage
-          value: $(params.runtimeImage)
+        - name: runtimeBaseImage
+          value: $(params.runtimeBaseImage)
     - name: component-test-in-cp4i
       taskRef:
         name: component-test-in-cp4i

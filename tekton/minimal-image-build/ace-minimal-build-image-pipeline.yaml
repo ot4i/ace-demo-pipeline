@@ -6,6 +6,8 @@ spec:
   params:
     - name: dockerRegistry
       type: string
+    - name: aceDownloadUrl
+      type: string
     - name: url
       type: string
       default: "https://github.com/ot4i/ace-demo-pipeline"
@@ -14,16 +16,35 @@ spec:
       default: "main"
     - name: buildImage
       type: string
-      default: "ace-minimal-build:12.0.10.0-alpine"
+      default: "ace-minimal-build:12.0.11.0-alpine"
     - name: runtimeImage
       type: string
-      default: "ace-minimal:12.0.10.0-alpine"
+      default: "ace-minimal:12.0.11.0-alpine"
+    - name: aceDockerFile
+      type: string
+      default: "experimental/ace-minimal/Dockerfile.alpine"
   tasks:
-    - name: build-images
+    - name: runtime-image
+      taskRef:
+        name: ace-minimal-image-build-and-push
+      params:
+        - name: outputRegistry
+          value: $(params.dockerRegistry)
+        - name: aceDownloadUrl
+          value: $(params.aceDownloadUrl)
+        - name: url
+          value: $(params.url)
+        - name: revision
+          value: $(params.revision)
+        - name: runtimeImage
+          value: $(params.runtimeImage)
+        - name: aceDockerFile
+          value: $(params.aceDockerFile)
+    - name: build-image
       taskRef:
         name: ace-minimal-build-image-build-and-push
       params:
-        - name: dockerRegistry
+        - name: outputRegistry
           value: $(params.dockerRegistry)
         - name: url
           value: $(params.url)
@@ -33,3 +54,5 @@ spec:
           value: $(params.buildImage)
         - name: runtimeImage
           value: $(params.runtimeImage)
+      runAfter:
+        - runtime-image

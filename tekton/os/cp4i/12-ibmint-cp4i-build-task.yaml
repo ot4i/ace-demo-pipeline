@@ -22,7 +22,7 @@ spec:
       - name: "HOME"
         value: "/tekton/home"
   params:
-    - name: dockerRegistry
+    - name: outputRegistry
       type: string
     - name: url
       type: string
@@ -30,7 +30,7 @@ spec:
       type: string
     - name: buildImage
       type: string
-    - name: runtimeImage
+    - name: runtimeBaseImage
       type: string
   results:
     - name: tag
@@ -60,18 +60,20 @@ spec:
         - mountPath: /work
           name: work
     - name: ibmint-build
-      #image: $(params.dockerRegistry)/$(params.buildImage)
-      image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
+      image: $(params.buildImage)
+      #image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
       #
       # Runs the build and unit test phases, leaving the results in the work directory
       # for later steps.
       #
       script: |
         #!/bin/bash
-        set -e # Fail on error
+        
         export LICENSE=accept
         . /opt/ibm/ace-12/server/bin/mqsiprofile
         
+        set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+
         cd /work/ace-demo-pipeline
         mkdir /work/ibmint-output
         mqsicreateworkdir /work/ibmint-output/ace-server
@@ -93,7 +95,7 @@ spec:
         - mountPath: /work
           name: work
     - name: container-setup
-      image: $(params.dockerRegistry)/$(params.buildImage)
+      image: $(params.buildImage)
       #
       # Copies files around and changes permissions to allow Kaniko/buildah to build the actual
       # runtime image in the next step. Also copies the Dockerfile into place for Kaniko/buildah.
@@ -128,11 +130,11 @@ spec:
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
         buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
-          --build-arg BASE_IMAGE=$(params.dockerRegistry)/$(params.runtimeImage) \
-          -f /work/ibmint-output/Dockerfile -t $(params.dockerRegistry)/tea-tekton-cp4i:$TAG /work/ibmint-output
+          --build-arg BASE_IMAGE=$(params.runtimeBaseImage) \
+          -f /work/ibmint-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i:$TAG /work/ibmint-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.dockerRegistry)/tea-tekton-cp4i:$TAG  "docker://$(params.dockerRegistry)/tea-tekton-cp4i:$TAG"
+          $(params.outputRegistry)/tea-tekton-cp4i:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i:$TAG"
         echo image digest:
         cat /tmp/image-digest && echo
         cat /tmp/image-digest >> $(results.sha.path)
@@ -154,9 +156,12 @@ spec:
       #
       script: |
         #!/bin/bash
-        set -e # Fail on error
+        
         export LICENSE=accept
         . /opt/ibm/ace-12/server/bin/mqsiprofile
+
+        set -e # Fail on error
+        
         export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
         # Slightly hacky, but quicker than building everything again!
         (cd /work/ibmint-output/ace-server && tar -cf - * ) | (cd /home/aceuser/ace-server && tar -xf - )
@@ -182,7 +187,7 @@ spec:
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
     - name: container-setup-ct
-      image: $(params.dockerRegistry)/$(params.buildImage)
+      image: $(params.buildImage)
       #
       # Copies files around and changes permissions to allow Kaniko to build the component
       # test image in the next step. Also copies the Dockerfile into place for Kaniko.
@@ -217,11 +222,11 @@ spec:
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
         buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
-          --build-arg BASE_IMAGE=$(params.dockerRegistry)/tea-tekton-cp4i:$TAG \
-          -f /work/ibmint-output/Dockerfile -t $(params.dockerRegistry)/tea-tekton-cp4i-ct:$TAG /work/ibmint-output
+          --build-arg BASE_IMAGE=$(params.outputRegistry)/tea-tekton-cp4i:$TAG \
+          -f /work/ibmint-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG /work/ibmint-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.dockerRegistry)/tea-tekton-cp4i-ct:$TAG  "docker://$(params.dockerRegistry)/tea-tekton-cp4i-ct:$TAG"
+          $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG"
         echo image digest:
         cat /tmp/image-digest && echo
         cat /tmp/image-digest >> $(results.ctsha.path)

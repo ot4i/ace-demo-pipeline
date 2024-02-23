@@ -22,7 +22,7 @@ spec:
       - name: "HOME"
         value: "/tekton/home"
   params:
-    - name: dockerRegistry
+    - name: outputRegistry
       type: string
     - name: url
       type: string
@@ -30,7 +30,7 @@ spec:
       type: string
     - name: buildImage
       type: string
-    - name: runtimeImage
+    - name: runtimeBaseImage
       type: string
   results:
     - name: tag
@@ -60,7 +60,7 @@ spec:
         - mountPath: /work
           name: work
     - name: maven-build
-      image: $(params.dockerRegistry)/$(params.buildImage)
+      image: $(params.buildImage)
       #
       # Runs the build and unit test phases, leaving the results in the work directory
       # for later steps.
@@ -79,7 +79,7 @@ spec:
         - mountPath: /work
           name: work
     - name: container-setup
-      image: $(params.dockerRegistry)/$(params.buildImage)
+      image: $(params.buildImage)
       #
       # Copies files around and changes permissions to allow Kaniko to build the actual
       # runtime image in the next step. Also copies the Dockerfile into place for Kaniko.
@@ -114,11 +114,11 @@ spec:
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
         buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
-          --build-arg BASE_IMAGE=$(params.dockerRegistry)/$(params.runtimeImage) \
-          -f /work/maven-output/Dockerfile -t $(params.dockerRegistry)/tea-tekton-cp4i:$TAG /work/maven-output
+          --build-arg BASE_IMAGE=$(params.runtimeBaseImage) \
+          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i:$TAG /work/maven-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.dockerRegistry)/tea-tekton-cp4i:$TAG  "docker://$(params.dockerRegistry)/tea-tekton-cp4i:$TAG"
+          $(params.outputRegistry)/tea-tekton-cp4i:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i:$TAG"
         echo image digest:
         cat /tmp/image-digest && echo
         cat /tmp/image-digest >> $(results.sha.path)
@@ -129,7 +129,7 @@ spec:
         - name: varlibcontainers
           mountPath: /var/lib/containers
     - name: component-test
-      image: $(params.dockerRegistry)/$(params.buildImage)
+      image: $(params.buildImage)
       #
       # Builds and runs the component tests using the JDBC credentials provided from
       # the secret. Also uses the same init-creds.sh script used by the non-CP4i image
@@ -160,7 +160,7 @@ spec:
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
     - name: container-setup-ct
-      image: $(params.dockerRegistry)/$(params.buildImage)
+      image: $(params.buildImage)
       #
       # Copies files around and changes permissions to allow Kaniko to build the component
       # test image in the next step. Also copies the Dockerfile into place for Kaniko.
@@ -195,11 +195,11 @@ spec:
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
         buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
-          --build-arg BASE_IMAGE=$(params.dockerRegistry)/tea-tekton-cp4i:$TAG \
-          -f /work/maven-output/Dockerfile -t $(params.dockerRegistry)/tea-tekton-cp4i-ct:$TAG /work/maven-output
+          --build-arg BASE_IMAGE=$(params.outputRegistry)/tea-tekton-cp4i:$TAG \
+          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG /work/maven-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.dockerRegistry)/tea-tekton-cp4i-ct:$TAG  "docker://$(params.dockerRegistry)/tea-tekton-cp4i-ct:$TAG"
+          $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG"
         echo image digest:
         cat /tmp/image-digest && echo
         cat /tmp/image-digest >> $(results.ctsha.path)
