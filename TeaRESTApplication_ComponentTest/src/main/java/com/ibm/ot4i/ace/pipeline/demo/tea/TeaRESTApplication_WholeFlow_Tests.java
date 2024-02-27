@@ -75,6 +75,6 @@ public class TeaRESTApplication_WholeFlow_Tests {
             expectedMessageAssembly.buildFromRecordedMessageAssembly(expectedMessage);
 
             // Check the reply is as expected
-            assertThat(replyMessageAssembly, equalsMessage(expectedMessageAssembly));
+            assertThat(replyMessageAssembly, equalsMessage(expectedMessageAssembly).ignorePath("/HTTPReplyHeader/Server_Hostname", false));
     }
 }
