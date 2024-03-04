@@ -150,6 +150,9 @@ spec:
         cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml /tmp/
         bash /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh
         # Build and run the tests
+        
+        set -e # Fail on error
+        
         cd /work/ace-demo-pipeline/TeaRESTApplication_ComponentTest
         mvn --no-transfer-progress -Dct.work.directory=/home/aceuser/ace-server verify
         # Slightly hacky, but quicker than building everything again!
