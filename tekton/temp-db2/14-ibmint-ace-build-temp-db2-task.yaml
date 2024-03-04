@@ -2,6 +2,8 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: ace-build
+  labels:
+    variant: temp-db2
 spec:
   # The security and environment settings are needed for OpenShift in a non-default
   # namespace such as cp4i. Kaniko is expecting to be root in the container.
@@ -24,6 +26,10 @@ spec:
       type: string
     - name: runtimeBaseImage
       type: string
+    - name: useTransientDatabase
+      type: string
+      description: "Start a temporary DB2 database for use in testing; may be slow to start depending on cluster capabilities."
+      default: "true"
   results:
     - name: tag
       description: image tag of the form 20240220135127-6fe9106
@@ -48,50 +54,156 @@ spec:
       volumeMounts:
         - mountPath: /work
           name: work
-    - name: maven-build
+    - name: start-db2
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Create the DB2 database container if needed
+      #
+      script: |
+        #!/bin/sh
+        #set -x
+        if [ "$(params.useTransientDatabase)" = "true" ]; then
+          echo PROD
+          apk add bash
+          cd /work
+          ls -l /work/ace-demo-pipeline/tekton
+          bash /work/ace-demo-pipeline/tekton/temp-db2/start-db2-container.sh
+          echo "Finished starting DB2"
+        fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: ibmint-build
       image: $(params.buildImage)
+      #image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
+      #
+      # Runs the build and unit test phases, leaving the results in the work directory
+      # for later steps.
+      #
       script: |
         #!/bin/bash
+        
         export LICENSE=accept
         . /opt/ibm/ace-12/server/bin/mqsiprofile
-        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
-        which javac
-        javac -version
-        mkdir /work/maven-output
+        
+        set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+
         cd /work/ace-demo-pipeline
-        id
-        mvn --no-transfer-progress -Dinstall.work.directory=/work/maven-output/ace-server install
+        mkdir /work/ibmint-output
+        mqsicreateworkdir /work/ibmint-output/ace-server
+        # Using --compile-maps-and-schemas for 12.0.11 and later . . . 
+        ibmint deploy --input-path . --output-work-directory /work/ibmint-output/ace-server --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
+        ibmint optimize server --work-dir /work/ibmint-output/ace-server --disable NodeJS
+
+        # Copy the contents of the work directory into a new unit-test-specific work directory
+        # This avoids the risk of unit tests files being deployed in the real containers, and
+        # is quicker than building the application again
+        mqsicreateworkdir /work/ut-work-dir
+        (cd /work/ibmint-output/ace-server && tar -cf - * ) | (cd /work/ut-work-dir && tar -xf - )
+        # Build just the unit tests
+        ibmint deploy --input-path . --output-work-directory /work/ut-work-dir --project TeaRESTApplication_UnitTest
+
+        # Run the unit tests
+        IntegrationServer -w /work/ut-work-dir --no-nodejs --start-msgflows false --test-project TeaRESTApplication_UnitTest
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: wait-for-db2
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Waits for the DB2 database container if needed
+      #
+      script: |
+        #!/bin/sh
+        #set -x
+        if [ "$(params.useTransientDatabase)" = "true" ]; then
+          echo PROD
+          apk add bash
+          cd /work
+          ls -l /work/ace-demo-pipeline/tekton
+          bash /work/ace-demo-pipeline/tekton/temp-db2/wait-for-db2-container.sh
+          echo "Finished starting DB2"
+          ls -lR /work/jdbc
+        fi
       volumeMounts:
         - mountPath: /work
           name: work
     - name: component-test
       image: $(params.buildImage)
+      #image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
+      #
+      # Builds and runs the component tests using the JDBC credentials provided from
+      # the secret. Also uses the same init-creds.sh script used by the non-CP4i image
+      # to load credentials at startup.
+      #
+      # Leaves the resulting component test project in the work directory to be picked
+      # up by the second Kaniko build in the next step.
+      #
       script: |
         #!/bin/bash
-        export LICENSE=accept
+
         . /opt/ibm/ace-12/server/bin/mqsiprofile
+
+        set -e # Fail on error
+        
         export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
         # Slightly hacky, but quicker than building everything again!
-        (cd /work/maven-output/ace-server/run && tar -cf - * ) | (cd /home/aceuser/ace-server/run && tar -xf - )
+        (cd /work/ibmint-output/ace-server && tar -cf - * ) | (cd /home/aceuser/ace-server && tar -xf - )
+        ls -l /home/aceuser/ace-server
         # Set up credentials for the component tests; init-creds.sh looks in /tmp for policy
         cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml /tmp/
         bash /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh
         # Build and run the tests
-        cd /work/ace-demo-pipeline/TeaRESTApplication_ComponentTest
-        mvn --no-transfer-progress -Dct.work.directory=/home/aceuser/ace-server verify
+        cd /work/ace-demo-pipeline
+
+        # Build just the component tests
+        ibmint deploy --input-path . --output-work-directory /home/aceuser/ace-server --project TeaRESTApplication_ComponentTest
+
+        # Run the component tests
+        IntegrationServer -w /home/aceuser/ace-server --no-nodejs --start-msgflows false --test-project TeaRESTApplication_ComponentTest
       volumeMounts:
         - mountPath: /work
           name: work
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
+    - name: stop-db2
+      image: lachlanevenson/k8s-kubectl
+      #
+      # Stop the DB2 database container if needed
+      #
+      script: |
+        #!/bin/sh
+        #set -x
+        if [ "$(params.useTransientDatabase)" = "true" ]; then
+          echo PROD
+          apk add bash
+          cd /work
+          ls -l /work/ace-demo-pipeline/tekton
+          bash /work/ace-demo-pipeline/tekton/temp-db2/stop-db2-container.sh
+          echo "Finished stopping DB2"
+        fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
     - name: next-stage-container-setup
       image: $(params.buildImage)
       script: |
         #!/bin/bash
-        cd /work/maven-output
+        
+        set -e # Fail on error
+        
+        cd /work/ibmint-output
         cp /work/ace-demo-pipeline/tekton/Dockerfile Dockerfile
-        echo Contents of /work/maven-output/ace-server/server.components.yaml
-        cat /work/maven-output/ace-server/server.components.yaml || /bin/true
+
+        # Copy in various startup files
+        cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml ace-server/
+        cp /work/ace-demo-pipeline/demo-infrastructure/application-overrides.txt ace-server/
+        cp /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh ace-server/ace-startup-script.sh
+        cp /work/ace-demo-pipeline/demo-infrastructure/read-hashicorp-creds.sh ace-server/
+        cp /work/ace-demo-pipeline/demo-infrastructure/read-xml-creds.sh ace-server/
+
+        echo Contents of /work/ibmint-output/ace-server/server.components.yaml
+        cat /work/ibmint-output/ace-server/server.components.yaml || /bin/true
       volumeMounts:
         - mountPath: /work
           name: work
@@ -114,7 +226,7 @@ spec:
         echo Using $TAG as image tag
         buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
           --build-arg BASE_IMAGE=$(params.runtimeBaseImage) \
-          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/tea-tekton:$TAG /work/maven-output
+          -f /work/ibmint-output/Dockerfile -t $(params.outputRegistry)/tea-tekton:$TAG /work/ibmint-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
           $(params.outputRegistry)/tea-tekton:$TAG  "docker://$(params.outputRegistry)/tea-tekton:$TAG"

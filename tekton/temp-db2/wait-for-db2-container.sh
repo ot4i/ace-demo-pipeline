@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export NS=default
+export NS=ace-demo
 export POD_NAME=db2-test-pod
 
 rc=1
