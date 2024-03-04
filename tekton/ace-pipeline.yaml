@@ -19,7 +19,7 @@ spec:
   tasks:
     - name: build-from-source
       taskRef:
-        name: maven-ace-build
+        name: ace-build
       params:
         - name: outputRegistry
           value: $(params.outputRegistry)
@@ -41,5 +41,7 @@ spec:
           value: $(params.url)
         - name: revision
           value: $(params.revision)
+        - name: tag
+          value: "$(tasks.build-from-source.results.tag)"
       runAfter:
         - build-from-source

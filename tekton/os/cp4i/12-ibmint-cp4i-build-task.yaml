@@ -21,6 +21,8 @@ spec:
     env:
       - name: "HOME"
         value: "/tekton/home"
+      - name: "LICENSE"
+        value: "accept"
   params:
     - name: outputRegistry
       type: string
@@ -68,8 +70,7 @@ spec:
       #
       script: |
         #!/bin/bash
-        
-        export LICENSE=accept
+
         . /opt/ibm/ace-12/server/bin/mqsiprofile
         
         set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
@@ -145,7 +146,8 @@ spec:
         - name: varlibcontainers
           mountPath: /var/lib/containers
     - name: component-test
-      image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
+      image: $(params.buildImage)
+      #image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
       #
       # Builds and runs the component tests using the JDBC credentials provided from
       # the secret. Also uses the same init-creds.sh script used by the non-CP4i image

@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: maven-ace-build
+  name: ace-build
 spec:
   # The security and environment settings are needed for OpenShift in a non-default
   # namespace such as cp4i. Kaniko is expecting to be root in the container.
