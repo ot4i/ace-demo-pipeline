@@ -4,7 +4,7 @@ metadata:
   name: ace-pipeline
 spec:
   params:
-    - name: dockerRegistry
+    - name: outputRegistry
       type: string
     - name: url
       type: string
@@ -14,31 +14,29 @@ spec:
       default: "main"
     - name: buildImage
       type: string
-      default: "ace-minimal-build:12.0.10.0-alpine"
-    - name: runtimeImage
+    - name: runtimeBaseImage
       type: string
-      default: "ace-minimal:12.0.10.0-alpine"
   tasks:
     - name: build-from-source
       taskRef:
         name: maven-ace-build
       params:
-        - name: dockerRegistry
-          value: $(params.dockerRegistry)
+        - name: outputRegistry
+          value: $(params.outputRegistry)
         - name: url
           value: $(params.url)
         - name: revision
           value: $(params.revision)
         - name: buildImage
           value: $(params.buildImage)
-        - name: runtimeImage
-          value: $(params.runtimeImage)
+        - name: runtimeBaseImage
+          value: $(params.runtimeBaseImage)
     - name: deploy-to-cluster
       taskRef:
         name: deploy-to-cluster
       params:
         - name: dockerRegistry
-          value: $(params.dockerRegistry)
+          value: $(params.outputRegistry)
         - name: url
           value: $(params.url)
         - name: revision

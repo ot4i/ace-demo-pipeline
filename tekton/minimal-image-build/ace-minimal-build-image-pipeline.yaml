@@ -44,7 +44,7 @@ spec:
       taskRef:
         name: ace-minimal-build-image-build-and-push
       params:
-        - name: outputRegistry
+        - name: dockerRegistry
           value: $(params.dockerRegistry)
         - name: url
           value: $(params.url)
