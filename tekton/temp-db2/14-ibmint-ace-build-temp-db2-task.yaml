@@ -63,12 +63,14 @@ spec:
         #!/bin/sh
         #set -x
         if [ "$(params.useTransientDatabase)" = "true" ]; then
-          echo PROD
-          apk add bash
+          export NS=$(context.taskRun.namespace)
+          echo Launching DB2
+          # Will fail on non-Alpine
+          apk add bash || /bin/true
           cd /work
           ls -l /work/ace-demo-pipeline/tekton
           bash /work/ace-demo-pipeline/tekton/temp-db2/start-db2-container.sh
-          echo "Finished starting DB2"
+          echo "Finished launching DB2"
         fi
       volumeMounts:
         - mountPath: /work
@@ -117,8 +119,10 @@ spec:
         #!/bin/sh
         #set -x
         if [ "$(params.useTransientDatabase)" = "true" ]; then
-          echo PROD
-          apk add bash
+          export NS=$(context.taskRun.namespace)
+          echo Waiting for DB2
+          # Will fail on non-Alpine
+          apk add bash || /bin/true
           cd /work
           ls -l /work/ace-demo-pipeline/tekton
           bash /work/ace-demo-pipeline/tekton/temp-db2/wait-for-db2-container.sh
@@ -175,8 +179,10 @@ spec:
         #!/bin/sh
         #set -x
         if [ "$(params.useTransientDatabase)" = "true" ]; then
-          echo PROD
-          apk add bash
+          export NS=$(context.taskRun.namespace)
+          echo Stopping DB2
+          # Will fail on non-Alpine
+          apk add bash || /bin/true
           cd /work
           ls -l /work/ace-demo-pipeline/tekton
           bash /work/ace-demo-pipeline/tekton/temp-db2/stop-db2-container.sh
