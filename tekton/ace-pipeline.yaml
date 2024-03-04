@@ -16,6 +16,9 @@ spec:
       type: string
     - name: runtimeBaseImage
       type: string
+    - name: knativeDeploy
+      type: string
+      default: "false"
   tasks:
     - name: build-from-source
       taskRef:
@@ -45,3 +48,25 @@ spec:
           value: "$(tasks.build-from-source.results.tag)"
       runAfter:
         - build-from-source
+      when:
+        - input: "$(params.knativeDeploy)"
+          operator: in
+          values: ["false"]
+    - name: deploy-knative-to-cluster
+      taskRef:
+        name: knative-deploy
+      params:
+        - name: dockerRegistry
+          value: $(params.outputRegistry)
+        - name: url
+          value: $(params.url)
+        - name: revision
+          value: $(params.revision)
+        - name: tag
+          value: "$(tasks.build-from-source.results.tag)"
+      runAfter:
+        - build-from-source
+      when:
+        - input: "$(params.knativeDeploy)"
+          operator: in
+          values: ["true"]

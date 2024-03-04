@@ -149,7 +149,7 @@ spec:
       securityContext:
         runAsUser: 0
         # Needed for hostPath volumes on OpenShift
-        # privileged: true
+        #privileged: true
         capabilities:
           add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
       # specifying DOCKER_CONFIG is required to allow buildah to detect docker credential

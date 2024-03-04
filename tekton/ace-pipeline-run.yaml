@@ -22,3 +22,5 @@ spec:
       value: "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
     - name: revision
       value: "os-4.14"
+    #- name: knativeDeploy
+    #  value: "true"
