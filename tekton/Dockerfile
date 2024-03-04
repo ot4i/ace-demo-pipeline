@@ -41,5 +41,10 @@ USER aceuser
 # We're in an internal pipeline
 ENV LICENSE=accept
 
+# Set BASH_ENV to source mqsiprofile when using docker exec bash -c
+ENV BASH_ENV=/opt/ibm/ace-12/server/bin/mqsiprofile
+
 # Set entrypoint to run the server; should move the apply overrides to the startup script at some point
-ENTRYPOINT ["bash", "-c", "/home/aceuser/ace-server/ace-startup-script.sh && ibmint apply overrides /home/aceuser/ace-server/application-overrides.txt --work-directory /home/aceuser/ace-server && IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 --no-nodejs"]
+ENTRYPOINT ["bash", "-c", "/home/aceuser/ace-server/ace-startup-script.sh && \
+                           ibmint apply overrides /home/aceuser/ace-server/application-overrides.txt --work-directory /home/aceuser/ace-server && \
+                           IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 --no-nodejs"]

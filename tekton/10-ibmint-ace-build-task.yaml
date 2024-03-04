@@ -149,7 +149,7 @@ spec:
       securityContext:
         runAsUser: 0
         # Needed for hostPath volumes on OpenShift
-        #privileged: true
+        privileged: true
         capabilities:
           add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
       # specifying DOCKER_CONFIG is required to allow buildah to detect docker credential
@@ -181,8 +181,8 @@ spec:
     # 
     # Default buildah approach using emptyDir; takes about 2 minutes on a test SNO cluster
     # 
-    - name: varlibcontainers
-      emptyDir: {}
+    #- name: varlibcontainers
+    #  emptyDir: {}
     # 
     # Local directory for this pipeline; takes a few seconds after initial pull
     # 
@@ -193,10 +193,10 @@ spec:
     # 
     # Sharing the host containers; takes a few seconds
     # 
-    #- name: varlibcontainers
-    #  hostPath:
-    #    path: '/var/lib/containers'
-    #    type: Directory
+    - name: varlibcontainers
+      hostPath:
+        path: '/var/lib/containers'
+        type: Directory
     # 
     # Local disk using LVM operator on SNO; same speed as hostPath
     # 
