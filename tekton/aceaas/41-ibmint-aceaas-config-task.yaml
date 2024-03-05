@@ -74,10 +74,10 @@ spec:
         sed -i "s/TEMPLATE_NAME/$(params.deployPrefix)-jdbc-policies/g" /tmp/jdbc-policies-configuration.json
         sed -i "s/TEMPLATE_TYPE/policyproject/g" /tmp/jdbc-policies-configuration.json
         sed -i "s/TEMPLATE_DESCRIPTION/$(params.deployPrefix) JDBCPolicies project/g" /tmp/jdbc-policies-configuration.json
-        sed -i "s/TEMPLATE_BASE64CONTENTS/`cat /tmp/JDBCPolicies.zip.base64 | sed 's/\//\\\\\\//g'`/g" /tmp/jdbc-policies-configuration.json
+        sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/JDBCPolicies.zip.base64 | sed 's/\//\\\\\\//g'`/g" /tmp/jdbc-policies-configuration.json
         echo Contents of jdbc-policies-configuration.json:
         cat /tmp/jdbc-policies-configuration.json
-        
+
         curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-jdbc-policies \
           -H "x-ibm-instance-id: ${appConInstanceID}" \
           -H "Content-Type: application/json" \

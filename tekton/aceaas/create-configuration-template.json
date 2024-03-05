@@ -6,6 +6,6 @@
   "spec": {
     "type": "TEMPLATE_TYPE",
     "description": "TEMPLATE_DESCRIPTION",
-    "contents": "TEMPLATE_BASE64CONTENTS"
+    "data": "TEMPLATE_BASE64DATA"
   }
 }
