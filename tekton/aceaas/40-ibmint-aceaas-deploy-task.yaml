@@ -17,8 +17,8 @@ spec:
     - name: deployPrefix
       type: string
   results:
-    - name: barurl
-      description: BAR url on ACEaaS of the form https://dataplane-api-dash.appconnect:3443/v1/ac2vkpa0udw/directories/tdolby-tea-tekton?
+    - name: barURL
+      description: BAR URL on ACEaaS of the form https://dataplane-api-dash.appconnect:3443/v1/ac2vkpa0udw/directories/tdolby-tea-tekton?
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
@@ -148,7 +148,7 @@ spec:
         # This would be easier with jq but that's not available in most ACE images
         export BARURL=$(cat /tmp/curl-output.txt | tr -d '{}"' | tr ',' '\n' | grep url | sed 's/url://g')
         echo BARURL: $BARURL
-        echo -n "$BARURL" > $(results.barurl.path)
+        echo -n "$BARURL" > $(results.barURL.path)
       volumeMounts:
         - mountPath: /work
           name: work

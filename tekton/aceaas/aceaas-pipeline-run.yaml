@@ -18,3 +18,5 @@ spec:
       value: "os-4.14"
     - name: deployPrefix
       value: "tdolby"
+    - name: createConfiguration
+      value: "true"

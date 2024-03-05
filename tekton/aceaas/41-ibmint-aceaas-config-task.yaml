@@ -16,6 +16,8 @@ spec:
       type: string
     - name: deployPrefix
       type: string
+    - name: barURL
+      type: string
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
@@ -24,9 +26,12 @@ spec:
         set -e # Fail on error
         cd /work
         git clone -b $(params.revision) $(params.url)
+        echo barURL:
+        echo $(params.barURL) 
 
         # Slightly hacky but works . . . 
         chmod -R 777 /work/ace-demo-pipeline
+        /bin/false
       volumeMounts:
         - mountPath: /work
           name: work
@@ -76,14 +81,15 @@ spec:
         sed -i "s/TEMPLATE_DESCRIPTION/$(params.deployPrefix) JDBCPolicies project/g" /tmp/jdbc-policies-configuration.json
         sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/JDBCPolicies.zip.base64 | sed 's/\//\\\\\\//g'`/g" /tmp/jdbc-policies-configuration.json
 
-        #curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-jdbc-policies \
-        #  -H "x-ibm-instance-id: ${appConInstanceID}" \
-        #  -H "Content-Type: application/json" \
-        #  -H "Accept: application/json" \
-        #  -H "X-IBM-Client-Id: ${appConClientID}" \
-        #  -H "authorization: Bearer ${appConToken}" \
-        #  --data-binary @/tmp/jdbc-policies-configuration.json
-        
+        curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-jdbc-policies \
+          -H "x-ibm-instance-id: ${appConInstanceID}" \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/json" \
+          -H "X-IBM-Client-Id: ${appConClientID}" \
+          -H "authorization: Bearer ${appConToken}" \
+          --data-binary @/tmp/jdbc-policies-configuration.json
+        echo
+
         echo ========================================================================
         echo Creating jdbc::tea as $(params.deployPrefix)-jdbc-setdbparms configuration
         echo ========================================================================
@@ -95,13 +101,14 @@ spec:
         sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/jdbc-setdbparms.base64 | sed 's/\//\\\\\\//g'`/g" /tmp/jdbc-setdbparms-configuration.json
         cat /tmp/jdbc-setdbparms-configuration.json
 
-        #curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-jdbc-setdbparms \
-        #  -H "x-ibm-instance-id: ${appConInstanceID}" \
-        #  -H "Content-Type: application/json" \
-        #  -H "Accept: application/json" \
-        #  -H "X-IBM-Client-Id: ${appConClientID}" \
-        #  -H "authorization: Bearer ${appConToken}" \
-        #  --data-binary @/tmp/jdbc-setdbparms-configuration.json
+        curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-jdbc-setdbparms \
+          -H "x-ibm-instance-id: ${appConInstanceID}" \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/json" \
+          -H "X-IBM-Client-Id: ${appConClientID}" \
+          -H "authorization: Bearer ${appConToken}" \
+          --data-binary @/tmp/jdbc-setdbparms-configuration.json
+        echo
 
         echo ========================================================================
         echo Creating default policy project setting as $(params.deployPrefix)-default-policy-project configuration
@@ -114,18 +121,14 @@ spec:
         sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/default-policy-project.base64 | sed 's/\//\\\\\\//g'`/g" /tmp/default-policy-project-configuration.json
         cat /tmp/default-policy-project-configuration.json
 
-        #curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-default-policy-project \
-        #  -H "x-ibm-instance-id: ${appConInstanceID}" \
-        #  -H "Content-Type: application/json" \
-        #  -H "Accept: application/json" \
-        #  -H "X-IBM-Client-Id: ${appConClientID}" \
-        #  -H "authorization: Bearer ${appConToken}" \
-        #  --data-binary @/tmp/default-policy-project-configuration.json
-
-        echo ========================================================================
-        echo Sleeping to try and avoid \"send on closed channel\" errors with tkn
-        echo ========================================================================
-        sleep 2
+        curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-default-policy-project \
+          -H "x-ibm-instance-id: ${appConInstanceID}" \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/json" \
+          -H "X-IBM-Client-Id: ${appConClientID}" \
+          -H "authorization: Bearer ${appConToken}" \
+          --data-binary @/tmp/default-policy-project-configuration.json
+        echo
       volumeMounts:
         - mountPath: /work
           name: work
@@ -155,10 +158,10 @@ spec:
         echo ========================================================================
         echo Creating IR JSON
         echo ========================================================================
-        export BARURL='https://dataplane-api-dash.appconnect:3443/v1/ac2vkpa0udw/directories/tdolby-tea-tekton?'
+        #export BARURL='https://dataplane-api-dash.appconnect:3443/v1/ac2vkpa0udw/directories/tdolby-tea-tekton?'
         cp /work/ace-demo-pipeline/tekton/aceaas/create-integrationruntime-template.json /tmp/create-integrationruntime.json
         sed -i "s/TEMPLATE_NAME/$(params.deployPrefix)-tea-tekton-ir/g" /tmp/create-integrationruntime.json
-        sed -i "s/TEMPLATE_BARURL/`echo $BARURL | sed 's/\//\\\\\\//g'`/g" /tmp/create-integrationruntime.json
+        sed -i "s/TEMPLATE_BARURL/`echo $(params.barURL) | sed 's/\//\\\\\\//g'`/g" /tmp/create-integrationruntime.json
         sed -i "s/TEMPLATE_POLICYPROJECT/$(params.deployPrefix)-jdbc-policies/g" /tmp/create-integrationruntime.json
         sed -i "s/TEMPLATE_SERVERCONF/$(params.deployPrefix)-default-policy-project/g" /tmp/create-integrationruntime.json
         sed -i "s/TEMPLATE_SETDBPARMS/$(params.deployPrefix)-jdbc-setdbparms/g" /tmp/create-integrationruntime.json
@@ -166,18 +169,14 @@ spec:
         cat /tmp/create-integrationruntime.json
 
         
-        #curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-jdbc-policies \
-        #  -H "x-ibm-instance-id: ${appConInstanceID}" \
-        #  -H "Content-Type: application/json" \
-        #  -H "Accept: application/json" \
-        #  -H "X-IBM-Client-Id: ${appConClientID}" \
-        #  -H "authorization: Bearer ${appConToken}" \
-        #  --data-binary @/tmp/jdbc-policies-configuration.json
-        
-        echo ========================================================================
-        echo Sleeping to try and avoid \"send on closed channel\" errors with tkn
-        echo ========================================================================
-        sleep 2
+        curl -X PUT https://${appConEndpoint}/api/v1/integration-runtimes/$(params.deployPrefix)-tea-tekton-ir \
+          -H "x-ibm-instance-id: ${appConInstanceID}" \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/json" \
+          -H "X-IBM-Client-Id: ${appConClientID}" \
+          -H "authorization: Bearer ${appConToken}" \
+          --data-binary @/tmp/create-integrationruntime.json
+        echo
       volumeMounts:
         - mountPath: /work
           name: work
