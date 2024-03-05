@@ -1,0 +1,29 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: aceaas-pipeline
+spec:
+  params:
+    - name: url
+      type: string
+      default: "https://github.com/ot4i/ace-demo-pipeline"
+    - name: revision
+      type: string
+      default: "main"
+    - name: buildImage
+      type: string
+    - name: deployPrefix
+      type: string
+  tasks:
+    - name: build-and-deploy
+      taskRef:
+        name: aceaas-build-and-deploy
+      params:
+        - name: url
+          value: $(params.url)
+        - name: revision
+          value: $(params.revision)
+        - name: buildImage
+          value: $(params.buildImage)
+        - name: deployPrefix
+          value: $(params.deployPrefix)

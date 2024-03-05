@@ -25,6 +25,8 @@ RUN cd /tmp && \
     rm /tmp/apache-maven-3.8.4-bin.tar.gz && \
     ln -s /opt/apache-maven-3.8.4/bin/mvn /usr/local/bin/mvn
 
+RUN echo "Adding curl for Alpine - may fail if the base is Ubuntu" ; apk add curl  || /bin/true
+
 ENV TZ=Europe/London
 WORKDIR /
 
