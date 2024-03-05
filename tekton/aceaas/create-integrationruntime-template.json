@@ -1,0 +1,26 @@
+{
+    "metadata": {
+        "name": "TEMPLATE_NAME"
+    },
+    "spec": {
+        "template": {
+            "spec": {
+                "containers": [
+                    {
+                        "name": "runtime"
+                    }
+                ]
+            }
+        },
+        "barURL": [
+            "TEMPLATE_BARURL"
+        ],
+        "configurations": [
+            "TEMPLATE_POLICYPROJECT",
+            "TEMPLATE_SERVERCONF",
+            "TEMPLATE_SETDBPARMS"
+        ],
+        "version": "12.0",
+        "replicas": 1
+    }
+}
