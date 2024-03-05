@@ -60,15 +60,36 @@ spec:
         sed -i "s/PORT_NUMBER/`cat /var/run/secrets/jdbc/portNumber`/g"     /tmp/JDBCPolicies/TEAJDBC.policyxml
         echo "Contents of TEAJDBC policy:"
         cat /tmp/JDBCPolicies/TEAJDBC.policyxml
+
+        
+        echo ========================================================================
+        echo Creating $(params.deployPrefix)-jdbc-policies configuration
+        echo ========================================================================
         cd /tmp
         # Using "zip" would be more obvious, but not all ACE images have it available.
         /opt/ibm/ace-12/common/jdk/bin/jar cvf /tmp/JDBCPolicies.zip JDBCPolicies
-        cat /tmp/JDBCPolicies.zip | base64 > /tmp/JDBCPolicies.zip.base64
-
+        cat /tmp/JDBCPolicies.zip | base64 -w 0 > /tmp/JDBCPolicies.zip.base64
+        ls -l /tmp/JDBCPolicies.zip.base64
+        cp /work/ace-demo-pipeline/tekton/aceaas/create-configuration-template.json /tmp/jdbc-policies-configuration.json
+        sed -i "s/TEMPLATE_NAME/$(params.deployPrefix)-jdbc-policies/g" /tmp/jdbc-policies-configuration.json
+        sed -i "s/TEMPLATE_TYPE/policyproject/g" /tmp/jdbc-policies-configuration.json
+        sed -i "s/TEMPLATE_DESCRIPTION/$(params.deployPrefix) JDBCPolicies project/g" /tmp/jdbc-policies-configuration.json
+        sed -i "s/TEMPLATE_BASE64CONTENTS/`cat /tmp/JDBCPolicies.zip.base64 | sed 's/\//\\\\\\//g'`/g" /tmp/jdbc-policies-configuration.json
+        echo Contents of jdbc-policies-configuration.json:
+        cat /tmp/jdbc-policies-configuration.json
+        
+        curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-jdbc-policies \
+          -H "x-ibm-instance-id: ${appConInstanceID}" \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/json" \
+          -H "X-IBM-Client-Id: ${appConClientID}" \
+          -H "authorization: Bearer ${appConToken}" \
+          --data-binary @/tmp/jdbc-policies-configuration.json
+        
         echo ========================================================================
-        echo Creating jdbc::tea setdbparms configuration
+        echo Creating jdbc::tea as $(params.deployPrefix)-jdbc-setdbparms configuration
         echo ========================================================================
-        mqsisetdbparms -w /home/aceuser/ace-server -n jdbc::tea -u `cat /run/secrets/jdbc/USERID` -p `cat /run/secrets/jdbc/PASSWORD`
+        #mqsisetdbparms -w /home/aceuser/ace-server -n jdbc::tea -u `cat /run/secrets/jdbc/USERID` -p `cat /run/secrets/jdbc/PASSWORD`
 
 
 
