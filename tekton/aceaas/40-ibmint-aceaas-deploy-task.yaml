@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: aceaas-build-and-deploy
+  name: aceaas-build-and-deploy-bar
 spec:
   stepTemplate:
     env:
@@ -16,6 +16,9 @@ spec:
       type: string
     - name: deployPrefix
       type: string
+  results:
+    - name: barurl
+      description: BAR url on ACEaaS of the form https://dataplane-api-dash.appconnect:3443/v1/ac2vkpa0udw/directories/tdolby-tea-tekton?
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
@@ -115,6 +118,10 @@ spec:
       #
       script: |
         #!/bin/bash
+
+        # Avoid errors using curl with ace-minimal-build
+        unset LD_LIBRARY_PATH
+
         set -e # Fail on error
 
         echo ========================================================================
@@ -134,8 +141,14 @@ spec:
           -H "Accept: application/json" \
           -H "X-IBM-Client-Id: ${appConClientID}" \
           -H "authorization: Bearer ${appConToken}" \
-          --data-binary @/work/ibmint-output/tea-tekton.bar 
-
+          --data-binary @/work/ibmint-output/tea-tekton.bar --output /tmp/curl-output.txt
+        
+        # We will have exited if curl returned non-zero so the output should contain the BAR file name
+        cat /tmp/curl-output.txt ; echo
+        # This would be easier with jq but that's not available in most ACE images
+        export BARURL=$(cat /tmp/curl-output.txt | tr -d '{}"' | tr ',' '\n' | grep url | sed 's/url://g')
+        echo BARURL: $BARURL
+        echo -n "$BARURL" > $(results.barurl.path)
       volumeMounts:
         - mountPath: /work
           name: work
@@ -147,8 +160,10 @@ spec:
     - name: work
       emptyDir: {}
     - name: secret-volume-2
+      # Used to check database connectivity
       secret:
         secretName: jdbc-secret
     - name: secret-volume-3
+      # Used to push to ACEaaS
       secret:
         secretName: aceaas-credentials

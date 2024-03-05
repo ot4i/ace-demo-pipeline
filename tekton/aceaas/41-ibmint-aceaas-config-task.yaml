@@ -1,0 +1,96 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: aceaas-create-config-and-runtime
+spec:
+  stepTemplate:
+    env:
+      - name: "LICENSE"
+        value: "accept"
+  params:
+    - name: url
+      type: string
+    - name: revision
+      type: string
+    - name: buildImage
+      type: string
+    - name: deployPrefix
+      type: string
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      script: |
+        #!/bin/sh
+        set -e # Fail on error
+        cd /work
+        git clone -b $(params.revision) $(params.url)
+
+        # Slightly hacky but works . . . 
+        chmod -R 777 /work/ace-demo-pipeline
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: create-config
+      image: $(params.buildImage)
+      #
+      #
+      #
+      script: |
+        #!/bin/bash
+
+        # Avoid errors using curl with ace-minimal-build
+        unset LD_LIBRARY_PATH
+
+        set -e # Fail on error
+        export appConEndpoint=$(cat /run/secrets/aceaas/appConEndpoint)
+        export appConInstanceID=$(cat /run/secrets/aceaas/appConInstanceID)
+        export appConClientID=$(cat /run/secrets/aceaas/appConClientID)
+        export appConApiKey=$(cat /run/secrets/aceaas/appConApiKey)
+        export appConClientSecret=$(cat /run/secrets/aceaas/appConClientSecret)
+        export appConToken=$(cat /run/secrets/aceaas/appConToken)
+
+        echo ========================================================================
+        echo Creating JDBCPolicies project
+        echo ========================================================================
+        mkdir /tmp/JDBCPolicies
+        echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns2:policyProjectDescriptor xmlns="http://com.ibm.etools.mft.descriptor.base" xmlns:ns2="http://com.ibm.etools.mft.descriptor.policyProject"><references/></ns2:policyProjectDescriptor>' > /tmp/JDBCPolicies/policy.descriptor
+        cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml    /tmp/JDBCPolicies/
+        sed -i "s/DATABASE_NAME/`cat /var/run/secrets/jdbc/databaseName`/g" /tmp/JDBCPolicies/TEAJDBC.policyxml
+        sed -i "s/SERVER_NAME/`cat /var/run/secrets/jdbc/serverName`/g"     /tmp/JDBCPolicies/TEAJDBC.policyxml
+        sed -i "s/PORT_NUMBER/`cat /var/run/secrets/jdbc/portNumber`/g"     /tmp/JDBCPolicies/TEAJDBC.policyxml
+        echo "Contents of TEAJDBC policy:"
+        cat /tmp/JDBCPolicies/TEAJDBC.policyxml
+        cd /tmp
+        # Using "zip" would be more obvious, but not all ACE images have it available.
+        /opt/ibm/ace-12/common/jdk/bin/jar cvf /tmp/JDBCPolicies.zip JDBCPolicies
+        cat /tmp/JDBCPolicies.zip | base64 > /tmp/JDBCPolicies.zip.base64
+
+        echo ========================================================================
+        echo Creating jdbc::tea setdbparms configuration
+        echo ========================================================================
+        mqsisetdbparms -w /home/aceuser/ace-server -n jdbc::tea -u `cat /run/secrets/jdbc/USERID` -p `cat /run/secrets/jdbc/PASSWORD`
+
+
+
+        echo ========================================================================
+        echo Sleeping to try and avoid \"send on closed channel\" errors with tkn
+        echo ========================================================================
+        sleep 2
+      volumeMounts:
+        - mountPath: /work
+          name: work
+        - name: secret-volume-2
+          mountPath: /var/run/secrets/jdbc
+        - name: secret-volume-3
+          mountPath: /var/run/secrets/aceaas
+  volumes:
+    - name: work
+      emptyDir: {}
+    - name: secret-volume-2
+      # Used create database policy and credentials
+      secret:
+        secretName: jdbc-secret
+    - name: secret-volume-3
+      # Used to push to ACEaaS
+      secret:
+        secretName: aceaas-credentials

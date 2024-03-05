@@ -15,9 +15,21 @@ spec:
     - name: deployPrefix
       type: string
   tasks:
-    - name: build-and-deploy
+    # - name: build-and-deploy-bar
+    #   taskRef:
+    #     name: aceaas-build-and-deploy
+    #   params:
+    #     - name: url
+    #       value: $(params.url)
+    #     - name: revision
+    #       value: $(params.revision)
+    #     - name: buildImage
+    #       value: $(params.buildImage)
+    #     - name: deployPrefix
+    #       value: $(params.deployPrefix)
+    - name: create-config-and-runtime
       taskRef:
-        name: aceaas-build-and-deploy
+        name: aceaas-create-config-and-runtime
       params:
         - name: url
           value: $(params.url)
