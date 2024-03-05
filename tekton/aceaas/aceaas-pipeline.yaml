@@ -20,7 +20,7 @@ spec:
   tasks:
     - name: build-and-deploy-bar
       taskRef:
-        name: aceaas-build-and-deploy
+        name: aceaas-build-and-deploy-bar
       params:
         - name: url
           value: $(params.url)

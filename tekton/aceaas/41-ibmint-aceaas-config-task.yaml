@@ -31,7 +31,6 @@ spec:
 
         # Slightly hacky but works . . . 
         chmod -R 777 /work/ace-demo-pipeline
-        /bin/false
       volumeMounts:
         - mountPath: /work
           name: work
