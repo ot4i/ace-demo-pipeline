@@ -221,8 +221,8 @@ spec:
     # 
     # Default buildah approach using emptyDir; takes about 2 minutes on a test SNO cluster
     # 
-    #- name: varlibcontainers
-    #  emptyDir: {}
+    - name: varlibcontainers
+      emptyDir: {}
     # 
     # Local directory for this pipeline; takes a few seconds after initial pull
     # 
@@ -240,9 +240,9 @@ spec:
     # 
     # Local disk using LVM operator on SNO; same speed as hostPath
     # 
-    - name: varlibcontainers
-      persistentVolumeClaim:
-        claimName: buildah-cache
+    #- name: varlibcontainers
+    #  persistentVolumeClaim:
+    #    claimName: buildah-cache
     # 
     # NFS mount from same subnet; initial pull took 35 minutes, and
     # subsequent builds took around 9 minutes.

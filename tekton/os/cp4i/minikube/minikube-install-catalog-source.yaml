@@ -1,0 +1,15 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-appconnect-catalog
+  namespace: olm
+spec:
+  displayName: "IBM App Connect Operator Catalog k8S"
+  publisher: IBM
+  sourceType: grpc
+  image: icr.io/cpopen/appconnect-operator-catalog-k8s
+  updateStrategy:
+    registryPoll:
+      interval: 45m
+  grpcPodConfig:
+    securityContextConfig: restricted

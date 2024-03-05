@@ -1,0 +1,10 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ibm-appconnect
+  namespace: ace-operator
+spec:
+  channel: v10.1
+  name: ibm-appconnect
+  source: ibm-appconnect-catalog
+  sourceNamespace: olm

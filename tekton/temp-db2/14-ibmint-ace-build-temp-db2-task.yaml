@@ -65,8 +65,7 @@ spec:
         if [ "$(params.useTransientDatabase)" = "true" ]; then
           export NS=$(context.taskRun.namespace)
           echo Launching DB2
-          # Will fail on non-Alpine
-          apk add bash || /bin/true
+          apk add bash
           cd /work
           ls -l /work/ace-demo-pipeline/tekton
           bash /work/ace-demo-pipeline/tekton/temp-db2/start-db2-container.sh
@@ -121,8 +120,7 @@ spec:
         if [ "$(params.useTransientDatabase)" = "true" ]; then
           export NS=$(context.taskRun.namespace)
           echo Waiting for DB2
-          # Will fail on non-Alpine
-          apk add bash || /bin/true
+          apk add bash
           cd /work
           ls -l /work/ace-demo-pipeline/tekton
           bash /work/ace-demo-pipeline/tekton/temp-db2/wait-for-db2-container.sh
@@ -181,8 +179,7 @@ spec:
         if [ "$(params.useTransientDatabase)" = "true" ]; then
           export NS=$(context.taskRun.namespace)
           echo Stopping DB2
-          # Will fail on non-Alpine
-          apk add bash || /bin/true
+          apk add bash
           cd /work
           ls -l /work/ace-demo-pipeline/tekton
           bash /work/ace-demo-pipeline/tekton/temp-db2/stop-db2-container.sh
@@ -251,8 +248,8 @@ spec:
     # 
     # Default buildah approach using emptyDir; takes about 2 minutes on a test SNO cluster
     # 
-    #- name: varlibcontainers
-    #  emptyDir: {}
+    - name: varlibcontainers
+      emptyDir: {}
     # 
     # Local directory for this pipeline; takes a few seconds after initial pull
     # 
@@ -263,10 +260,10 @@ spec:
     # 
     # Sharing the host containers; takes a few seconds
     # 
-    - name: varlibcontainers
-      hostPath:
-        path: '/var/lib/containers'
-        type: Directory
+    #- name: varlibcontainers
+    #  hostPath:
+    #    path: '/var/lib/containers'
+    #    type: Directory
     # 
     # Local disk using LVM operator on SNO; same speed as hostPath
     # 

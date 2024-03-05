@@ -51,6 +51,7 @@ spec:
         - --dockerfile=/work/ace-docker/$(params.aceDockerFile)
         - --destination=$(params.outputRegistry)/$(params.runtimeImage)
         - --context=/work/ace-docker/experimental/ace-minimal
+        - --insecure-registry=192.168.0.0/16
         - --build-arg=DOWNLOAD_URL=$(params.aceDownloadUrl)
         - --skip-tls-verify
       volumeMounts:

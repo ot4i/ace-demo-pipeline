@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: registry-nodeport
+  namespace: kube-system
+spec:
+  type: NodePort
+  selector:
+    actual-registry: 'true'
+    kubernetes.io/minikube-addons: registry
+  ports:
+    - port: 5000
+      # By default and for convenience, the `targetPort` is set to
+      # the same value as the `port` field.
+      targetPort: 5000
