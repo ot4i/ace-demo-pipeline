@@ -1,5 +1,8 @@
 pipeline {
-  agent { docker { image 'cp.icr.io/cp/appc/ace:12.0.11.0-r1' } }
+  agent { docker { 
+    image 'cp.icr.io/cp/appc/ace:12.0.11.0-r1' 
+    args '-e LICENSE=accept'
+  } }
   parameters {
     /* These values would be better moved to a configuration file and provided by */
     /* the Config File Provider plugin (or equivalent), but this is good enough   */
