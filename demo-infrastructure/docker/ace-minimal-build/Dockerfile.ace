@@ -1,0 +1,25 @@
+# Copyright (c) 2022 Open Technologies for Integration
+# Licensed under the MIT license (see LICENSE for details)
+ARG BASE_IMAGE=cp.icr.io/cp/appc/ace:12.0.11.0-r1
+FROM $BASE_IMAGE
+
+#
+# This image is run by Tekton in a build container to build the application and tests.
+#
+# Starting from ace-minimal (which has the ACE install plus the aceuser created), 
+# this image contains only the parts needed for the build and unit test phase.
+#
+
+LABEL "maintainer"="trevor.dolby@ibm.com"
+USER root
+
+RUN microdnf -y update && microdnf -y install procps
+
+# Patch Jenkins issues
+RUN chmod -R ugo+rwx /var/mqsi
+
+USER 1001
+
+# Default command to run
+ENTRYPOINT []
+CMD ["/bin/bash"]
