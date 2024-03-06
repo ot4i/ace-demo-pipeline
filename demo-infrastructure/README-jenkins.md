@@ -35,8 +35,9 @@ See the [ace-minimal-build](/demo-infrastructure/docker/ace-minimal-build) direc
 information on building the image.
 
 Once those values have been updated and containers built if needed, then the pipeline can be 
-constructed, but it may be a good idea to change "GitHub API usage" under "Configure System" 
-in the Jenkins settings as otherwise messages such as the following may appear regularly:
+constructed, but it may be a good idea to change "GitHub API usage" under "System 
+Configuration" -> "System" in the Jenkins settings as otherwise messages such as the 
+following may appear regularly:
 ```
 17:07:37 Jenkins-Imposed API Limiter: Current quota for Github API usage has 52 remaining (1 over budget). Next quota of 60 in 58 min. Sleeping for 4 min 9 sec.
 17:07:37 Jenkins is attempting to evenly distribute GitHub API requests. To configure a different rate limiting strategy, such as having Jenkins restrict GitHub API requests only when near or above the GitHub rate limit, go to "GitHub API usage" under "Configure System" in the Jenkins settings.
