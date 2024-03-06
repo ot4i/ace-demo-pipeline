@@ -28,7 +28,7 @@ pipeline {
 
             # Clean up just in case files have been left around
             rm -f */junit-reports/TEST*.xml
-            rm -rf $PWD/ace-server
+            rm -rf /tmp/test-work-dir
 
             echo ========================================================================
             echo Building application
@@ -40,15 +40,15 @@ pipeline {
             echo Building unit tests
             echo ========================================================================
             # Create the unit test work directory
-            mqsicreateworkdir $PWD/ace-server
-            mqsibar -w $PWD/ace-server -a $PWD/tea-application-combined.bar 
+            mqsicreateworkdir /tmp/test-work-dir
+            mqsibar -w /tmp/test-work-dir -a $PWD/tea-application-combined.bar 
             # Build just the unit tests
-            ibmint deploy --input-path . --output-work-directory $PWD/ace-server --project TeaRESTApplication_UnitTest
+            ibmint deploy --input-path . --output-work-directory /tmp/test-work-dir --project TeaRESTApplication_UnitTest
 
             echo ========================================================================
             echo Running unit tests
             echo ========================================================================
-            IntegrationServer -w $PWD/ace-server --no-nodejs --start-msgflows false --test-project TeaRESTApplication_UnitTest --test-junit-options --reports-dir=junit-reports
+            IntegrationServer -w /tmp/test-work-dir --no-nodejs --start-msgflows false --test-project TeaRESTApplication_UnitTest --test-junit-options --reports-dir=junit-reports
             '''
 
       }
@@ -67,7 +67,7 @@ pipeline {
         
         sh  '''#!/bin/bash
             # Should alread have the projects unpacked
-            export WORKDIR=$PWD/ace-server
+            export WORKDIR=/tmp/test-work-dir
             # Set HOME to somewhere writable by Maven
             export HOME=/tmp
 
@@ -95,7 +95,7 @@ pipeline {
             echo ========================================================================
             echo Running component tests
             echo ========================================================================
-            IntegrationServer -w ${WORKDIR} --no-nodejs --start-msgflows false --test-project TeaRESTApplication_ComponentTest
+            IntegrationServer -w ${WORKDIR} --no-nodejs --start-msgflows false --test-project TeaRESTApplication_ComponentTest --test-junit-options --reports-dir=junit-reports
 
             '''
       }
