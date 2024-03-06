@@ -73,19 +73,17 @@ spec:
         # Using "zip" would be more obvious, but not all ACE images have it available.
         /opt/ibm/ace-12/common/jdk/bin/jar cvf /tmp/JDBCPolicies.zip JDBCPolicies
         cat /tmp/JDBCPolicies.zip | base64 -w 0 > /tmp/JDBCPolicies.zip.base64
-        ls -l /tmp/JDBCPolicies.zip.base64
-        cp /work/ace-demo-pipeline/tekton/aceaas/create-configuration-template.json /tmp/jdbc-policies-configuration.json
-        sed -i "s/TEMPLATE_NAME/$(params.deployPrefix)-jdbc-policies/g" /tmp/jdbc-policies-configuration.json
-        sed -i "s/TEMPLATE_TYPE/policyproject/g" /tmp/jdbc-policies-configuration.json
-        sed -i "s/TEMPLATE_DESCRIPTION/$(params.deployPrefix) JDBCPolicies project/g" /tmp/jdbc-policies-configuration.json
-        sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/JDBCPolicies.zip.base64 | sed 's/\//\\\\\\//g'`/g" /tmp/jdbc-policies-configuration.json
+        
+        # Not sure if this is better than the template way of doing things below . . . (TCD 20240305)
+        cat << EOF > /tmp/jdbc-policies-configuration.json
+        { "metadata": { "name": "$(params.deployPrefix)-jdbc-policies" }, "spec": {
+          "type": "policyproject", "description": "$(params.deployPrefix) JDBCPolicies project",
+          "data": "`cat /tmp/JDBCPolicies.zip.base64`"}}
+        EOF
 
         curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-jdbc-policies \
-          -H "x-ibm-instance-id: ${appConInstanceID}" \
-          -H "Content-Type: application/json" \
-          -H "Accept: application/json" \
-          -H "X-IBM-Client-Id: ${appConClientID}" \
-          -H "authorization: Bearer ${appConToken}" \
+          -H "x-ibm-instance-id: ${appConInstanceID}" -H "Content-Type: application/json" \
+          -H "Accept: application/json" -H "X-IBM-Client-Id: ${appConClientID}" -H "authorization: Bearer ${appConToken}" \
           --data-binary @/tmp/jdbc-policies-configuration.json
         echo
 
@@ -93,6 +91,7 @@ spec:
         echo Creating jdbc::tea as $(params.deployPrefix)-jdbc-setdbparms configuration
         echo ========================================================================
         echo -n jdbc::tea `cat /var/run/secrets/jdbc/USERID` `cat /var/run/secrets/jdbc/PASSWORD` | base64 -w 0 > /tmp/jdbc-setdbparms.base64
+        # Could use the cat << EOF approach instead (TCD 20240305)
         cp /work/ace-demo-pipeline/tekton/aceaas/create-configuration-template.json /tmp/jdbc-setdbparms-configuration.json
         sed -i "s/TEMPLATE_NAME/$(params.deployPrefix)-jdbc-setdbparms/g" /tmp/jdbc-setdbparms-configuration.json
         sed -i "s/TEMPLATE_TYPE/setdbparms/g" /tmp/jdbc-setdbparms-configuration.json
@@ -101,11 +100,8 @@ spec:
         cat /tmp/jdbc-setdbparms-configuration.json
 
         curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-jdbc-setdbparms \
-          -H "x-ibm-instance-id: ${appConInstanceID}" \
-          -H "Content-Type: application/json" \
-          -H "Accept: application/json" \
-          -H "X-IBM-Client-Id: ${appConClientID}" \
-          -H "authorization: Bearer ${appConToken}" \
+          -H "x-ibm-instance-id: ${appConInstanceID}" -H "Content-Type: application/json" \
+          -H "Accept: application/json" -H "X-IBM-Client-Id: ${appConClientID}" -H "authorization: Bearer ${appConToken}" \
           --data-binary @/tmp/jdbc-setdbparms-configuration.json
         echo
 
@@ -121,11 +117,8 @@ spec:
         cat /tmp/default-policy-project-configuration.json
 
         curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-default-policy-project \
-          -H "x-ibm-instance-id: ${appConInstanceID}" \
-          -H "Content-Type: application/json" \
-          -H "Accept: application/json" \
-          -H "X-IBM-Client-Id: ${appConClientID}" \
-          -H "authorization: Bearer ${appConToken}" \
+          -H "x-ibm-instance-id: ${appConInstanceID}" -H "Content-Type: application/json" \
+          -H "Accept: application/json" -H "X-IBM-Client-Id: ${appConClientID}" -H "authorization: Bearer ${appConToken}" \
           --data-binary @/tmp/default-policy-project-configuration.json
         echo
       volumeMounts:
@@ -169,11 +162,8 @@ spec:
 
         
         curl -X PUT https://${appConEndpoint}/api/v1/integration-runtimes/$(params.deployPrefix)-tea-tekton-ir \
-          -H "x-ibm-instance-id: ${appConInstanceID}" \
-          -H "Content-Type: application/json" \
-          -H "Accept: application/json" \
-          -H "X-IBM-Client-Id: ${appConClientID}" \
-          -H "authorization: Bearer ${appConToken}" \
+          -H "x-ibm-instance-id: ${appConInstanceID}" -H "Content-Type: application/json" \
+          -H "Accept: application/json" -H "X-IBM-Client-Id: ${appConClientID}" -H "authorization: Bearer ${appConToken}" \
           --data-binary @/tmp/create-integrationruntime.json
         echo
       volumeMounts:

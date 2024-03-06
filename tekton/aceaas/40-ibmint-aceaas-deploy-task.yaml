@@ -136,11 +136,8 @@ spec:
         export appConToken=$(cat /run/secrets/aceaas/appConToken)
 
         curl -X PUT https://${appConEndpoint}/api/v1/bar-files/$(params.deployPrefix)-tea-tekton \
-          -H "x-ibm-instance-id: ${appConInstanceID}" \
-          -H "Content-Type: application/octet-stream" \
-          -H "Accept: application/json" \
-          -H "X-IBM-Client-Id: ${appConClientID}" \
-          -H "authorization: Bearer ${appConToken}" \
+          -H "x-ibm-instance-id: ${appConInstanceID}" -H "Content-Type: application/octet-stream" \
+          -H "Accept: application/json" -H "X-IBM-Client-Id: ${appConClientID}" -H "authorization: Bearer ${appConToken}" \
           --data-binary @/work/ibmint-output/tea-tekton.bar --output /tmp/curl-output.txt
         
         # We will have exited if curl returned non-zero so the output should contain the BAR file name
