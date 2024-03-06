@@ -1,7 +1,7 @@
 pipeline {
   agent { docker { 
-    image 'ace-build:12.0.11.0-r1' 
-    args '-e LICENSE=accept -u 1001:1000 --entrypoint bash'
+    image 'cp.icr.io/cp/appc/ace:12.0.11.0-r1' 
+    args '-e LICENSE=accept -u 1001:1000 --entrypoint ""'
   } }
   parameters {
     /* These values would be better moved to a configuration file and provided by */
