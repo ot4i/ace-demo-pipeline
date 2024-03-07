@@ -132,8 +132,8 @@ pipeline {
               --header 'accept: application/json' \
               --header 'content-type: application/json' \
               --header "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" \
-              --data "{\"apiKey\": \"${APPCON_API_KEY}\"}" --output /tmp/token-output.txt
-
+              --data "{\\"apiKey\\": \\"${APPCON_API_KEY}\\"}" --output /tmp/token-output.txt
+            cat /tmp/token-output.txt
             cat /tmp/token-output.txt  | tr -d '{}"' | tr ',' '\n' | grep access_token | sed 's/access_token://g' > /tmp/APPCON_TOKEN
 
             curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/bar-files/`cat /tmp/deployPrefix`-tea-jenkins \
