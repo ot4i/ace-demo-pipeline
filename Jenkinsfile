@@ -13,6 +13,7 @@ pipeline {
     string(name: 'portNumber',   defaultValue: '30699', description: 'JDBC database port')
     string(name: 'deployPrefix',   defaultValue: 'tdolby', description: 'ACEaaS artifact prefix')
     string(name: 'APPCON_ENDPOINT',   defaultValue: 'api.p-vir-c1.appconnect.automation.ibm.com', description: 'ACEaaS endpoint hostname')
+    booleanParam(name: 'DEPLOY_CONFIGURATION', defaultValue: false, description: 'Create policies, runtime, etc')
   }
   stages {
     stage('Build and UT') {
@@ -124,29 +125,60 @@ pipeline {
             echo "# Acquiring token using API key"
             echo "########################################################################" && echo
 
-            curl --request POST \
-              --url https://`cat /tmp/APPCON_ENDPOINT`/api/v1/tokens \
-              --header "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" \
-              --header "X-IBM-Client-Secret: ${APPCON_CLIENT_SECRET}" \
-              --header 'accept: application/json' \
-              --header 'content-type: application/json' \
-              --header "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" \
-              --data "{\\"apiKey\\": \\"${APPCON_API_KEY}\\"}" --output /tmp/token-output.txt
+            #curl --request POST \
+            #  --url https://`cat /tmp/APPCON_ENDPOINT`/api/v1/tokens \
+            #  --header "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" \
+            #  --header "X-IBM-Client-Secret: ${APPCON_CLIENT_SECRET}" \
+            #  --header 'accept: application/json' \
+            #  --header 'content-type: application/json' \
+            #  --header "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" \
+            #  --data "{\\"apiKey\\": \\"${APPCON_API_KEY}\\"}" --output /tmp/token-output.txt
             cat /tmp/token-output.txt  | tr -d '{}"' | tr ',' '\n' | grep access_token | sed 's/access_token://g' > /tmp/APPCON_TOKEN
 
-            curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/bar-files/`cat /tmp/deployPrefix`-tea-jenkins \
-              -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
-              -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
-              --data-binary @tea-application-combined.bar  --output /tmp/curl-output.txt
+            #curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/bar-files/`cat /tmp/deployPrefix`-tea-jenkins \
+            #  -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
+            #  -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
+            #  --data-binary @tea-application-combined.bar  --output /tmp/curl-output.txt
             
             # We will have exited if curl returned non-zero so the output should contain the BAR file name
             cat /tmp/curl-output.txt ; echo
             # This would be easier with jq but that's not available in most ACE images
             export BARURL=$(cat /tmp/curl-output.txt | tr -d '{}"' | tr ',' '\n' | grep url | sed 's/url://g')
             echo BARURL: $BARURL
+            echo -n $BARURL > /tmp/BARURL.txt
             '''
       }
     }
+
+    stage('Create configuration') {
+      when {
+        expression {
+          def deployConfiguration=${params.DEPLOY_CONFIGURATION}
+          return deployConfiguration != null && deployConfiguration == true
+        }
+      }
+
+      steps {
+        sh "echo ${params.APPCON_ENDPOINT} > /tmp/APPCON_ENDPOINT"
+        sh "echo ${params.deployPrefix} > /tmp/deployPrefix"
+        
+        sh  '''#!/bin/bash
+            # Set HOME to somewhere writable by Maven
+            export HOME=/tmp
+
+            export LICENSE=accept
+            . /opt/ibm/ace-12/server/bin/mqsiprofile
+        
+            set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+
+            echo "########################################################################"
+            echo "# "
+            echo "########################################################################" && echo
+
+            '''
+      }
+    }
+                
   }
   environment {
     CT_JDBC = credentials('CT_JDBC')
