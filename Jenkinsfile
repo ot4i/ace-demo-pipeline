@@ -153,8 +153,7 @@ pipeline {
     stage('Create configuration') {
       when {
         expression {
-          def deployConfiguration=${params.DEPLOY_CONFIGURATION}
-          return deployConfiguration != null && deployConfiguration == true
+          return params.DEPLOY_CONFIGURATION
         }
       }
 
