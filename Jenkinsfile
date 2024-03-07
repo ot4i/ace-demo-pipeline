@@ -190,7 +190,7 @@ pipeline {
             
             cp tekton/aceaas/create-configuration-template.json /tmp/jdbc-policies-configuration.json
             sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-jdbc-setdbparms/g" /tmp/jdbc-policies-configuration.json
-            sed -i "s/TEMPLATE_TYPE/policyproject/g" /tmp/jdbc-setdbparms-configuration.json
+            sed -i "s/TEMPLATE_TYPE/policyproject/g" /tmp/jdbc-policies-configuration.json
             sed -i "s/TEMPLATE_DESCRIPTION/`cat /tmp/deployPrefix` JDBCPolicies project/g" /tmp/jdbc-policies-configuration.json
             sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/JDBCPolicies.zip.base64 | sed 's/\\//\\\\\\//g'`/g" /tmp/jdbc-policies-configuration.json
             cat /tmp/jdbc-policies-configuration.json
