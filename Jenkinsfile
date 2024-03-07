@@ -150,7 +150,7 @@ pipeline {
             export BARURL='https://dataplane-api-dash.appconnect:3443/v1/ac2vkpa0udw/directories/tdolby-tea-tekton?'
 
             echo BARURL: $BARURL
-            echo -n $BARURL > /tmp/BARURL.txt
+            echo -n $BARURL > /tmp/BARURL
             '''
       }
     }
@@ -238,7 +238,7 @@ pipeline {
             echo Creating IR JSON
             echo ========================================================================
             cp tekton/aceaas/create-integrationruntime-template.json /tmp/create-integrationruntime.json
-            sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-tea-tekton-ir/g" /tmp/create-integrationruntime.json
+            sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-tea-jenkins-ir/g" /tmp/create-integrationruntime.json
             sed -i "s/TEMPLATE_BARURL/`cat /tmp/BARURL | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/create-integrationruntime.json
             sed -i "s/TEMPLATE_POLICYPROJECT/`cat /tmp/deployPrefix`-jdbc-policies/g" /tmp/create-integrationruntime.json
             sed -i "s/TEMPLATE_SERVERCONF/`cat /tmp/deployPrefix`-default-policy-project/g" /tmp/create-integrationruntime.json
