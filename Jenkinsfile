@@ -169,7 +169,6 @@ pipeline {
             . /opt/ibm/ace-12/server/bin/mqsiprofile
         
             #set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
-            set -x
 
             echo ========================================================================
             echo Creating `cat /tmp/deployPrefix`-jdbc-policies configuration
@@ -183,7 +182,7 @@ pipeline {
             cat /tmp/JDBCPolicies.zip | base64 -w 0 > /tmp/JDBCPolicies.zip.base64
             
             cp tekton/aceaas/create-configuration-template.json /tmp/jdbc-policies-configuration.json
-            sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-jdbc-setdbparms/g" /tmp/jdbc-policies-configuration.json
+            sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-jdbc-policies/g" /tmp/jdbc-policies-configuration.json
             sed -i "s/TEMPLATE_TYPE/policyproject/g" /tmp/jdbc-policies-configuration.json
             sed -i "s/TEMPLATE_DESCRIPTION/`cat /tmp/deployPrefix` JDBCPolicies project/g" /tmp/jdbc-policies-configuration.json
             sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/JDBCPolicies.zip.base64 | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/jdbc-policies-configuration.json
