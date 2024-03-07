@@ -1,7 +1,7 @@
 pipeline {
   agent { docker { 
-    image 'cp.icr.io/cp/appc/ace:12.0.11.0-r1'
-    /* image 'ace-minimal:12.0.11.0-alpine' */
+    /* image 'cp.icr.io/cp/appc/ace:12.0.11.0-r1' */
+    image 'ace-minimal:12.0.11.0-alpine'
     args '-e LICENSE=accept --entrypoint ""'
   } }
   parameters {
@@ -11,8 +11,9 @@ pipeline {
     string(name: 'databaseName', defaultValue: 'BLUDB', description: 'JDBC database name')
     string(name: 'serverName',   defaultValue: '19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud', description: 'JDBC database host')
     string(name: 'portNumber',   defaultValue: '30699', description: 'JDBC database port')
-    string(name: 'deployPrefix',   defaultValue: 'tdolby', description: 'ACEaaS artifact prefix')
-    string(name: 'APPCON_ENDPOINT',   defaultValue: 'api.p-vir-c1.appconnect.automation.ibm.com', description: 'ACEaaS endpoint hostname')
+    string(name: 'integrationNodeHost',   defaultValue: '10.0.0.2', description: 'Integration node REST API host or IP address')
+    string(name: 'integrationNodePort',   defaultValue: '4414', description: 'Integration node REST API port')
+    string(name: 'integrationServerName',   defaultValue: 'default', description: 'Integration server name')
   }
   stages {
     stage('Build and UT') {
@@ -108,40 +109,12 @@ pipeline {
 
     stage('Next stage deploy') {
       steps {
-        sh "echo ${params.APPCON_ENDPOINT} > /tmp/APPCON_ENDPOINT"
-        sh "echo ${params.deployPrefix} > /tmp/deployPrefix"
-        
-        sh  '''#!/bin/bash
-            # Set HOME to somewhere writable by Maven
-            export HOME=/tmp
-
-            export LICENSE=accept
-            . /opt/ibm/ace-12/server/bin/mqsiprofile
-        
-            set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
-            echo blahblah > /tmp/APPCON_TOKEN
-            set -x
-
-
-            curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/bar-files/`cat /tmp/deployPrefix`-tea-jenkins \
-              -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
-              -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
-              --data-binary @tea-application-combined.bar  --output /tmp/curl-output.txt
-            
-            # We will have exited if curl returned non-zero so the output should contain the BAR file name
-            cat /tmp/curl-output.txt ; echo
-            # This would be easier with jq but that's not available in most ACE images
-            export BARURL=$(cat /tmp/curl-output.txt | tr -d '{}"' | tr ',' '\n' | grep url | sed 's/url://g')
-            echo BARURL: $BARURL
-            '''
+        sh "bash -c \"export LICENSE=accept ; . /opt/ibm/ace-12/server/bin/mqsiprofile ; mqsideploy -i ${params.integrationNodeHost} -p ${params.integrationNodePort} -e ${params.integrationServerName} -a tea-application-combined.bar\""
       }
     }
+
   }
   environment {
     CT_JDBC = credentials('CT_JDBC')
-    APPCON_INSTANCE_ID = credentials('APPCON_INSTANCE_ID')
-    APPCON_CLIENT_ID = credentials('APPCON_CLIENT_ID')
-    APPCON_CLIENT_SECRET = credentials('APPCON_CLIENT_SECRET')
-    APPCON_API_KEY = credentials('APPCON_API_KEY')
   }
 }
