@@ -125,30 +125,25 @@ pipeline {
             echo "# Acquiring token using API key"
             echo "########################################################################" && echo
 
-            #curl --request POST \
-            #  --url https://`cat /tmp/APPCON_ENDPOINT`/api/v1/tokens \
-            #  --header "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" \
-            #  --header "X-IBM-Client-Secret: ${APPCON_CLIENT_SECRET}" \
-            #  --header 'accept: application/json' \
-            #  --header 'content-type: application/json' \
-            #  --header "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" \
-            #  --data "{\\"apiKey\\": \\"${APPCON_API_KEY}\\"}" --output /tmp/token-output.txt
+            curl --request POST \
+              --url https://`cat /tmp/APPCON_ENDPOINT`/api/v1/tokens \
+              --header "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" \
+              --header "X-IBM-Client-Secret: ${APPCON_CLIENT_SECRET}" \
+              --header 'accept: application/json' \
+              --header 'content-type: application/json' \
+              --header "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" \
+              --data "{\\"apiKey\\": \\"${APPCON_API_KEY}\\"}" --output /tmp/token-output.txt
             cat /tmp/token-output.txt  | tr -d '{}"' | tr ',' '\n' | grep access_token | sed 's/access_token://g' > /tmp/APPCON_TOKEN
 
-            #curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/bar-files/`cat /tmp/deployPrefix`-tea-jenkins \
-            #  -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
-            #  -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
-            #  --data-binary @tea-application-combined.bar  --output /tmp/curl-output.txt
+            curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/bar-files/`cat /tmp/deployPrefix`-tea-jenkins \
+              -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
+              -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
+              --data-binary @tea-application-combined.bar  --output /tmp/curl-output.txt
             
             # We will have exited if curl returned non-zero so the output should contain the BAR file name
             cat /tmp/curl-output.txt ; echo
             # This would be easier with jq but that's not available in most ACE images
             export BARURL=$(cat /tmp/curl-output.txt | tr -d '{}"' | tr ',' '\n' | grep url | sed 's/url://g')
-
-            # Temp hack
-            echo faketoken > /tmp/APPCON_TOKEN
-            export BARURL='https://dataplane-api-dash.appconnect:3443/v1/ac2vkpa0udw/directories/tdolby-tea-tekton?'
-
             echo BARURL: $BARURL
             echo -n $BARURL > /tmp/BARURL
             '''
@@ -173,9 +168,8 @@ pipeline {
             export LICENSE=accept
             . /opt/ibm/ace-12/server/bin/mqsiprofile
         
-            set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
-
-
+            #set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+            set -x
 
             echo ========================================================================
             echo Creating `cat /tmp/deployPrefix`-jdbc-policies configuration
@@ -195,10 +189,10 @@ pipeline {
             sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/JDBCPolicies.zip.base64 | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/jdbc-policies-configuration.json
             cat /tmp/jdbc-policies-configuration.json
 
-            #curl -X PUT https://${appConEndpoint}/api/v1/configurations/`cat /tmp/deployPrefix`-jdbc-policies \
-            #  -H "x-ibm-instance-id: ${appConInstanceID}" -H "Content-Type: application/json" \
-            #  -H "Accept: application/json" -H "X-IBM-Client-Id: ${appConClientID}" -H "authorization: Bearer ${appConToken}" \
-            #  --data-binary @/tmp/jdbc-policies-configuration.json
+            curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/configurations/`cat /tmp/deployPrefix`-jdbc-policies \
+              -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/json" \
+              -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
+              --data-binary @/tmp/jdbc-policies-configuration.json
             echo
 
             echo ========================================================================
@@ -212,10 +206,10 @@ pipeline {
             sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/jdbc-setdbparms.base64 | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/jdbc-setdbparms-configuration.json
             cat /tmp/jdbc-setdbparms-configuration.json
 
-            #curl -X PUT https://${appConEndpoint}/api/v1/configurations/`cat /tmp/deployPrefix`-jdbc-setdbparms \
-            #  -H "x-ibm-instance-id: ${appConInstanceID}" -H "Content-Type: application/json" \
-            #  -H "Accept: application/json" -H "X-IBM-Client-Id: ${appConClientID}" -H "authorization: Bearer ${appConToken}" \
-            #  --data-binary @/tmp/jdbc-setdbparms-configuration.json
+            curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/configurations/`cat /tmp/deployPrefix`-jdbc-setdbparms \
+              -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/json" \
+              -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
+              --data-binary @/tmp/jdbc-setdbparms-configuration.json
             echo
 
             echo ========================================================================
@@ -229,10 +223,10 @@ pipeline {
             sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/default-policy-project.base64 | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/default-policy-project-configuration.json
             cat /tmp/default-policy-project-configuration.json
 
-            #curl -X PUT https://${appConEndpoint}/api/v1/configurations/`cat /tmp/deployPrefix`-default-policy-project \
-            #  -H "x-ibm-instance-id: ${appConInstanceID}" -H "Content-Type: application/json" \
-            #  -H "Accept: application/json" -H "X-IBM-Client-Id: ${appConClientID}" -H "authorization: Bearer ${appConToken}" \
-            #  --data-binary @/tmp/default-policy-project-configuration.json
+            curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/configurations/`cat /tmp/deployPrefix`-default-policy-project \
+              -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/json" \
+              -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
+              --data-binary @/tmp/default-policy-project-configuration.json
 
             echo ========================================================================
             echo Creating IR JSON
@@ -246,13 +240,10 @@ pipeline {
             echo "Contents of create-integrationruntime.json:"
             cat /tmp/create-integrationruntime.json
 
-
-            #curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/bar-files/`cat /tmp/deployPrefix`-tea-jenkins \
-            #  -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
-            #  -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
-            #  --data-binary @tea-application-combined.bar  --output /tmp/curl-output.txt
-            
-
+            curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/integration-runtimes/`cat /tmp/deployPrefix`-tea-jenkins-ir \
+              -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/json" \
+              -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
+              --data-binary @/tmp/create-integrationruntime.json
             '''
       }
     }
