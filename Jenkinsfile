@@ -192,7 +192,7 @@ pipeline {
             sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-jdbc-setdbparms/g" /tmp/jdbc-policies-configuration.json
             sed -i "s/TEMPLATE_TYPE/policyproject/g" /tmp/jdbc-policies-configuration.json
             sed -i "s/TEMPLATE_DESCRIPTION/`cat /tmp/deployPrefix` JDBCPolicies project/g" /tmp/jdbc-policies-configuration.json
-            sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/JDBCPolicies.zip.base64 | sed 's/\\//\\\\\\//g'`/g" /tmp/jdbc-policies-configuration.json
+            sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/JDBCPolicies.zip.base64 | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/jdbc-policies-configuration.json
             cat /tmp/jdbc-policies-configuration.json
 
             #curl -X PUT https://${appConEndpoint}/api/v1/configurations/`cat /tmp/deployPrefix`-jdbc-policies \
@@ -209,7 +209,7 @@ pipeline {
             sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-jdbc-setdbparms/g" /tmp/jdbc-setdbparms-configuration.json
             sed -i "s/TEMPLATE_TYPE/setdbparms/g" /tmp/jdbc-setdbparms-configuration.json
             sed -i "s/TEMPLATE_DESCRIPTION/`cat /tmp/deployPrefix` JDBC credentials/g" /tmp/jdbc-setdbparms-configuration.json
-            sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/jdbc-setdbparms.base64 | sed 's/\\//\\\\\\//g'`/g" /tmp/jdbc-setdbparms-configuration.json
+            sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/jdbc-setdbparms.base64 | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/jdbc-setdbparms-configuration.json
             cat /tmp/jdbc-setdbparms-configuration.json
 
             #curl -X PUT https://${appConEndpoint}/api/v1/configurations/`cat /tmp/deployPrefix`-jdbc-setdbparms \
@@ -226,7 +226,7 @@ pipeline {
             sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-default-policy-project/g" /tmp/default-policy-project-configuration.json
             sed -i "s/TEMPLATE_TYPE/serverconf/g" /tmp/default-policy-project-configuration.json
             sed -i "s/TEMPLATE_DESCRIPTION/`cat /tmp/deployPrefix` default policy project for JDBC/g" /tmp/default-policy-project-configuration.json
-            sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/default-policy-project.base64 | sed 's/\\//\\\\\\//g'`/g" /tmp/default-policy-project-configuration.json
+            sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/default-policy-project.base64 | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/default-policy-project-configuration.json
             cat /tmp/default-policy-project-configuration.json
 
             #curl -X PUT https://${appConEndpoint}/api/v1/configurations/`cat /tmp/deployPrefix`-default-policy-project \
@@ -239,7 +239,7 @@ pipeline {
             echo ========================================================================
             cp tekton/aceaas/create-integrationruntime-template.json /tmp/create-integrationruntime.json
             sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-tea-tekton-ir/g" /tmp/create-integrationruntime.json
-            sed -i "s/TEMPLATE_BARURL/`cat /tmp/BARURL | sed 's/\\//\\\\\\//g'`/g" /tmp/create-integrationruntime.json
+            sed -i "s/TEMPLATE_BARURL/`cat /tmp/BARURL | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/create-integrationruntime.json
             sed -i "s/TEMPLATE_POLICYPROJECT/`cat /tmp/deployPrefix`-jdbc-policies/g" /tmp/create-integrationruntime.json
             sed -i "s/TEMPLATE_SERVERCONF/`cat /tmp/deployPrefix`-default-policy-project/g" /tmp/create-integrationruntime.json
             sed -i "s/TEMPLATE_SETDBPARMS/`cat /tmp/deployPrefix`-jdbc-setdbparms/g" /tmp/create-integrationruntime.json
