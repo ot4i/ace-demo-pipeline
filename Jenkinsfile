@@ -119,7 +119,7 @@ pipeline {
             export LICENSE=accept
             . /opt/ibm/ace-12/server/bin/mqsiprofile
         
-            #set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+            set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
             echo "########################################################################"
             echo "# Acquiring token using API key"
@@ -186,7 +186,7 @@ pipeline {
             sed -i "s/TEMPLATE_TYPE/policyproject/g" /tmp/jdbc-policies-configuration.json
             sed -i "s/TEMPLATE_DESCRIPTION/`cat /tmp/deployPrefix` JDBCPolicies project/g" /tmp/jdbc-policies-configuration.json
             sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/JDBCPolicies.zip.base64 | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/jdbc-policies-configuration.json
-            cat /tmp/jdbc-policies-configuration.json
+            #cat /tmp/jdbc-policies-configuration.json
 
             curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/configurations/`cat /tmp/deployPrefix`-jdbc-policies \
               -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/json" \
@@ -203,7 +203,7 @@ pipeline {
             sed -i "s/TEMPLATE_TYPE/setdbparms/g" /tmp/jdbc-setdbparms-configuration.json
             sed -i "s/TEMPLATE_DESCRIPTION/`cat /tmp/deployPrefix` JDBC credentials/g" /tmp/jdbc-setdbparms-configuration.json
             sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/jdbc-setdbparms.base64 | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/jdbc-setdbparms-configuration.json
-            cat /tmp/jdbc-setdbparms-configuration.json
+            #cat /tmp/jdbc-setdbparms-configuration.json
 
             curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/configurations/`cat /tmp/deployPrefix`-jdbc-setdbparms \
               -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/json" \
@@ -220,7 +220,7 @@ pipeline {
             sed -i "s/TEMPLATE_TYPE/serverconf/g" /tmp/default-policy-project-configuration.json
             sed -i "s/TEMPLATE_DESCRIPTION/`cat /tmp/deployPrefix` default policy project for JDBC/g" /tmp/default-policy-project-configuration.json
             sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/default-policy-project.base64 | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/default-policy-project-configuration.json
-            cat /tmp/default-policy-project-configuration.json
+            #cat /tmp/default-policy-project-configuration.json
 
             curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/configurations/`cat /tmp/deployPrefix`-default-policy-project \
               -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/json" \
