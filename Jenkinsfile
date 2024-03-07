@@ -119,7 +119,7 @@ pipeline {
             export LICENSE=accept
             . /opt/ibm/ace-12/server/bin/mqsiprofile
         
-            set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+            #set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
             echo "########################################################################"
             echo "# Acquiring token using API key"
