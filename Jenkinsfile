@@ -188,12 +188,12 @@ pipeline {
             (cd /tmp && /opt/ibm/ace-12/common/jdk/bin/jar cvf /tmp/JDBCPolicies.zip JDBCPolicies)
             cat /tmp/JDBCPolicies.zip | base64 -w 0 > /tmp/JDBCPolicies.zip.base64
             
-            # Not sure if this is better than the template way of doing things below . . . (TCD 20240305)
-            cat << EOF > /tmp/jdbc-policies-configuration.json
-            { "metadata": { "name": "`cat /tmp/deployPrefix`-jdbc-policies" }, "spec": {
-              "type": "policyproject", "description": "`cat /tmp/deployPrefix` JDBCPolicies project",
-              "data": "`cat /tmp/JDBCPolicies.zip.base64`"}}
-            EOF
+            cp tekton/aceaas/create-configuration-template.json /tmp/jdbc-policies-configuration.json
+            sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-jdbc-setdbparms/g" /tmp/jdbc-policies-configuration.json
+            sed -i "s/TEMPLATE_TYPE/policyproject/g" /tmp/jdbc-setdbparms-configuration.json
+            sed -i "s/TEMPLATE_DESCRIPTION/`cat /tmp/deployPrefix` JDBCPolicies project/g" /tmp/jdbc-policies-configuration.json
+            sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/JDBCPolicies.zip.base64 | sed 's/\\//\\\\\\//g'`/g" /tmp/jdbc-policies-configuration.json
+            cat /tmp/jdbc-policies-configuration.json
 
             #curl -X PUT https://${appConEndpoint}/api/v1/configurations/`cat /tmp/deployPrefix`-jdbc-policies \
             #  -H "x-ibm-instance-id: ${appConInstanceID}" -H "Content-Type: application/json" \
@@ -205,8 +205,7 @@ pipeline {
             echo Creating jdbc::tea as `cat /tmp/deployPrefix`-jdbc-setdbparms configuration
             echo ========================================================================
             echo -n jdbc::tea  $CT_JDBC_USR $CT_JDBC_PSW | base64 -w 0 > /tmp/jdbc-setdbparms.base64
-            # Could use the cat << EOF approach instead (TCD 20240305)
-            cp /work/ace-demo-pipeline/tekton/aceaas/create-configuration-template.json /tmp/jdbc-setdbparms-configuration.json
+            cp tekton/aceaas/create-configuration-template.json /tmp/jdbc-setdbparms-configuration.json
             sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-jdbc-setdbparms/g" /tmp/jdbc-setdbparms-configuration.json
             sed -i "s/TEMPLATE_TYPE/setdbparms/g" /tmp/jdbc-setdbparms-configuration.json
             sed -i "s/TEMPLATE_DESCRIPTION/`cat /tmp/deployPrefix` JDBC credentials/g" /tmp/jdbc-setdbparms-configuration.json
@@ -223,7 +222,7 @@ pipeline {
             echo Creating default policy project setting as `cat /tmp/deployPrefix`-default-policy-project configuration
             echo ========================================================================
             (echo "Defaults:" && echo "  policyProject: 'JDBCPolicies'") | base64 -w 0 > /tmp/default-policy-project.base64
-            cp /work/ace-demo-pipeline/tekton/aceaas/create-configuration-template.json /tmp/default-policy-project-configuration.json
+            cp tekton/aceaas/create-configuration-template.json /tmp/default-policy-project-configuration.json
             sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-default-policy-project/g" /tmp/default-policy-project-configuration.json
             sed -i "s/TEMPLATE_TYPE/serverconf/g" /tmp/default-policy-project-configuration.json
             sed -i "s/TEMPLATE_DESCRIPTION/`cat /tmp/deployPrefix` default policy project for JDBC/g" /tmp/default-policy-project-configuration.json
