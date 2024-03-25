@@ -3,7 +3,7 @@
 Used to run the pipeline stages via Jenkins. Relies on an existing integration node being available with the JDBC
 credentials having been set up, and will run on Windows or via docker on Unix platforms.
 
-![Pipeline overview](ace-nodes-testing-jenkins.png)
+![Pipeline overview](/demo-infrastructure/images/jenkins-pipeline.png)
 
 ## Running Jenkins
 
