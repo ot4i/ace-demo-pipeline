@@ -5,7 +5,7 @@ tools. The main focus is on how to use existing ACE capabilities in a pipeline, 
 being constructed to show pipeline-friendliness rather than being a "best practice" application.
 
 
-![Pipeline overview](tekton/ace-demo-pipeline-tekton-1.png)
+![Pipeline overview](/demo-infrastructure/images/pipelines-overview.png)
 
 ## Constituent parts
 
