@@ -4,7 +4,7 @@ This pipeline is similar to the main project pipeline, but is designed to work w
 and uses the App Connect Enterprise certified containers for runtime. It also runs component tests in a CP4i container to
 allow JDBC connections to be tested using the same CP4i configurations used by the deployed application itself.
 
-![Pipeline overview](images/cp4i-pipeline.png)
+![Pipeline overview](/demo-infrastructure/images/tekton-cp4i-pipeline.jpg)
 
 ## Container builds
 
