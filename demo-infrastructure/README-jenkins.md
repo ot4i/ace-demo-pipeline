@@ -5,6 +5,10 @@ credentials having been set up, and will run on Windows or via docker on Unix pl
 
 ![Pipeline overview](/demo-infrastructure/images/jenkins-pipeline.png)
 
+Other pipeline overview
+
+![Pipeline overview](/demo-infrastructure/images/jenkins-aceaas-pipeline.png)
+
 ## Running Jenkins
 
 Jenkins can be run from a command line (using Java11) as follows once downloaded:
