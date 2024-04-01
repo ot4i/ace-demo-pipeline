@@ -8,11 +8,56 @@ The overall goal is to deploy a running REST application to an ACE integration s
 
 ![Pipeline high-level](/demo-infrastructure/images/pipeline-high-level.png)
 
+The application used to demonstrate the pipeline consists of a REST API that accepts JSON and interacts 
+with a database, with a supporting shared library containing a lot of the code. It is designed around 
+indexing different types of tea, storing the name and strength of the tea and assigning a unique integer 
+id to each type so that it can be retrieved later. Audit data is logged as XML for each operation performed.
+
+Testing is split into “Unit Test” and "Component Test” categories, where "unit tests" are self-contained
+and do not connect to external services (so they can run reliably anywhere) while the term “component test”
+was used in the ACE product development pipeline to mean “unit tests that use external services”. See 
+[ACE unit and component tests](https://community.ibm.com/community/user/integration/blogs/trevor-dolby/2023/03/20/app-connect-enterprise-ace-unit-and-component-test)
+for a discussion of the difference between test styles in integration.
+
 ## Technology and target options
 
 This repo can be built in several different ways, and can deploy to different targets:
 
 ![Pipeline overview](/demo-infrastructure/images/pipelines-overview.jpg)
+
+Pipeline technology options currently include:
+
+- [GitHub Actions](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions)
+  for CI build and test before PRs are merged. This requires a GitHub instance that supports actions 
+  (not all Enterprise variants do), and credit enough to run the actions. There is currently no 
+  component testing nor a deploy target (though these could be added) for these builds.
+- [Tekton](https://tekton.dev/docs/concepts/overview/) can be used to build, test, and deploy the Tea
+  REST application to runtime infrastructure. Tekton is the basis for many Kubernetes application build
+  pipelines and also underpins RedHat OpenShift Pipelines.
+- [Jenkins](https://www.jenkins.io/) can be used to build, test, and deploy the Tea REST application 
+  to runtime infrastructure. Jenkins is widely used in many organizations for build and deployment.
+
+ACE deploy targets currently include:
+
+- Kubernetes containers, with both standalone ACE containers and ACE certified containers (via the 
+  ACE operator) as possible runtimes. Minikube and OpenShift can be used with the former, while
+  the latter expects to deploy to the Cloud Pak for Integration (CP4i).
+- [ACE-as-a-Service](https://www.ibm.com/docs/en/app-connect/12.0?topic=app-connect-enterprise-as-service)
+  running on AWS. This option requires an instance (which can be a trial instance) of ACEaaS to be 
+  available but does not require any software to be installed and the flows run entirely in the cloud.
+- An ACE integration node, using an existing ACE integration node.
+
+As can be seen from the diagram above, not all deployment options have been configured for all of
+the pipeline options, but more could be added as needed. 
+
+As well as multiple options for pipelines and deploy targets, multiple build tools can be used to 
+build and test the application in the pipeline and locally:
+
+- Standard ACE commands introduced at v12 (such as ibmint).
+- Maven can also be used, and was the default in the ACE v11 version of this repo.
+- Gradle can be used to run builds and unit tests, but has not been enabled for component tests.
+- The toolkit can build and run the application and tests.
+
 
 
 ## Constituent parts
