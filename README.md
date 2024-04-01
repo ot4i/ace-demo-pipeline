@@ -4,7 +4,7 @@ Demo pipeline for ACE to show how ACE solutions can be built in CI/CD pipelines 
 tools. The main focus is on how to use existing ACE capabilities in a pipeline, with the application
 being constructed to show pipeline-friendliness rather than being a "best practice" application.
 
-The overall goal is to deploy a running REST application to an ACE integration server:
+The overall goal is to deploy a REST application to an ACE integration server:
 
 ![Pipeline high-level](/demo-infrastructure/images/pipeline-high-level.png)
 
@@ -12,6 +12,10 @@ The application used to demonstrate the pipeline consists of a REST API that acc
 with a database, with a supporting shared library containing a lot of the code. It is designed around 
 indexing different types of tea, storing the name and strength of the tea and assigning a unique integer 
 id to each type so that it can be retrieved later. Audit data is logged as XML for each operation performed.
+
+As this application exists to help demonstrate pipelines and how they work with ACE, there are some shortcuts 
+in the code that would not normally be present in a production-ready application: the database table is 
+created on-demand to make setup easier, the logging goes to the console instead of an audit service, etc. 
 
 Testing is split into “Unit Test” and "Component Test” categories, where "unit tests" are self-contained
 and do not connect to external services (so they can run reliably anywhere) while the term “component test”
@@ -40,8 +44,9 @@ Pipeline technology options currently include:
 ACE deploy targets currently include:
 
 - Kubernetes containers, with both standalone ACE containers and ACE certified containers (via the 
-  ACE operator) as possible runtimes. Minikube and OpenShift can be used with the former, while
-  the latter expects to deploy to the Cloud Pak for Integration (CP4i).
+  ACE operator) as possible runtimes. [Minikube](https://minikube.sigs.k8s.io/docs/) (easily installed
+  locally) and OpenShift can be used with the former, while the latter expects to deploy to the Cloud
+  Pak for Integration (CP4i).
 - [ACE-as-a-Service](https://www.ibm.com/docs/en/app-connect/12.0?topic=app-connect-enterprise-as-service)
   running on AWS. This option requires an instance (which can be a trial instance) of ACEaaS to be 
   available but does not require any software to be installed and the flows run entirely in the cloud.
@@ -58,62 +63,44 @@ build and test the application in the pipeline and locally:
 - Gradle can be used to run builds and unit tests, but has not been enabled for component tests.
 - The toolkit can build and run the application and tests.
 
+## Getting started
+
+Regardless of the pipeline technology and deployment target, some initial steps are similar:
+
+- Forking this repository is recommended as this allows experimentation with all aspects of
+  the application and pipeline.
+- A database will be needed for the application to run correctly. GitHub Action CI builds can
+  succeed without a database because they only run build and UT steps, but all other use cases
+  require a database, and DB2 on Cloud (requires an IBM Cloud account) is one option that 
+  requires no local setup nor any payment. For DB2oC, create a "free tier" DB2 instance via
+  "Create resource" on the IBM Cloud dashboard and download the connection credentials for
+  use in the pipeline.
+- Installing the ACE toolkit locally is recommended, and the ACE v12 toolkit can clone the
+  (forked) repo locally with the pre-installed eGit plugin. Although development and testing
+  can be done online using a github-hosted container (see [README-codespaces](README-codespaces.md) 
+  for details), having the toolkit available locally is helpful for replicating the most common
+  ACE development experience.
+
+Beyond those common steps, the choice of pipeline and target determine the next steps. The simplest 
+way to choose the pipeline is to choose the target (Kubernetes, ACEaaS, or integration nodes), and
+then pick one of the pipeline technologies that will deploy to that target.
+
+- For Tekton deploying to Kubernetes, see [tekton/README.md](tekton/README.md) for instructions
+  for the various container options and pipelines. 
+  - See also [CP4i README](tekton/os/cp4i/README.md) for CP4i-specific variations, including 
+    component testing in a CP4i container (as opposed to a build pipeline container) to ensure 
+    credentials configurations are working as expected.
+  - ACEaaS follows a similar pattern, but does not need a runtime container as the runtime is
+    in the cloud.
+  - Note that the Tekton pipeline can also create temporary databases for use during pipeline runs; see 
+    [temp-db2](tekton/temp-db2/README.md) for more details.
+- For Jenkins, see the [Jenkins README](demo-infrastructure/README-jenkins.md) for details and 
+  instructions on initial setup. 
+  - Integration node targets require host/port/server information.
+  - Additional steps are 
 
 
-## Constituent parts
-
-- This repo, containing the application source and tests plus the DB2 client JAR.
-- Maven for building applications and running JUnit tests
-- Tekton for running builds in a cloud
-- Docker container build files in this repo for building the application image (see tekton/Dockerfile)
-- IBM Cloud container registry (free tier) for hosting the application image
-- IBM Cloud Kubernetes cluster (free tier) for running the application container
-- DB2 on Cloud (free tier) for use by the application container; credentials stored in Kubernetes secrets
-
-This repo can also be built using a GitHub action for CI enablement. It is also possible to run the
-pipeline using OpenShift with RedHat OpenShift Pipelines instead of using the IBM Cloud Kubernetes 
-service, and the instructions contain OpenShift-specific sections for the needed changes. 
-
-There is also a variant of the pipeline that uses the IBM Cloud Pak for Integration and creates
-custom resources to deploy the application (amongst other changes). See the 
-[CP4i README](tekton/os/cp4i/README.md) for details and instructions.
- 
-Jenkins can also be used to run the pipeline and deploy the application to an integration node.
-See the [Jenkins README](demo-infrastructure/README-jenkins.md) for details and instructions.
- 
-Note that the Tekton pipeline can also create temporary databases for use during pipeline runs; see 
-[temp-db2](tekton/temp-db2/README.md) for more details.
-
-For online testing and development, see [README-codespaces](README-codespaces.md) for details on
-using a github-hosted container.
-
-## The application
-
-The application used to demonstrate the pipeline consists of a REST API that accepts JSON and interacts 
-with a database, with a supporting shared library containing a lot of the code. It is designed around 
-indexing different types of tea, storing the name and strength of the tea and assigning a unique integer 
-id to each type so that it can be retrieved later. Audit data is logged as XML for each operation performed.
-
-This repo can be imported into the ACE v12 toolkit using the egit plugin (included in the ACE v12 toolkit)
-and inspected; as most pipelines would be expected to work with source repositories, there is no project 
-interchange file to import for the projects.
-
-As this application exists to help demonstrate pipelines and how they work with ACE, there are some shortcuts 
-in the code that would not normally be present in a production-ready application: the database table is 
-created on-demand to make setup easier, the logging goes to the console instead of an audit service, etc. 
-Maven is used for many builds but the configuration is deliberately constructed to make the steps as explicit
-as possible, bash is used for other builds scripts, etc.
-
-## The tests
-
-Unit tests reside in TeaRESTApplication_UnitTest along with their own test data.
-
-Component testing is run from TeaRESTApplication_ComponentTest and relies on JDBC connections.
-
-## How to get started with IBM Cloud
-
-To replicate the pipeline locally, do the following:
-
+# Left as notes for further updates
 1) Fork this repo and then clone it locally; although cloning it locally straight from the ot4i repo would allow building locally, for the pipeline itself to work some of the files need to be updated. The source also needs to be accessible to the IBM Cloud Kubernetes workers, and a public github repo forked from this one is the easiest way to do this. Cloning can be achieved with the git command line, or via the ACE v12 toolkit; the ACE v12 product can be downloaded from [the IBM website](https://www.ibm.com/marketing/iwm/iwm/web/pickUrxNew.do?source=swg-wmbfd).
 2) Acquire an IBM Cloud account and create a Kubernetes cluster called "aceCluster", a Docker registry, and a DB2 on Cloud instance. More info in [cloud resources description](demo-infrastructure/cloud-resources.md).
 3) Build the pre-req docker images and create the required credentials; see instructions in the [demo-infrastructure](demo-infrastructure) and [tekton/minimal-image-build](tekton/minimal-image-build) directories.
