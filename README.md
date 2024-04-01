@@ -6,7 +6,7 @@ being constructed to show pipeline-friendliness rather than being a "best practi
 
 The overall goal is to deploy a running REST application to an ACE integration server:
 
-![Pipeline overview](/demo-infrastructure/images/pipelines-overview.jpg)
+![Pipeline high-level](/demo-infrastructure/images/pipeline-high-level.png)
 
 ## Technology and target options
 
