@@ -1,0 +1,52 @@
+<mxfile host="Electron" modified="2024-04-01T19:31:11.829Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.1.0 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="Hrjkhy0orgJ6f2M3sVDX" version="24.1.0" type="device">
+  <diagram name="Page-1" id="EmwzgHjXN4L9OG_YRLbm">
+    <mxGraphModel dx="1405" dy="981" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="1700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="kKCmZU7g9CsREEnNZsZf-8" value="Pipeline" style="rounded=1;whiteSpace=wrap;html=1;fontSize=22;fontStyle=0;labelPosition=center;verticalLabelPosition=top;align=center;verticalAlign=bottom;" parent="1" vertex="1">
+          <mxGeometry x="190" y="320" width="316" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="bC7OHCeX101TMUWNberd-2" value="ace-demo-pipeline" style="dashed=0;outlineConnect=0;html=1;align=center;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.weblogos.github;fontSize=18;fontStyle=0" parent="1" vertex="1">
+          <mxGeometry x="37" y="336" width="75" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="kKCmZU7g9CsREEnNZsZf-9" value="Build" style="rounded=0;whiteSpace=wrap;html=1;fontSize=22;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;fontStyle=0" parent="1" vertex="1">
+          <mxGeometry x="202" y="350" width="90" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="kKCmZU7g9CsREEnNZsZf-10" value="Test" style="rounded=0;whiteSpace=wrap;html=1;fontSize=22;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;fontStyle=0" parent="1" vertex="1">
+          <mxGeometry x="302" y="350" width="90" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4X8OJqOi4j79PQFWo-uC-6" value="Deploy" style="rounded=0;whiteSpace=wrap;html=1;fontSize=22;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;fontStyle=0" parent="1" vertex="1">
+          <mxGeometry x="401" y="350" width="90" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="4X8OJqOi4j79PQFWo-uC-34" value="" style="edgeStyle=elbowEdgeStyle;elbow=horizontal;endArrow=classic;html=1;curved=0;rounded=0;endSize=8;startSize=8;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;fontStyle=0" parent="1" target="kKCmZU7g9CsREEnNZsZf-8" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="125" y="380" as="sourcePoint" />
+            <mxPoint x="160" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4X8OJqOi4j79PQFWo-uC-38" value="" style="edgeStyle=elbowEdgeStyle;elbow=horizontal;endArrow=classic;html=1;curved=0;rounded=0;endSize=8;startSize=8;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=2;fontStyle=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fillColor=#eeeeee;strokeColor=#36393d;" parent="1" source="kKCmZU7g9CsREEnNZsZf-8" target="BKAjRfnR_qwfkiXPqYkl-1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="585" y="570" as="sourcePoint" />
+            <mxPoint x="570" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="BKAjRfnR_qwfkiXPqYkl-1" value="ACE Integration Server" style="swimlane;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#36393d;" vertex="1" parent="1">
+          <mxGeometry x="560" y="290" width="370" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="BKAjRfnR_qwfkiXPqYkl-2" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Tea REST Application&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="BKAjRfnR_qwfkiXPqYkl-1">
+          <mxGeometry x="12" y="40" width="250" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="BKAjRfnR_qwfkiXPqYkl-3" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;JDBC Driver&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="BKAjRfnR_qwfkiXPqYkl-1">
+          <mxGeometry x="142" y="110" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="BKAjRfnR_qwfkiXPqYkl-5" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Configuration&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="BKAjRfnR_qwfkiXPqYkl-1">
+          <mxGeometry x="12" y="110" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="BKAjRfnR_qwfkiXPqYkl-4" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;Libraries&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="BKAjRfnR_qwfkiXPqYkl-1">
+          <mxGeometry x="279" y="40" width="80" height="130" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

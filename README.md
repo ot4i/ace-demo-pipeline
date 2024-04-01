@@ -4,8 +4,16 @@ Demo pipeline for ACE to show how ACE solutions can be built in CI/CD pipelines 
 tools. The main focus is on how to use existing ACE capabilities in a pipeline, with the application
 being constructed to show pipeline-friendliness rather than being a "best practice" application.
 
+The overall goal is to deploy a running REST application to an ACE integration server:
 
 ![Pipeline overview](/demo-infrastructure/images/pipelines-overview.jpg)
+
+## Technology and target options
+
+This repo can be built in several different ways, and can deploy to different targets:
+
+![Pipeline overview](/demo-infrastructure/images/pipelines-overview.jpg)
+
 
 ## Constituent parts
 
