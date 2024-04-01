@@ -25,7 +25,8 @@ for a discussion of the difference between test styles in integration.
 
 ## Technology and target options
 
-This repo can be built in several different ways, and can deploy to different targets:
+This repo can be built in several different ways, and can deploy to different targets (see
+[Getting started](#getting-started)) for suggestions on choosing if unsure how to choose):
 
 ![Pipeline overview](/demo-infrastructure/images/pipelines-overview.jpg)
 
@@ -48,8 +49,8 @@ ACE deploy targets currently include:
   locally) and OpenShift can be used with the former, while the latter expects to deploy to the Cloud
   Pak for Integration (CP4i).
 - [ACE-as-a-Service](https://www.ibm.com/docs/en/app-connect/12.0?topic=app-connect-enterprise-as-service)
-  running on AWS. This option requires an instance (which can be a trial instance) of ACEaaS to be 
-  available but does not require any software to be installed and the flows run entirely in the cloud.
+  (ACEaaS) running on AWS. This option requires an instance (which can be a trial instance) of ACEaaS to
+  be available but does not require any software to be installed and the flows run entirely in the cloud.
 - An ACE integration node, using an existing ACE integration node.
 
 As can be seen from the diagram above, not all deployment options have been configured for all of
@@ -83,15 +84,17 @@ Regardless of the pipeline technology and deployment target, some initial steps 
 
 Beyond those common steps, the choice of pipeline and target determine the next steps. The simplest 
 way to choose the pipeline is to choose the target (Kubernetes, ACEaaS, or integration nodes), and
-then pick one of the pipeline technologies that will deploy to that target.
+then pick one of the pipeline technologies that will deploy to that target. For advanced users who
+are already familiar with pipelines it may better to start with a familiar pipeline technology and
+then choose an available target.
 
 - For Tekton deploying to Kubernetes, see [tekton/README.md](tekton/README.md) for instructions
   for the various container options and pipelines. 
   - See also [CP4i README](tekton/os/cp4i/README.md) for CP4i-specific variations, including 
     component testing in a CP4i container (as opposed to a build pipeline container) to ensure 
     credentials configurations are working as expected.
-  - ACEaaS follows a similar pattern, but does not need a runtime container as the runtime is
-    in the cloud.
+  - Tekton-to-ACEaaS follows a similar pattern, but does not need a runtime container as the 
+    runtime is in the cloud.
   - Note that the Tekton pipeline can also create temporary databases for use during pipeline runs; see 
     [temp-db2](tekton/temp-db2/README.md) for more details.
 - For Jenkins, see the [Jenkins README](demo-infrastructure/README-jenkins.md) for details and 
