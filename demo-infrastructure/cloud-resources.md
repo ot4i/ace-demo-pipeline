@@ -49,6 +49,11 @@ admin credentials via `oc whoami -t`:
 kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
 ```
 
+For CP4i users, or plain Kubernetes users running the plain `ace` image 
+(see [ACE containers: choosing a base image](https://community.ibm.com/community/user/integration/blogs/trevor-dolby/2024/02/05/ace-containers-choosing-a-base-image) 
+for more information on the difference), an IBM Entitlement Key will be needed in order to access 
+images from cp.icr.io; see [https://myibm.ibm.com/products-services/containerlibrary](https://myibm.ibm.com/products-services/containerlibrary)
+to access the key.
 
 ## DB2 on Cloud
 
