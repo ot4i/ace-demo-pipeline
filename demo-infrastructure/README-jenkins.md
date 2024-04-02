@@ -37,7 +37,7 @@ that the Jenkins environment (for example, Java level) does not affect ACE comma
 a consistent environment for building ACE artifacts. See the [ace-minimal-build](/demo-infrastructure/docker/ace-minimal-build) 
 directory for information on building the image, or [Obtaining an IBM App Connect Enterprise 
 server image](https://www.ibm.com/docs/en/app-connect/12.0?topic=cacerid-building-sample-app-connect-enterprise-image-using-docker#aceimages__title__1)
-to download the `ace` image.
+to download the `ace` image. The Jenkinsfile will need to be updated to use the correct image.
 
 Once those values have been updated and containers built if needed, then the pipeline can be 
 constructed, but it may be a good idea to change "GitHub API usage" under "System 

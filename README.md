@@ -47,10 +47,13 @@ ACE deploy targets currently include:
 - Kubernetes containers, with both standalone ACE containers and ACE certified containers (via the 
   ACE operator) as possible runtimes. [Minikube](https://minikube.sigs.k8s.io/docs/) (easily installed
   locally) and OpenShift can be used with the former, while the latter expects to deploy to the Cloud
-  Pak for Integration (CP4i).
+  Pak for Integration (CP4i). See [tekton/README.md#container-deploy-target](tekton/README.md#container-deploy-target)
+  for a description of the container deploy pipelines.
 - [ACE-as-a-Service](https://www.ibm.com/docs/en/app-connect/12.0?topic=app-connect-enterprise-as-service)
   (ACEaaS) running on AWS. This option requires an instance (which can be a trial instance) of ACEaaS to
   be available but does not require any software to be installed and the flows run entirely in the cloud.
+  See [demo-infrastructure/README-aceaas-pipelines.md](demo-infrastructure/README-aceaas-pipelines.md)
+  for an overview of the pipelines deploying to ACEaaS.
 - An ACE integration node, using an existing ACE integration node.
 
 As can be seen from the diagram above, not all deployment options have been configured for all of
@@ -69,16 +72,20 @@ build and test the application in the pipeline and locally:
 Regardless of the pipeline technology and deployment target, some initial steps are similar:
 
 - Forking this repository is recommended as this allows experimentation with all aspects of
-  the application and pipeline.
+  the application and pipeline. PRs welcome, too!
 - A database will be needed for the application to run correctly. GitHub Action CI builds can
   succeed without a database because they only run build and UT steps, but all other use cases
   require a database, and DB2 on Cloud (requires an IBM Cloud account) is one option that 
   requires no local setup nor any payment. For DB2oC, create a "free tier" DB2 instance via
   "Create resource" on the IBM Cloud dashboard and download the connection credentials for
-  use in the pipeline.
+  use in the pipeline. See [demo-infrastructure/cloud-resources.md](demo-infrastructure/cloud-resources.md)
+  for more details.
+  - Note that component testing relies on the same DB2 on Cloud instance as the eventual application 
+    image; this is not a best practice, but does keep the demo simpler to get going, and so getting
+    the DB2 instance credentials set up in Kubernetes and/or locally is necessary for the component tests.
 - Installing the ACE toolkit locally is recommended, and the ACE v12 toolkit can clone the
   (forked) repo locally with the pre-installed eGit plugin. Although development and testing
-  can be done online using a github-hosted container (see [README-codespaces](README-codespaces.md) 
+  can be done online using a GitHub-hosted container (see [README-codespaces](README-codespaces.md) 
   for details), having the toolkit available locally is helpful for replicating the most common
   ACE development experience.
 
@@ -93,20 +100,13 @@ then choose an available target.
   - See also [CP4i README](tekton/os/cp4i/README.md) for CP4i-specific variations, including 
     component testing in a CP4i container (as opposed to a build pipeline container) to ensure 
     credentials configurations are working as expected.
-  - Tekton-to-ACEaaS follows a similar pattern, but does not need a runtime container as the 
-    runtime is in the cloud.
   - Note that the Tekton pipeline can also create temporary databases for use during pipeline runs; see 
     [temp-db2](tekton/temp-db2/README.md) for more details.
+- Tekton-to-ACEaaS follows a similar pattern (see [tekton/README.md#ace-as-a-service-target](tekton/README.md#ace-as-a-service-target)),
+  but does not need a runtime container as the runtime is in the cloud. Credentials are needed for the
+  cloud service.
 - For Jenkins, see the [Jenkins README](demo-infrastructure/README-jenkins.md) for details and 
   instructions on initial setup. 
   - Integration node targets require host/port/server information.
-  - Additional steps are 
+  - Additional steps are required for ACE-as-a-Service credentials.
 
-
-# Left as notes for further updates
-1) Fork this repo and then clone it locally; although cloning it locally straight from the ot4i repo would allow building locally, for the pipeline itself to work some of the files need to be updated. The source also needs to be accessible to the IBM Cloud Kubernetes workers, and a public github repo forked from this one is the easiest way to do this. Cloning can be achieved with the git command line, or via the ACE v12 toolkit; the ACE v12 product can be downloaded from [the IBM website](https://www.ibm.com/marketing/iwm/iwm/web/pickUrxNew.do?source=swg-wmbfd).
-2) Acquire an IBM Cloud account and create a Kubernetes cluster called "aceCluster", a Docker registry, and a DB2 on Cloud instance. More info in [cloud resources description](demo-infrastructure/cloud-resources.md).
-3) Build the pre-req docker images and create the required credentials; see instructions in the [demo-infrastructure](demo-infrastructure) and [tekton/minimal-image-build](tekton/minimal-image-build) directories.
-4) Component testing relies on the same DB2 on Cloud instance as the eventual application image; this is not a best practice, but does keep the demo simpler to get going, and so getting the DB2 instance credentials set up in Kubernetes and/or locally is necessary for the component tests.
-5) Try running the pipeline using the instructions in the [tekton](tekton) directory.
-6) Optionally, enable GitHub actions; this requires a GitHub instance that supports actions (not all Enterprise variants do), and credit enough to run the actions.

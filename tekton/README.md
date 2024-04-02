@@ -9,7 +9,7 @@ The tasks rely on several different containers for all use cases:
 
 - The Tekton git-init image to run the initial git clones.
 - A build container, which would normally be one of the following:
-  - The ace-minimal image (see [minimal image build instructions](minimal-image-build/README.md) for details).
+  - The `ace-minimal` image (see [minimal image build instructions](minimal-image-build/README.md) for details).
     This image can be built from the ACE developer edition package (no purchase necessary) and is much
     smaller than most other ACE images.
   - The `ace` image from cp.icr.io (see [Obtaining an IBM App Connect Enterprise server image](https://www.ibm.com/docs/en/app-connect/12.0?topic=cacerid-building-sample-app-connect-enterprise-image-using-docker#aceimages__title__1) for versions and necessary credentials).
@@ -17,15 +17,15 @@ The tasks rely on several different containers for all use cases:
 
 For container deployments, more containers are used:
 
-- Buildah for building the container images.
+- Buildah for building the application runtime images.
 - lachlanevenson/k8s-kubectl for managing Kubernetes artifacts
 - A runtime base image:
-  - The ace-minimal image, which is the smallest image and therefore results in quicker builds
+  - The `ace-minimal` image, which is the smallest image and therefore results in quicker builds in some cases.
   - The `ace` image, which should be shadowed to the local registry to avoid pulling from cp.icr.io too often.
   - For CP4i use cases, the `ace-server-prod` image (see [os/cp4i/README.md](os/cp4i/README.md) for CP4i details)
     which should also be shadowed to the local registry.
 
-For ACEaaS, the target does not present as a container (though it runs containers in the cloud):
+For ACEaaS, the target does not present as a container system (though it runs containers in the cloud):
 
 - An ACE-as-a-Service (ACEaaS) instance needs to be available.
 
@@ -39,7 +39,7 @@ in this repo generally do not have namespaces specified (other than some CP4i fi
 Many of the artifacts in this repo (such as ace-pipeline-run.yaml) will need to be customized depending on
 the exact cluster layout. The defaults are set up for Minikube running with Docker on Ubuntu, and may need
 to be modified depending on network addresses, etc. The most-commonly-modified files have options in the
-comments, such as [ace-pipeline-run.yaml](ace-pipeline-run.yaml):
+comments, with [ace-pipeline-run.yaml](ace-pipeline-run.yaml) being one example:
 ```
     - name: buildImage
       # Requires an IBM Entitlement Key
@@ -133,7 +133,8 @@ logged in as kubeadmin, it would look as follows:
 ```
 kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
 ```
-Note that the actual password itself (as opposed to the hash provided by "oc whoami -t") does not work for registry authentication for some reason.
+Note that the actual password itself (as opposed to the hash provided by "oc whoami -t") does not work for
+registry authentication for some reason when using single-node OpenShift with a temporary admin user.
 
 After that, the pipeline run YAML should be changed to point to the OpenShift registry, and the 
 pipeline run as normal:
@@ -150,8 +151,8 @@ the correct namespace and domain name, then run
 ```
 kubectl apply -f tekton/os/tea-tekton-route.yaml
 ```
-to create a route. The URL http://tea-route-namespace.apps.mycompany.com/tea/index/1 should then
-access the Tea REST application in the container and show JSON result data.
+to create a route. The resulting URL of the form http://tea-route-namespace.apps.mycompany.com/tea/index/1
+should then access the Tea REST application in the container and show JSON result data.
 
 ### CP4i
 
@@ -175,10 +176,15 @@ kubectl --namespace tekton-pipelines port-forward --address 0.0.0.0 svc/tekton-d
 ## ACE-as-a-Service target
 
 See [README-aceaas-pipelines.md](README-aceaas-pipelines.md) for a general overview. The
-Tekton pipeline for ACEaaS looks as follows, with the (optional) "Create configuration"
-shown as running only for the initial build:
+Tekton pipeline for ACEaaS looks as follows, with the (optional) "Create configuration" steps
+shown as a separate task that only runs when requested:
 
 ![Pipeline overview](/demo-infrastructure/images/tekton-aceaas-pipeline.png)
+
+As there is no runtime container, this pipeline can run using the `ace` image as the 
+build image without any performance concerns because there are no buildah or Kaniko steps
+that would need to unpack the image. For those without an IBM Entitlement Key, the 
+`ace-minimal` image will also work.
 
 Setting up the pipeline requires Tekton to be installed (which may already have happend via OpenShift operators, in which case
 skip the first line), tasks to be created, and the pipeline itself to be configured:

@@ -35,7 +35,7 @@ These can be created using the ACEaaS console and provided to the pipeline as cr
 - API key created from the ACEaaS dashboard (see URL of the form https://2vkpa0udw-dashboard.p-vir-c1.appconnect.automation.ibm.com/management/apikeys)
 
 See [https://www.ibm.com/docs/en/app-connect/saas?topic=overview-accessing-api](https://www.ibm.com/docs/en/app-connect/saas?topic=overview-accessing-api) for
-details on how to create the correct credentials.
+further instructions on how to create the correct credentials.
 
 ## ACEaaS API rate limits
 
