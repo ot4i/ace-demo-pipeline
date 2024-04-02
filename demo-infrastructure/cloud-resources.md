@@ -55,6 +55,11 @@ for more information on the difference), an IBM Entitlement Key will be needed i
 images from cp.icr.io; see [https://myibm.ibm.com/products-services/containerlibrary](https://myibm.ibm.com/products-services/containerlibrary)
 to access the key.
 
+Note that the `ace-minimal` image can be built from the (free) ACE installation package without
+requiring an IBM Entitlement Key; see [https://github.com/ot4i/ace-docker/tree/main/experimental](https://github.com/ot4i/ace-docker/tree/main/experimental)
+for the various images that can be built using Docker commands, and the [minimal-image-build README](/tekton/minimal-image-build/README.md) 
+for details on how to build it using Tekton.
+
 ## DB2 on Cloud
 
 To access the IBM cloud, an IBM ID is required and then cloud registration at https://cloud.ibm.com/registration
