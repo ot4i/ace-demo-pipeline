@@ -1,7 +1,7 @@
 pipeline {
   agent { docker { 
-    image 'cp.icr.io/cp/appc/ace:12.0.11.0-r1'
-    /* image 'ace-minimal:12.0.11.0-alpine' */
+    /* image 'cp.icr.io/cp/appc/ace:12.0.11.0-r1' */
+    image 'ace-minimal:12.0.11.0-alpine'
     args '-e LICENSE=accept --entrypoint ""'
   } }
   parameters {
@@ -11,9 +11,9 @@ pipeline {
     string(name: 'databaseName', defaultValue: 'BLUDB', description: 'JDBC database name')
     string(name: 'serverName',   defaultValue: '19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud', description: 'JDBC database host')
     string(name: 'portNumber',   defaultValue: '30699', description: 'JDBC database port')
-    string(name: 'deployPrefix',   defaultValue: 'tdolby', description: 'ACEaaS artifact prefix')
-    string(name: 'APPCON_ENDPOINT',   defaultValue: 'api.p-vir-c1.appconnect.automation.ibm.com', description: 'ACEaaS endpoint hostname')
-    booleanParam(name: 'DEPLOY_CONFIGURATION', defaultValue: false, description: 'Create policies, runtime, etc')
+    string(name: 'integrationNodeHost',   defaultValue: '10.0.0.2', description: 'Integration node REST API host or IP address')
+    string(name: 'integrationNodePort',   defaultValue: '4414', description: 'Integration node REST API port')
+    string(name: 'integrationServerName',   defaultValue: 'default', description: 'Integration server name')
   }
   stages {
     stage('Build and UT') {
@@ -109,150 +109,12 @@ pipeline {
 
     stage('Next stage deploy') {
       steps {
-        sh "echo ${params.APPCON_ENDPOINT} > /tmp/APPCON_ENDPOINT"
-        sh "echo ${params.deployPrefix} > /tmp/deployPrefix"
-        
-        sh  '''#!/bin/bash
-            # Set HOME to somewhere writable by Maven
-            export HOME=/tmp
-
-            export LICENSE=accept
-            . /opt/ibm/ace-12/server/bin/mqsiprofile
-        
-            set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
-
-            echo "########################################################################"
-            echo "# Acquiring token using API key"
-            echo "########################################################################" && echo
-
-            curl --request POST \
-              --url https://`cat /tmp/APPCON_ENDPOINT`/api/v1/tokens \
-              --header "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" \
-              --header "X-IBM-Client-Secret: ${APPCON_CLIENT_SECRET}" \
-              --header 'accept: application/json' \
-              --header 'content-type: application/json' \
-              --header "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" \
-              --data "{\\"apiKey\\": \\"${APPCON_API_KEY}\\"}" --output /tmp/token-output.txt
-            cat /tmp/token-output.txt  | tr -d '{}"' | tr ',' '\n' | grep access_token | sed 's/access_token://g' > /tmp/APPCON_TOKEN
-
-            curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/bar-files/`cat /tmp/deployPrefix`-tea-jenkins \
-              -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
-              -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
-              --data-binary @tea-application-combined.bar  --output /tmp/curl-output.txt
-            
-            # We will have exited if curl returned non-zero so the output should contain the BAR file name
-            cat /tmp/curl-output.txt ; echo
-            # This would be easier with jq but that's not available in most ACE images
-            export BARURL=$(cat /tmp/curl-output.txt | tr -d '{}"' | tr ',' '\n' | grep url | sed 's/url://g')
-            echo BARURL: $BARURL
-            echo -n $BARURL > /tmp/BARURL
-            '''
+        sh "bash -c \"export LICENSE=accept ; . /opt/ibm/ace-12/server/bin/mqsiprofile ; mqsideploy -i ${params.integrationNodeHost} -p ${params.integrationNodePort} -e ${params.integrationServerName} -a tea-application-combined.bar\""
       }
     }
 
-    stage('Create configuration') {
-      when {
-        expression {
-          return params.DEPLOY_CONFIGURATION
-        }
-      }
-
-      steps {
-        sh "echo ${params.APPCON_ENDPOINT} > /tmp/APPCON_ENDPOINT"
-        sh "echo ${params.deployPrefix} > /tmp/deployPrefix"
-        
-        sh  '''#!/bin/bash
-            # Set HOME to somewhere writable by Maven
-            export HOME=/tmp
-
-            export LICENSE=accept
-            . /opt/ibm/ace-12/server/bin/mqsiprofile
-        
-            #set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
-
-            echo ========================================================================
-            echo Creating `cat /tmp/deployPrefix`-jdbc-policies configuration
-            echo ========================================================================
-            mkdir /tmp/JDBCPolicies
-            echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns2:policyProjectDescriptor xmlns="http://com.ibm.etools.mft.descriptor.base" xmlns:ns2="http://com.ibm.etools.mft.descriptor.policyProject"><references/></ns2:policyProjectDescriptor>' > /tmp/JDBCPolicies/policy.descriptor
-            cp /tmp/TEAJDBC.policyxml /tmp/JDBCPolicies/TEAJDBC.policyxml
-            
-            # Using "zip" would be more obvious, but not all ACE images have it available.
-            (cd /tmp && /opt/ibm/ace-12/common/jdk/bin/jar cvf /tmp/JDBCPolicies.zip JDBCPolicies)
-            cat /tmp/JDBCPolicies.zip | base64 -w 0 > /tmp/JDBCPolicies.zip.base64
-            
-            cp tekton/aceaas/create-configuration-template.json /tmp/jdbc-policies-configuration.json
-            sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-jdbc-policies/g" /tmp/jdbc-policies-configuration.json
-            sed -i "s/TEMPLATE_TYPE/policyproject/g" /tmp/jdbc-policies-configuration.json
-            sed -i "s/TEMPLATE_DESCRIPTION/`cat /tmp/deployPrefix` JDBCPolicies project/g" /tmp/jdbc-policies-configuration.json
-            sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/JDBCPolicies.zip.base64 | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/jdbc-policies-configuration.json
-            #cat /tmp/jdbc-policies-configuration.json
-
-            curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/configurations/`cat /tmp/deployPrefix`-jdbc-policies \
-              -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/json" \
-              -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
-              --data-binary @/tmp/jdbc-policies-configuration.json
-            echo
-
-            echo ========================================================================
-            echo Creating jdbc::tea as `cat /tmp/deployPrefix`-jdbc-setdbparms configuration
-            echo ========================================================================
-            echo -n jdbc::tea  $CT_JDBC_USR $CT_JDBC_PSW | base64 -w 0 > /tmp/jdbc-setdbparms.base64
-            cp tekton/aceaas/create-configuration-template.json /tmp/jdbc-setdbparms-configuration.json
-            sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-jdbc-setdbparms/g" /tmp/jdbc-setdbparms-configuration.json
-            sed -i "s/TEMPLATE_TYPE/setdbparms/g" /tmp/jdbc-setdbparms-configuration.json
-            sed -i "s/TEMPLATE_DESCRIPTION/`cat /tmp/deployPrefix` JDBC credentials/g" /tmp/jdbc-setdbparms-configuration.json
-            sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/jdbc-setdbparms.base64 | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/jdbc-setdbparms-configuration.json
-            #cat /tmp/jdbc-setdbparms-configuration.json
-
-            curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/configurations/`cat /tmp/deployPrefix`-jdbc-setdbparms \
-              -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/json" \
-              -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
-              --data-binary @/tmp/jdbc-setdbparms-configuration.json
-            echo
-
-            echo ========================================================================
-            echo Creating default policy project setting as `cat /tmp/deployPrefix`-default-policy-project configuration
-            echo ========================================================================
-            (echo "Defaults:" && echo "  policyProject: 'JDBCPolicies'") | base64 -w 0 > /tmp/default-policy-project.base64
-            cp tekton/aceaas/create-configuration-template.json /tmp/default-policy-project-configuration.json
-            sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-default-policy-project/g" /tmp/default-policy-project-configuration.json
-            sed -i "s/TEMPLATE_TYPE/serverconf/g" /tmp/default-policy-project-configuration.json
-            sed -i "s/TEMPLATE_DESCRIPTION/`cat /tmp/deployPrefix` default policy project for JDBC/g" /tmp/default-policy-project-configuration.json
-            sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/default-policy-project.base64 | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/default-policy-project-configuration.json
-            #cat /tmp/default-policy-project-configuration.json
-
-            curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/configurations/`cat /tmp/deployPrefix`-default-policy-project \
-              -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/json" \
-              -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
-              --data-binary @/tmp/default-policy-project-configuration.json
-
-            echo ========================================================================
-            echo Creating IR JSON
-            echo ========================================================================
-            cp tekton/aceaas/create-integrationruntime-template.json /tmp/create-integrationruntime.json
-            sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-tea-jenkins-ir/g" /tmp/create-integrationruntime.json
-            sed -i "s/TEMPLATE_BARURL/`cat /tmp/BARURL | sed 's/\\//\\\\\\\\\\\\//g'`/g" /tmp/create-integrationruntime.json
-            sed -i "s/TEMPLATE_POLICYPROJECT/`cat /tmp/deployPrefix`-jdbc-policies/g" /tmp/create-integrationruntime.json
-            sed -i "s/TEMPLATE_SERVERCONF/`cat /tmp/deployPrefix`-default-policy-project/g" /tmp/create-integrationruntime.json
-            sed -i "s/TEMPLATE_SETDBPARMS/`cat /tmp/deployPrefix`-jdbc-setdbparms/g" /tmp/create-integrationruntime.json
-            echo "Contents of create-integrationruntime.json:"
-            cat /tmp/create-integrationruntime.json
-
-            curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/integration-runtimes/`cat /tmp/deployPrefix`-tea-jenkins-ir \
-              -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/json" \
-              -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
-              --data-binary @/tmp/create-integrationruntime.json
-            '''
-      }
-    }
-                
   }
   environment {
     CT_JDBC = credentials('CT_JDBC')
-    APPCON_INSTANCE_ID = credentials('APPCON_INSTANCE_ID')
-    APPCON_CLIENT_ID = credentials('APPCON_CLIENT_ID')
-    APPCON_CLIENT_SECRET = credentials('APPCON_CLIENT_SECRET')
-    APPCON_API_KEY = credentials('APPCON_API_KEY')
   }
 }

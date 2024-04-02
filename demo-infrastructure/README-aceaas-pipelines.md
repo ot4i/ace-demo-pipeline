@@ -53,3 +53,7 @@ The examples in this repo acquire a new token every time to avoid having to solv
 using pipeline-provided secure storage (Kubernetes secrets, Jenkins credentials, etc) to 
 ensure the API keys are kept securely.
 
+The API rate limit also prevents polling for the application to (re)start successfully, so the
+pipelines complete after updating the BAR file (or after creating the initial configuration)
+rather than completing when the application is actually running with the built artifacts.
+
