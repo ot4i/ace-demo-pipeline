@@ -46,7 +46,7 @@ tkn pr logs ace-minimal-image-pipeline-run-1 -f
 tkn pr delete ace-minimal-build-image-pipeline-run-1 -f  ; kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline-run-minikube.yaml
 tkn pr logs ace-minimal-build-image-pipeline-run-1 -f
 
-kubectl apply -f tekton/10-maven-ace-build-task.yaml
+kubectl apply -f tekton/10-ibmint-ace-build-task.yaml
 kubectl apply -f tekton/20-deploy-to-cluster-task.yaml
 kubectl apply -f tekton/21-knative-deploy-task.yaml
 kubectl apply -f tekton/ace-pipeline.yaml
@@ -57,16 +57,9 @@ minikube addons enable ingress
 kubectl apply -f tekton/minikube/tea-tekton-minikube-ingress.yaml
 ```
 
+Knative experiments:
 
-
-
-
-
-
-
-
-
-
+```
 kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.1/serving-crds.yaml
 kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.11.6/eventing-crds.yaml
 
@@ -77,8 +70,6 @@ kubectl apply -f https://github.com/knative/net-kourier/releases/download/knativ
 kubectl patch configmap/config-network -n knative-serving --type merge -p '{"data":{"ingress.class":"kourier.ingress.networking.knative.dev"}}'
 
 kubectl apply -f https://projectcontour.io/quickstart/contour.yaml
-
-
 
 cat <<EOF | kubectl apply -n kourier-system -f -
 apiVersion: networking.k8s.io/v1
@@ -110,3 +101,4 @@ curl -LO https://github.com/knative/client/releases/download/knative-v1.11.2/kn-
 
 
 kubectl create secret docker-registry ibm-entitlement-key --docker-username=cp --docker-password=myEntitlementKey --docker-server=cp.icr.io --namespace=cp4i
+```

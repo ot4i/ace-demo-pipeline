@@ -23,15 +23,16 @@ The minimal images can be helpful in some cases:
   builds will need to create a new image with Maven installed. Note that Maven is
   no longer required for the demo pipeline to successfully run. 
 - In some cases, the container builds using buildah or Kaniko are unable to cache
-  contaimer images locally, leading to delays in unpacking the images every time.
+  container images locally, leading to delays in unpacking the images every time.
   For these situations, `ace-minimal` is faster due to the small image size.
 
 ## Getting started
 
-Many of the artifacts in this repo (such as ace-minimal-build-image-pipeline-run.yaml) will need to be customized depending on
-the exact cluster layout. The defaults are set up for Minikube running with Docker on Ubuntu, and may need
-to be modified depending on network addresses, etc. The most-commonly-modified files have options in the
-comments, such as [ace-minimal-build-image-pipeline-run.yaml](ace-minimal-build-image-pipeline-run.yaml):
+Many of the artifacts in this repo (such as ace-minimal-build-image-pipeline-run.yaml) will need to be 
+customized depending on the exact cluster layout. The defaults are set up for Minikube running with Docker
+on Ubuntu, and may need to be modified depending on network addresses, etc. The most-commonly-modified 
+files have options in the comments, with [ace-minimal-build-image-pipeline-run.yaml](ace-minimal-build-image-pipeline-run.yaml)
+being one example:
 ```
     - name: dockerRegistry
       # OpenShift
@@ -45,7 +46,7 @@ comments, such as [ace-minimal-build-image-pipeline-run.yaml](ace-minimal-build-
 
 The Tekton pipeline expects docker credentials to be provided for Kaniko to use when pushing the built image, and 
 these credentials must be associated with the service account for the pipeline. If this has not already been done 
-elsewhere, then create them with the following format for OpenShift
+elsewhere, then create them with the following format for single-node OpenShift using temporary admin credentials
 ```
 kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
 kubectl apply -f tekton/service-account.yaml
@@ -104,7 +105,8 @@ The majority of steps are the same, but the registry authentication is a little 
 ```
 kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
 ```
-Note that the actual password itself (as opposed to the hash provided by "oc whoami -t") does not work for registry authentication for some reason.
+Note that the actual password itself (as opposed to the hash provided by "oc whoami -t") does not work for
+registry authentication for some reason when using single-node OpenShift with a temporary admin user.
 
 After that, the pipeline run files need to be adjusted to use the OpenShift registry, such 
 as [ace-minimal-build-image-pipeline-run.yaml](ace-minimal-build-image-pipeline-run.yaml):

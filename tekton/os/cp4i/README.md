@@ -9,7 +9,7 @@ allow JDBC connections to be tested using the same CP4i configurations used by t
 ## Container builds
 
 The pipeline creates the main application image first, and then builds the component test image on top of the first image.
-Kaniko is used to build both images in the pipeline, with Maven building the applications and libraries.
+Kaniko is used to build both images in the pipeline, with ibmint or Maven building the applications and libraries.
 
 ![Container images](images/cp4i-container-images.png)
 
@@ -29,11 +29,15 @@ The test run strategy is as follows:
 - Collect the output and return code from kubectl exec as usual, allowing the pipeline to stop on failed tests.
 - Delete the CR, and then send another kill -INT 1 to make the runaceserver code exit.
 
-See [13-component-test-in-cp4i-task.yaml](13-component-test-in-cp4i-task.yaml) for details on running the tests.
+See [13-component-test-in-cp4i-task.yaml](13-component-test-in-cp4i-task.yaml) for details on running the tests. Despite 
+MQSI_PREVENT_CONTAINER_SHUTDOWN being set, there are still liveness probes running in the background, and these check for
+port 7600 to be active. In most cases, the component test server will start quickly enough to be listening on port 7600
+before the container is killed, but it is possible that very slow server startup (on an overloaded node, for example) 
+could miss the required window. Setting `livenessProbe.failureThreshold` (see [Integration Runtime Reference](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=resources-integration-runtime-reference)) to a large value should eliminate this issue.
 
-Note that this splits responsibilities between the ACE operator (create the work directory and run the initial server) and the
-ACE product itself (run the tests and report the results); the operator support code in the container does not know anything
-about running tests. 
+Note that this approach splits responsibilities between the ACE operator (create the work directory and run the initial server)
+and the ACE product itself (run the tests and report the results); the operator support code in the container does not know 
+anything about running tests. 
 - Anything that would also affect production (such as issues with CP4i configuration formats and other related matters) would fall under CP4i support.
 - Issues with ACE application code, JUnit options, etc, would fall under ACE product support.
 - As the tests are using the operator, the [ot4i/ace-docker](https://github.com/ot4i/ace-docker) repo is not involved, so issues should be 
@@ -42,7 +46,7 @@ about running tests.
 ## Pipeline setup and run
 
 Many of the steps are the same as the main repo, but use the `cp4i` namespace. Security constraints are more of an issue
-in OpenShift, and Kaniko seems to require quite a lot of extra permissions when not running in the default namespace.
+in OpenShift, and buildah/Kaniko seems to require quite a lot of extra permissions when not running in the default namespace.
 
 The pipeline assumes the CP4i ACE integration server image has been copied to the local image registry to make the
 container builds go faster; the image must match the locations in the YAML files. See 
@@ -72,7 +76,7 @@ Configurations need to be created for the JDBC credentials (teajdbc-policy and t
 in a server.conf.yaml configuration (default-policy). See [configurations/README.md](configurations/README.md) for details.
 
 The JDBC credentials also need to be placed in a Kubernetes secret called `jdbc-secret` so that the the non-CP4i 
-component test can access them during the pipeline run. This step (`component-test` in [maven-cp4i-build](12-maven-cp4i-build-task.yaml))
+component test can access them during the pipeline run. This step (`component-test` in [ibmint-cp4i-build](12-ibmint-cp4i-build-task.yaml))
 proves that the code itself is working and connections are possible to the specified DB2 instance, while the later
 [CP4i-based component test](13-component-test-in-cp4i-task.yaml) demonstrates that the configurations are also valid
 and that the ACE server in the certified container can connect to DB2.
@@ -84,7 +88,7 @@ kubectl create secret -n cp4i docker-registry regcred --docker-server=image-regi
 kubectl apply -f tekton/os/cp4i/cp4i-scc.yaml
 kubectl apply -f tekton/os/cp4i/service-account-cp4i.yaml
 oc adm policy add-scc-to-user cp4i-scc -n cp4i -z cp4i-tekton-service-account
-kubectl apply -f tekton/os/cp4i/12-maven-cp4i-build-task.yaml
+kubectl apply -f tekton/os/cp4i/12-ibmint-cp4i-build-task.yaml
 kubectl apply -f tekton/os/cp4i/13-component-test-in-cp4i-task.yaml
 kubectl apply -f tekton/os/cp4i/22-deploy-to-cp4i-task.yaml
 kubectl apply -f tekton/os/cp4i/cp4i-pipeline.yaml
