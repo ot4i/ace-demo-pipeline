@@ -26,7 +26,7 @@ for a discussion of the difference between test styles in integration.
 ## Technology and target options
 
 This repo can be built in several different ways, and can deploy to different targets (see
-[Getting started](#getting-started)) for suggestions on choosing if unsure how to choose):
+[Getting started](#getting-started)) for suggestions on how to choose):
 
 ![Pipeline overview](/demo-infrastructure/images/pipelines-overview.jpg)
 
