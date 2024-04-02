@@ -2,7 +2,7 @@
 
 Used to run the pipeline stages via Jenkins. Relies either on an existing integration node being available 
 with the JDBC credentials having been set up or else on an ACE-as-a-Service (ACEaaS) instance being 
-available, and will run on Windows (integration node only) or via docker on Unix platforms.
+available, and will run on Windows (integration node only) or via docker on Unix platforms to either target.
 
 ![Pipelines overview](/demo-infrastructure/images/jenkins-pipelines-overview.jpg)
 
@@ -155,7 +155,7 @@ shown as running only for the initial build:
 
 ![Pipeline overview](/demo-infrastructure/images/jenkins-aceaas-pipeline.png)
 
-Similar to the integration node target pipelien, the following values should be changed in
+Similar to the integration node pipeline, the following values should be changed in
 [Jenkinsfile.aceaas](/demo-infrastructure/Jenkinsfile.aceaas):
 
 - deployPrefix, which is used as a prefix for the various configurations to avoid conflicts on shared services.
@@ -167,7 +167,7 @@ pipeline" should be created and pointed at the github repo. This pipeline muste 
 `demo-infrastructure/Jenkinsfile.aceaas` and not the default Jenkinsfile.
 
 Once the pipeline has been created and branches configured, the `CT_JDBC` credentials should
-be created as described in the integration node section above, and addition credentials are 
+be created as described in the integration node section above, and additional credentials are 
 needed for ACEaaS. See [https://www.ibm.com/docs/en/app-connect/saas?topic=overview-accessing-api](https://www.ibm.com/docs/en/app-connect/saas?topic=overview-accessing-api)
 for details on how to create the correct credentials, and then set the following as "secret text" values:
 
@@ -176,7 +176,7 @@ for details on how to create the correct credentials, and then set the following
 - APPCON_CLIENT_SECRET is the client secret created from the "Public API credentials" section of the ACEaaS dashboard 
 - APPCON_API_KEY is the API key created from the ACEaaS dashboard 
 
-The pipeline should create the require configurations based on the JDBC credentials
+The pipeline should create the required configurations based on the JDBC credentials
 and other values if the DEPLOY_CONFIGURATION is set to `true`; this should only be used
 for the first pipeline run or after any change to the credentials (see the "ACEaaS API rate 
 limits" section of [README-aceaas-pipelines.md](README-aceaas-pipelines.md) for more information).
@@ -190,6 +190,7 @@ pipeline, which will then pull the source down, compile and test it, and then de
 Once the pipeline has completed and the integration runtime has started, the application can be
 tested by using a browser or curl to access the application API endpoint. The endpoint can be 
 found from the ACEaaS UI by examining the deployed REST API as shown:
+
 ![aceaas-rest-api-endpoint.png](aceaas-rest-api-endpoint.png)
 
 The endpoint should be of the form `https://tdolby-tea-jenkins-ir-https-ac2vkpa0udw.p-vir-d1.appconnect.ibmappdomain.cloud/tea`
