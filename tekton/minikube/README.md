@@ -1,13 +1,32 @@
+# Minikube setup 
 
+[Minikube](https://minikube.sigs.k8s.io/docs/) is used extensively for local Kubernetes testing
+and there are quite a few guides on the Internet to explain how to set it up and configure it.
+This README describes one example of using minikube v1.32.0 on Ubuntu 22.04 with the demo pipeline.
+
+Points to note:
+- The IP address range in this case was 192.168.x.y but this may vary. The `minikube ip` command
+  should provide the correct address, which then can be used to determine the correct subnet 
+  value for the `--insecure-registry` parameter. The addresses appear to be the same for a given
+  machine, so running `minikube start` followed by `minikube ip` to find the IP address followed
+  by `minikube stop` and `minikube delete` should provide the information necessary for the "real"
+  startup command line.
+- This example uses `ace-minimal` and `ace-minimal-build` but could easily use the `ace` image instead.
+  Note that the `ace` image should be copied locally for best performance.
+- The ingress addon is optional, and container testing can be achieved by port forwarding instead.
+- ACE-as-a-Service builds are also possible, and follow the usual pattern described in [/tekton/README.md](/tekton/README.md)
+
+
+```
 minikube start --insecure-registry "192.168.0.0/16"
 minikube addons enable dashboard
 minikube addons enable registry
 minikube addons enable metrics-server
 
-```
+
 ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ minikube ip
 192.168.49.2
-```
+
 
 kubectl apply -f tekton/minikube/minikube-registry-nodeport.yaml
 
@@ -29,13 +48,14 @@ tkn pr logs ace-minimal-build-image-pipeline-run-1 -f
 
 kubectl apply -f tekton/10-maven-ace-build-task.yaml
 kubectl apply -f tekton/20-deploy-to-cluster-task.yaml
+kubectl apply -f tekton/21-knative-deploy-task.yaml
 kubectl apply -f tekton/ace-pipeline.yaml
 tkn pr delete ace-pipeline-run-1 -f  ; kubectl apply -f tekton/ace-pipeline-run.yaml
 tkn pr logs ace-pipeline-run-1 -f
 
 minikube addons enable ingress
 kubectl apply -f tekton/minikube/tea-tekton-minikube-ingress.yaml
-
+```
 
 
 

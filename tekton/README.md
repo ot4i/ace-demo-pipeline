@@ -8,7 +8,6 @@ or to ACE-as-a-Service:
 The tasks rely on several different containers for all use cases:
 
 - The Tekton git-init image to run the initial git clones.
-- lachlanevenson/k8s-kubectl for managing Kubernetes artifacts
 - A build container, which would normally be one of the following:
   - The ace-minimal image (see [minimal image build instructions](minimal-image-build/README.md) for details).
     This image can be built from the ACE developer edition package (no purchase necessary) and is much
@@ -16,17 +15,19 @@ The tasks rely on several different containers for all use cases:
   - The `ace` image from cp.icr.io (see [Obtaining an IBM App Connect Enterprise server image](https://www.ibm.com/docs/en/app-connect/12.0?topic=cacerid-building-sample-app-connect-enterprise-image-using-docker#aceimages__title__1) for versions and necessary credentials).
     This image is created by IBM and requires an IBM Entitlement Key for access.
 
-For container deployments:
+For container deployments, more containers are used:
 
 - Buildah for building the container images.
+- lachlanevenson/k8s-kubectl for managing Kubernetes artifacts
 - A runtime base image:
   - The ace-minimal image, which is the smallest image and therefore results in quicker builds
-  - The `ace` image
+  - The `ace` image, which should be shadowed to the local registry to avoid pulling from cp.icr.io too often.
   - For CP4i use cases, the `ace-server-prod` image (see [os/cp4i/README.md](os/cp4i/README.md) for CP4i details)
+    which should also be shadowed to the local registry.
 
-For ACEaaS:
+For ACEaaS, the target does not present as a container (though it runs containers in the cloud):
 
-- An ACE-as-a-Service (ACEaaS) instance being available.
+- An ACE-as-a-Service (ACEaaS) instance needs to be available.
 
 In general, using the default namespace for Kubernetes artifacts is discouraged, so a namespace
 (such as `ace-demo`) should be created for the pipeline and runtime containers. The YAML files 
@@ -50,9 +51,9 @@ comments, such as [ace-pipeline-run.yaml](ace-pipeline-run.yaml):
       value: "192.168.49.2:5000/default/ace-minimal-build:12.0.11.0-alpine"
 ```
 
-The Tekton pipeline expects docker credentials to be provided for Buildah to use when pushing the built image, and these credentials
-must be associated with the service account for the pipeline. If this has not already been done elsewhere, then create with the
-following format for OpenShift
+The Tekton pipeline expects docker credentials to be provided for Buildah to use when pushing the built image, and 
+these credentials must be associated with the service account for the pipeline. If this has not already been done 
+elsewhere, then create them with the following format for OpenShift
 ```
 kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
 kubectl apply -f tekton/service-account.yaml
@@ -84,7 +85,8 @@ kubectl apply -f tekton/20-deploy-to-cluster-task.yaml
 kubectl apply -f tekton/21-knative-deploy-task.yaml
 kubectl apply -f tekton/ace-pipeline.yaml
 ```
-(note that the pipeline will run without the cluster being enabled for Knative serverless)
+(note that the pipeline will run without the cluster being enabled for Knative serverless; the 21
+task is only run if `knativeDeploy` is set to `true` when the pipeline is run).
 
 Once that has been accomplished, the simplest way to run the pipeline is
 ```
