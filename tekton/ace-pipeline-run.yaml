@@ -27,7 +27,7 @@ spec:
       # Requires an IBM Entitlement Key
       #value: "cp.icr.io/cp/appc/ace:12.0.11.0-r1"
       # ace-minimal can be built from the ACE package without needing a key
-      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal:12.0.11.0-alpine"
+      # value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal:12.0.11.0-alpine"
       # Minikube
       value: "192.168.49.2:5000/default/ace-minimal:12.0.11.0-alpine"
     - name: url

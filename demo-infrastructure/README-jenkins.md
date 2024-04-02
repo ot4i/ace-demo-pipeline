@@ -47,6 +47,7 @@ following may appear regularly:
 17:07:37 Jenkins-Imposed API Limiter: Current quota for Github API usage has 52 remaining (1 over budget). Next quota of 60 in 58 min. Sleeping for 4 min 9 sec.
 17:07:37 Jenkins is attempting to evenly distribute GitHub API requests. To configure a different rate limiting strategy, such as having Jenkins restrict GitHub API requests only when near or above the GitHub rate limit, go to "GitHub API usage" under "Configure System" in the Jenkins settings.
 ```
+Adding GitHub credentials will also fix these errors, as it avoids (heavily-restricted) anonymous access.
 
 The procedure beyond this point differs somewhat depending on the target, as the deployment
 configuration for local integration nodes and ACEaaS require different values.
@@ -163,8 +164,8 @@ Similar to the integration node pipeline, the following values should be changed
 - DEPLOY_CONFIGURATION, which defaults to `false` but should be set to `true` for the initial configuration creation.
 
 To create the pipeline (and following the Jenkins pipeline tour instructions), a "multibranch 
-pipeline" should be created and pointed at the github repo. This pipeline muste refer to 
-`demo-infrastructure/Jenkinsfile.aceaas` and not the default Jenkinsfile.
+pipeline" should be created and pointed at the github repo. This pipeline must refer to 
+`demo-infrastructure/Jenkinsfile.aceaas` and not the default `Jenkinsfile`.
 
 Once the pipeline has been created and branches configured, the `CT_JDBC` credentials should
 be created as described in the integration node section above, and additional credentials are 
