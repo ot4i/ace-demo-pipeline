@@ -51,7 +51,21 @@ spec:
         export appConClientID=$(cat /run/secrets/aceaas/appConClientID)
         export appConApiKey=$(cat /run/secrets/aceaas/appConApiKey)
         export appConClientSecret=$(cat /run/secrets/aceaas/appConClientSecret)
-        export appConToken=$(cat /run/secrets/aceaas/appConToken)
+
+        echo ========================================================================
+        echo Acquiring token using API key
+        echo ========================================================================
+
+        curl --request POST \
+             --url https://${appConEndpoint}/api/v1/tokens \
+             --header "X-IBM-Client-Id: ${appConClientID}"  \
+             --header "X-IBM-Client-Secret: ${appConClientSecret}" \
+              --header 'accept: application/json' \
+              --header 'content-type: application/json' \
+              --header "x-ibm-instance-id: ${appConInstanceID}" \
+              --data "{\\"apiKey\\": \\"${appConApiKey}\\"}" --output /tmp/token-output.txt
+        cat /tmp/token-output.txt  | tr -d '{}"' | tr ',' '\n' | grep access_token | sed 's/access_token://g' > /work/APPCON_TOKEN
+        export appConToken=$(cat /work/APPCON_TOKEN)
 
         echo ========================================================================
         echo Creating JDBCPolicies project
@@ -145,7 +159,7 @@ spec:
         export appConClientID=$(cat /run/secrets/aceaas/appConClientID)
         export appConApiKey=$(cat /run/secrets/aceaas/appConApiKey)
         export appConClientSecret=$(cat /run/secrets/aceaas/appConClientSecret)
-        export appConToken=$(cat /run/secrets/aceaas/appConToken)
+        export appConToken=$(cat /work/APPCON_TOKEN)
 
         echo ========================================================================
         echo Creating IR JSON
