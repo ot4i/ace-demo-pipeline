@@ -1,0 +1,52 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: aceaas-pipeline
+spec:
+  params:
+    - name: url
+      type: string
+      default: "https://github.com/ot4i/ace-demo-pipeline"
+    - name: revision
+      type: string
+      default: "main"
+    - name: buildImage
+      type: string
+    - name: deployPrefix
+      type: string
+    - name: createConfiguration
+      type: string
+      default: "false"
+  tasks:
+    - name: build-and-deploy-bar
+      taskRef:
+        name: aceaas-build-and-deploy-bar
+      params:
+        - name: url
+          value: $(params.url)
+        - name: revision
+          value: $(params.revision)
+        - name: buildImage
+          value: $(params.buildImage)
+        - name: deployPrefix
+          value: $(params.deployPrefix)
+    - name: create-config-and-runtime
+      taskRef:
+        name: aceaas-create-config-and-runtime
+      params:
+        - name: url
+          value: $(params.url)
+        - name: revision
+          value: $(params.revision)
+        - name: buildImage
+          value: $(params.buildImage)
+        - name: deployPrefix
+          value: $(params.deployPrefix)
+        - name: barURL
+          value: "$(tasks.build-and-deploy-bar.results.barURL)"
+      runAfter:
+        - build-and-deploy-bar
+      when:
+        - input: "$(params.createConfiguration)"
+          operator: in
+          values: ["true"]

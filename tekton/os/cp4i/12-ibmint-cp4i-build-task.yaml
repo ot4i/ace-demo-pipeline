@@ -1,0 +1,290 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+#
+# This task builds the main application, runs the unit tests, runs the component
+# tests, and builds two images: the first is the main application image, and the
+# second is the component test image (built using the first image as the base).
+#
+# The second image is not used in this task and is intended to be run in CP4i by
+# the next task. Component tests are run in this task as well but do not use the
+# CP4i-style configuration mechanism, so verification in CP4i is needed also.
+#
+metadata:
+  name: cp4i-build
+  namespace: cp4i
+spec:
+  # The security and environment settings are needed for OpenShift in a non-default
+  # namespace such as cp4i. Kaniko is expecting to be root in the container.
+  stepTemplate:
+    securityContext:
+      runAsUser: 0
+    env:
+      - name: "HOME"
+        value: "/tekton/home"
+      - name: "LICENSE"
+        value: "accept"
+  params:
+    - name: outputRegistry
+      type: string
+    - name: url
+      type: string
+    - name: revision
+      type: string
+    - name: buildImage
+      type: string
+    - name: runtimeBaseImage
+      type: string
+  results:
+    - name: tag
+      description: image tag of the form 20240220135127-6fe9106
+    - name: sha
+      description: container image hash for the application container
+    - name: ctsha
+      description: container image hash for the component test container
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      #
+      # The script clones the repo and sets the TAG result
+      # 
+      script: |
+        #!/bin/sh
+        set -e # Fail on error
+        cd /work
+        git clone -b $(params.revision) $(params.url)
+        cd ace-demo-pipeline
+        export DATE=$(date '+%Y%m%d%H%M%S')
+        export COMMIT=$(git log -1 --pretty=%h)
+        export TAG="$DATE"-"$COMMIT"
+        echo Setting container tag to "$TAG"
+        echo -n "$TAG" > $(results.tag.path)
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: ibmint-build
+      image: $(params.buildImage)
+      #image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
+      #
+      # Runs the build and unit test phases, leaving the results in the work directory
+      # for later steps.
+      #
+      script: |
+        #!/bin/bash
+
+        . /opt/ibm/ace-12/server/bin/mqsiprofile
+        
+        set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+
+        cd /work/ace-demo-pipeline
+        mkdir /work/ibmint-output
+        mqsicreateworkdir /work/ibmint-output/ace-server
+        # Using --compile-maps-and-schemas for 12.0.11 and later . . . 
+        ibmint deploy --input-path . --output-work-directory /work/ibmint-output/ace-server --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
+        ibmint optimize server --work-dir /work/ibmint-output/ace-server
+
+        # Copy the contents of the work directory into a new unit-test-specific work directory
+        # This avoids the risk of unit tests files being deployed in the real containers, and
+        # is quicker than building the application again
+        mqsicreateworkdir /work/ut-work-dir
+        (cd /work/ibmint-output/ace-server && tar -cf - * ) | (cd /work/ut-work-dir && tar -xf - )
+        # Build just the unit tests
+        ibmint deploy --input-path . --output-work-directory /work/ut-work-dir --project TeaRESTApplication_UnitTest
+
+        # Run the unit tests
+        IntegrationServer -w /work/ut-work-dir --no-nodejs --start-msgflows false --test-project TeaRESTApplication_UnitTest
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: container-setup
+      image: $(params.buildImage)
+      #
+      # Copies files around and changes permissions to allow Kaniko/buildah to build the actual
+      # runtime image in the next step. Also copies the Dockerfile into place for Kaniko/buildah.
+      #
+      script: |
+        #!/bin/bash
+        cd /work/ibmint-output
+        cp /work/ace-demo-pipeline/tekton/os/cp4i/Dockerfile Dockerfile
+        # Fix permissions issues 
+        chmod 777 /work/ibmint-output /work/ibmint-output/Dockerfile
+        chmod -R a+r /work/ibmint-output
+        find /work/ibmint-output -type d -print | xargs chmod 775
+        ls -l /work/ibmint-output
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: docker-build-and-push
+      #image: quay.io/buildah/stable:v1
+      image: registry.redhat.io/rhel8/buildah:8.9-5
+      securityContext:
+        runAsUser: 0
+        # Needed for hostPath volumes on OpenShift
+        privileged: true
+        capabilities:
+          add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
+      # specifying DOCKER_CONFIG is required to allow buildah to detect docker credential
+      env:
+        - name: "DOCKER_CONFIG"
+          value: "/tekton/home/.docker/"
+      script: |
+        date
+        export TAG=`cat $(results.tag.path)`
+        echo Using $TAG as image tag
+        buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
+          --build-arg BASE_IMAGE=$(params.runtimeBaseImage) \
+          -f /work/ibmint-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i:$TAG /work/ibmint-output
+        date
+        buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
+          $(params.outputRegistry)/tea-tekton-cp4i:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i:$TAG"
+        echo image digest:
+        cat /tmp/image-digest && echo
+        cat /tmp/image-digest >> $(results.sha.path)
+        date
+      volumeMounts:
+        - mountPath: /work
+          name: work
+        - name: varlibcontainers
+          mountPath: /var/lib/containers
+    - name: component-test
+      image: $(params.buildImage)
+      #image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
+      #
+      # Builds and runs the component tests using the JDBC credentials provided from
+      # the secret. Also uses the same init-creds.sh script used by the non-CP4i image
+      # to load credentials at startup.
+      #
+      # Leaves the resulting component test project in the work directory to be picked
+      # up by the second Kaniko build in the next step.
+      #
+      script: |
+        #!/bin/bash
+        
+        export LICENSE=accept
+        . /opt/ibm/ace-12/server/bin/mqsiprofile
+
+        set -e # Fail on error
+        
+        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+        # Slightly hacky, but quicker than building everything again!
+        (cd /work/ibmint-output/ace-server && tar -cf - * ) | (cd /home/aceuser/ace-server && tar -xf - )
+        ls -l /home/aceuser/ace-server
+        # Set up credentials for the component tests; init-creds.sh looks in /tmp for policy
+        cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml /tmp/
+        bash /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh
+        # Build and run the tests
+        cd /work/ace-demo-pipeline
+
+        # Build just the component tests
+        ibmint deploy --input-path . --output-work-directory /home/aceuser/ace-server --project TeaRESTApplication_ComponentTest
+
+        # Run the component tests
+        IntegrationServer -w /home/aceuser/ace-server --no-nodejs --start-msgflows false --test-project TeaRESTApplication_ComponentTest
+
+        # Quicker than building everything again - we just copy the component test work directory 
+        # into the correct location for the container build in the next step
+        (cd /home/aceuser/ace-server && tar -cf - * ) | (cd /work/ibmint-output/ace-server && tar -xf - )
+      volumeMounts:
+        - mountPath: /work
+          name: work
+        - name: secret-volume-2
+          mountPath: /var/run/secrets/jdbc
+    - name: container-setup-ct
+      image: $(params.buildImage)
+      #
+      # Copies files around and changes permissions to allow Kaniko to build the component
+      # test image in the next step. Also copies the Dockerfile into place for Kaniko.
+      #
+      script: |
+        #!/bin/bash
+        cd /work/ibmint-output
+        cp /work/ace-demo-pipeline/tekton/os/cp4i/Dockerfile Dockerfile
+        # Fix permissions issues 
+        chmod 777 /work/ibmint-output /work/ibmint-output/Dockerfile
+        chmod -R a+r /work/ibmint-output
+        find /work/ibmint-output -type d -print | xargs chmod 775
+        ls -l /work/ibmint-output/ace-server/run
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: docker-build-and-push-ct
+      #image: quay.io/buildah/stable:v1
+      image: registry.redhat.io/rhel8/buildah:8.9-5
+      securityContext:
+        runAsUser: 0
+        # Needed for hostPath volumes on OpenShift
+        privileged: true
+        capabilities:
+          add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
+      # specifying DOCKER_CONFIG is required to allow buildah to detect docker credential
+      env:
+        - name: "DOCKER_CONFIG"
+          value: "/tekton/home/.docker/"
+      script: |
+        date
+        export TAG=`cat $(results.tag.path)`
+        echo Using $TAG as image tag
+        buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
+          --build-arg BASE_IMAGE=$(params.outputRegistry)/tea-tekton-cp4i:$TAG \
+          -f /work/ibmint-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG /work/ibmint-output
+        date
+        buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
+          $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG"
+        echo image digest:
+        cat /tmp/image-digest && echo
+        cat /tmp/image-digest >> $(results.ctsha.path)
+        date
+      volumeMounts:
+        - mountPath: /work
+          name: work
+        - name: varlibcontainers
+          mountPath: /var/lib/containers
+  volumes:
+    - name: work
+      emptyDir: {}
+    - name: secret-volume-2
+      secret:
+        secretName: jdbc-secret
+    # 
+    # Default buildah approach using emptyDir; takes about 2 minutes on a test SNO cluster
+    # 
+    - name: varlibcontainers
+      emptyDir: {}
+    # 
+    # Local directory for this pipeline; takes a few seconds after initial pull
+    # 
+    #- name: varlibcontainers
+    #  hostPath:
+    #    path: '/var/hostPath/buildah-cache'
+    #    type: Directory
+    # 
+    # Sharing the host containers; takes a few seconds
+    # 
+    #- name: varlibcontainers
+    #  hostPath:
+    #    path: '/var/lib/containers'
+    #    type: Directory
+    # 
+    # Local disk using LVM operator on SNO; same speed as hostPath
+    # 
+    #- name: varlibcontainers
+    #  persistentVolumeClaim:
+    #    claimName: buildah-cache
+    # 
+    # NFS mount from same subnet; initial pull took 35 minutes, and
+    # subsequent builds took around 9 minutes.
+    #
+    # May also see messages like
+    #
+    #    time="2024-02-15T00:55:11Z" level=error msg="'overlay' is not supported over nfs at \"/var/lib/containers/storage/overlay\""
+    # 
+    # or possibly failing with
+    #
+    # time="2024-02-15T20:05:58Z" level=warning msg="Network file system detected as backing store. Enforcing overlay option `force_mask=\"700\"`. Add it to storage.conf to silence this warning"
+    # Error: mount /var/lib/containers/storage/overlay:/var/lib/containers/storage/overlay, flags: 0x1000: permission denied
+    # time="2024-02-15T20:05:58Z" level=warning msg="Network file system detected as backing store. Enforcing overlay option `force_mask=\"700\"`. Add it to storage.conf to silence this warning"
+    # time="2024-02-15T20:05:58Z" level=warning msg="failed to shutdown storage: \"mount /var/lib/containers/storage/overlay:/var/lib/containers/storage/overlay, flags: 0x1000: permission denied\""
+    #
+    # if not running privileged
+    #- name: varlibcontainers
+    #  persistentVolumeClaim:
+    #    claimName: buildah-cache-nfs

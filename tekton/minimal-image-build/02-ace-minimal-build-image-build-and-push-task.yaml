@@ -44,6 +44,7 @@ spec:
         - --dockerfile=/work/ace-demo-pipeline/demo-infrastructure/docker/ace-minimal-build/Dockerfile
         - --destination=$(params.dockerRegistry)/$(params.buildImage)
         - --context=/work/ace-demo-pipeline/demo-infrastructure/docker/ace-minimal-build
+        - --insecure-registry=192.168.0.0/16
         - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/$(params.runtimeImage)
         - --skip-tls-verify
       volumeMounts:

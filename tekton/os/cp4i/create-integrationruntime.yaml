@@ -10,13 +10,13 @@ spec:
     toolkitFlow: true
   license:
     accept: true
-    license: L-UTKS-P46KK2
+    license: L-DMRW-D3HQHQ
     use: AppConnectEnterpriseNonProductionFREE
   template:
     spec:
       containers:
         - image: >-
-            DOCKER_REGISTRY/tea-tekton-cp4i:latest
+            DOCKER_REGISTRY/tea-tekton-cp4i:IMAGE_TAG
           imagePullPolicy: Always
           name: runtime
           resources:
@@ -29,4 +29,4 @@ spec:
     - teajdbc-policy
     - default-policy
     - teajdbc
-  version: 12.0.10.0-r1
+  version: 12.0.11.1-r1

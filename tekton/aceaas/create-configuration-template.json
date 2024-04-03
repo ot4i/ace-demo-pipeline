@@ -1,0 +1,10 @@
+{
+  "metadata": {
+    "name": "TEMPLATE_NAME"
+  },
+  "spec": {
+    "type": "TEMPLATE_TYPE",
+    "description": "TEMPLATE_DESCRIPTION",
+    "data": "TEMPLATE_BASE64DATA"
+  }
+}

@@ -1,0 +1,184 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: aceaas-build-and-deploy-bar
+spec:
+  stepTemplate:
+    env:
+      - name: "LICENSE"
+        value: "accept"
+  params:
+    - name: url
+      type: string
+    - name: revision
+      type: string
+    - name: buildImage
+      type: string
+    - name: deployPrefix
+      type: string
+  results:
+    - name: barURL
+      description: BAR URL on ACEaaS of the form https://dataplane-api-dash.appconnect:3443/v1/ac2vkpa0udw/directories/tdolby-tea-tekton?
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      script: |
+        #!/bin/sh
+        set -e # Fail on error
+        cd /work
+        git clone -b $(params.revision) $(params.url)
+
+        # Slightly hacky but works . . . 
+        chmod -R 777 /work/ace-demo-pipeline
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: ibmint-build
+      image: $(params.buildImage)
+      #image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
+      #
+      # Runs the build and unit test phases, leaving the application BAR file in the 
+      # /work/ibmint-output directory for later steps to use.
+      #
+      script: |
+        #!/bin/bash
+        
+        export LICENSE=accept
+        . /opt/ibm/ace-12/server/bin/mqsiprofile
+        
+        set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+
+        cd /work/ace-demo-pipeline
+        mkdir /work/ibmint-output
+        echo ========================================================================
+        echo Building application
+        echo ========================================================================
+        # Using --compile-maps-and-schemas for 12.0.11 and later . . . 
+        ibmint package --input-path . --output-bar-file /work/ibmint-output/tea-tekton.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
+
+        echo ========================================================================
+        echo Building unit tests
+        echo ========================================================================
+        # Create the unit test work directory
+        mqsicreateworkdir /work/ut-work-dir
+        mqsibar -w /work/ut-work-dir -a /work/ibmint-output/tea-tekton.bar 
+        # Build just the unit tests
+        ibmint deploy --input-path . --output-work-directory /work/ut-work-dir --project TeaRESTApplication_UnitTest
+
+        echo ========================================================================
+        echo Running unit tests
+        echo ========================================================================
+        IntegrationServer -w /work/ut-work-dir --no-nodejs --start-msgflows false --test-project TeaRESTApplication_UnitTest
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: component-test
+      image: $(params.buildImage)
+      #image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
+      #
+      # Builds and runs the component tests using the JDBC credentials provided from
+      # the secret. Also uses the same init-creds.sh script used by the non-CP4i image
+      # to load credentials at startup.
+      #
+      script: |
+        #!/bin/bash
+
+        . /opt/ibm/ace-12/server/bin/mqsiprofile
+
+        set -e # Fail on error
+        
+        echo ========================================================================
+        echo Setting up credentials and deploying main application
+        echo ========================================================================
+        # Set up credentials for the component tests; init-creds.sh looks in /tmp for policy
+        cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml /tmp/
+        bash /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh
+        mqsibar -w /home/aceuser/ace-server -a /work/ibmint-output/tea-tekton.bar 
+
+        echo ========================================================================
+        echo Building component tests
+        echo ========================================================================
+        cd /work/ace-demo-pipeline
+        # Build just the component tests
+        ibmint deploy --input-path . --output-work-directory /home/aceuser/ace-server --project TeaRESTApplication_ComponentTest
+
+        echo ========================================================================
+        echo Running component tests
+        echo ========================================================================
+        IntegrationServer -w /home/aceuser/ace-server --no-nodejs --start-msgflows false --test-project TeaRESTApplication_ComponentTest
+      volumeMounts:
+        - mountPath: /work
+          name: work
+        - name: secret-volume-2
+          mountPath: /var/run/secrets/jdbc
+    - name: push-bar-to-aceaas
+      image: $(params.buildImage)
+      #
+      #
+      #
+      script: |
+        #!/bin/bash
+
+        # Avoid errors using curl with ace-minimal-build
+        unset LD_LIBRARY_PATH
+
+        set -e # Fail on error
+
+        echo ========================================================================
+        echo Deploying BAR file
+        echo ========================================================================
+
+        export appConEndpoint=$(cat /run/secrets/aceaas/appConEndpoint)
+        export appConInstanceID=$(cat /run/secrets/aceaas/appConInstanceID)
+        export appConClientID=$(cat /run/secrets/aceaas/appConClientID)
+        export appConApiKey=$(cat /run/secrets/aceaas/appConApiKey)
+        export appConClientSecret=$(cat /run/secrets/aceaas/appConClientSecret)
+
+        echo ========================================================================
+        echo Acquiring token using API key
+        echo ========================================================================
+
+        curl --request POST \
+             --url https://${appConEndpoint}/api/v1/tokens \
+             --header "X-IBM-Client-Id: ${appConClientID}"  \
+             --header "X-IBM-Client-Secret: ${appConClientSecret}" \
+              --header 'accept: application/json' \
+              --header 'content-type: application/json' \
+              --header "x-ibm-instance-id: ${appConInstanceID}" \
+              --data "{\"apiKey\": \"${appConApiKey}\"}" --output /tmp/token-output.txt
+        cat /tmp/token-output.txt  | tr -d '{}"' | tr ',' '\n' | grep access_token | sed 's/access_token://g' > /work/APPCON_TOKEN
+        export appConToken=$(cat /work/APPCON_TOKEN)
+
+        echo ========================================================================
+        echo PUTting BAR file
+        echo ========================================================================
+
+        curl -X PUT https://${appConEndpoint}/api/v1/bar-files/$(params.deployPrefix)-tea-tekton \
+          -H "x-ibm-instance-id: ${appConInstanceID}" -H "Content-Type: application/octet-stream" \
+          -H "Accept: application/json" -H "X-IBM-Client-Id: ${appConClientID}" -H "authorization: Bearer ${appConToken}" \
+          --data-binary @/work/ibmint-output/tea-tekton.bar --output /tmp/curl-output.txt
+        
+        # We will have exited if curl returned non-zero so the output should contain the BAR file name
+        cat /tmp/curl-output.txt ; echo
+        # This would be easier with jq but that's not available in most ACE images
+        export BARURL=$(cat /tmp/curl-output.txt | tr -d '{}"' | tr ',' '\n' | grep url | sed 's/url://g')
+        echo BARURL: $BARURL
+        echo -n "$BARURL" > $(results.barURL.path)
+      volumeMounts:
+        - mountPath: /work
+          name: work
+        - name: secret-volume-2
+          mountPath: /var/run/secrets/jdbc
+        - name: secret-volume-3
+          mountPath: /var/run/secrets/aceaas
+  volumes:
+    - name: work
+      emptyDir: {}
+    - name: secret-volume-2
+      # Used to check database connectivity
+      secret:
+        secretName: jdbc-secret
+    - name: secret-volume-3
+      # Used to push to ACEaaS
+      secret:
+        secretName: aceaas-credentials

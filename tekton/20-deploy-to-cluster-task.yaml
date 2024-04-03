@@ -10,6 +10,8 @@ spec:
       type: string
     - name: revision
       type: string
+    - name: tag
+      type: string
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
@@ -21,6 +23,9 @@ spec:
         export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
         echo $REG_WITH_ESCAPED_SLASH
         sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/tea-tekton-deployment.yaml
+        export TAG=$(params.tag)
+        echo Using $TAG as image tag
+        sed -i "s/IMAGE_TAG/$TAG/g" /work/ace-demo-pipeline/tekton/*.yaml
         cat /work/ace-demo-pipeline/tekton/tea-tekton-deployment.yaml
       volumeMounts:
         - mountPath: /work

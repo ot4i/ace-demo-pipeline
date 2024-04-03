@@ -1,6 +1,9 @@
 #!/bin/bash
 
-export NS=default
+if [ "$NS" == "" ]; then
+    echo "Using default namespace"
+    export NS=default
+fi
 export POD_NAME=db2-test-pod
 
 kubectl get pods -n ${NS}

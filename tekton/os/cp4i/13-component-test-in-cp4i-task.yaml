@@ -25,6 +25,10 @@ spec:
       type: string
     - name: revision
       type: string
+    - name: tag
+      type: string
+    - name: ctsha
+      type: string
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
@@ -39,6 +43,10 @@ spec:
         export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
         echo Using $REG_WITH_ESCAPED_SLASH as registry name
         sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+        export SHA=$(params.ctsha)
+        export TAG=$(params.tag)
+        echo Using $TAG@$SHA as image tag
+        sed -i "s/IMAGE_TAG/$TAG@$SHA/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
       volumeMounts:
         - mountPath: /work
           name: work
@@ -89,11 +97,14 @@ spec:
         #!/bin/sh
         #set -x
         cd /work
+        echo "CR YAML for component test:"
+        cat /work/ace-demo-pipeline/tekton/os/cp4i/create-integrationruntime-ct.yaml
+        echo
         echo "Creating CR for component test at " `date`
         kubectl apply -f /work/ace-demo-pipeline/tekton/os/cp4i/create-integrationruntime-ct.yaml
         rc=1
         echo "Starting polling for operator IR at " `date`
-        for i in `seq 1 24`
+        for i in `seq 1 60`
         do
           #echo $i
           #kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
@@ -142,6 +153,7 @@ spec:
           if [ "$lastValue" == "IntegrationServer" ]; then
             echo "Server still running at " `date`
           else
+            echo "Server stopped at " `date`
             rc=0
             break
           fi
