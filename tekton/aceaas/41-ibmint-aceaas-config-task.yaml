@@ -63,7 +63,7 @@ spec:
               --header 'accept: application/json' \
               --header 'content-type: application/json' \
               --header "x-ibm-instance-id: ${appConInstanceID}" \
-              --data "{\\"apiKey\\": \\"${appConApiKey}\\"}" --output /tmp/token-output.txt
+              --data "{\"apiKey\": \"${appConApiKey}\"}" --output /tmp/token-output.txt
         cat /tmp/token-output.txt  | tr -d '{}"' | tr ',' '\n' | grep access_token | sed 's/access_token://g' > /work/APPCON_TOKEN
         export appConToken=$(cat /work/APPCON_TOKEN)
 
