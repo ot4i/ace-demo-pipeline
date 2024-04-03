@@ -183,8 +183,12 @@ shown as a separate task that only runs when requested:
 
 As there is no runtime container, this pipeline can run using the `ace` image as the 
 build image without any performance concerns because there are no buildah or Kaniko steps
-that would need to unpack the image. For those without an IBM Entitlement Key, the 
-`ace-minimal` image will also work.
+that would need to unpack the image; this requires an IBM Entitlement Key and the 
+appropriate credentials:
+```
+kubectl create secret docker-registry ibm-entitlement-key --docker-username=cp --docker-password=myEntitlementKey --docker-server=cp.icr.io
+```
+For those without an IBM Entitlement Key, the `ace-minimal` image will also work.
 
 Setting up the pipeline requires Tekton to be installed (which may already have happend via OpenShift operators, in which case
 skip the first line), tasks to be created, and the pipeline itself to be configured:
