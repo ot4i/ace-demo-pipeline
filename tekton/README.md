@@ -226,7 +226,7 @@ Once the pipeline has completed and the integration runtime has started, the app
 tested by using a browser or curl to access the application API endpoint. The endpoint can be 
 found from the ACEaaS UI by examining the deployed REST API as shown:
 
-![aceaas-rest-api-endpoint.png](/demo-infrastructure/aceaas-rest-api-endpoint.png)
+![aceaas-tekton-rest-api-endpoint.png](aceaas/aceaas-tekton-rest-api-endpoint.png)
 
 The endpoint should be of the form `https://tdolby-tea-tekton-ir-https-ac2vkpa0udw.p-vir-d1.appconnect.ibmappdomain.cloud/tea`
 and (similar to the integration node example above) curl can be used to retrieve or add data.
