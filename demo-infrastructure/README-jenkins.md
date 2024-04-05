@@ -31,11 +31,11 @@ For Windows, the ACE_COMMAND environment variable may need to be changed to matc
 version of ACE (currently set to 12.0.10). Container support is not required.
 
 For Linux, the pipeline will use containers for the actual build steps, and this requires either 
-the `ace` container image from cp.icr.io or the ace-minimal build container image to be created 
+the `ace` container image from cp.icr.io or the `ace-minimal-build` container image to be created 
 first (for users without an IBM Entitlement Key). The use of a container to run ACE commands ensures 
 that the Jenkins environment (for example, Java level) does not affect ACE commands, and ensures 
-a consistent environment for building ACE artifacts. See the OT4i [ace-minimal](https://github.com/ot4i/ace-docker/tree/main/experimental/ace-minimal) 
-directory for information on building the `ace-minimal` image, or [Obtaining an IBM App Connect Enterprise 
+a consistent environment for building ACE artifacts. See the [ace-minimal-build](/demo-infrastructure/docker/ace-minimal-build) 
+directory for information on building the image, or [Obtaining an IBM App Connect Enterprise 
 server image](https://www.ibm.com/docs/en/app-connect/12.0?topic=cacerid-building-sample-app-connect-enterprise-image-using-docker#aceimages__title__1)
 to download the `ace` image. The Jenkinsfile will need to be updated to use the correct image.
 
