@@ -80,7 +80,7 @@ kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboar
 ```
 and shows pipeline runs in a UI:
 
-![demo-infrastructure/images/tekton-dashboard.png](demo-infrastructure/images/tekton-dashboard.png)
+![/demo-infrastructure/images/tekton-dashboard.png](/demo-infrastructure/images/tekton-dashboard.png)
 
 By default, the Tekton dashboard is not accessible outside the cluster; assuming a secure host somewhere, the
 dashboard HTTP port can be made available locally as follows:
