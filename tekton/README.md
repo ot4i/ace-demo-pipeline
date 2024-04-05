@@ -72,6 +72,22 @@ kubectl create secret generic jdbc-secret --from-literal=USERID='blah' --from-li
 ```
 with the obvious replacements.
 
+## Tekton dashboard
+
+The Tekton dashboard (for non-OpenShift users) can be installed as follows:
+```
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml
+```
+and shows pipeline runs in a UI:
+
+![demo-infrastructure/images/tekton-dashboard.png](demo-infrastructure/images/tekton-dashboard.png)
+
+By default, the Tekton dashboard is not accessible outside the cluster; assuming a secure host somewhere, the
+dashboard HTTP port can be made available locally as follows:
+```
+kubectl --namespace tekton-pipelines port-forward --address 0.0.0.0 svc/tekton-dashboard 9097:9097
+```
+
 ## Container deploy target
 
 ![Pipeline overview](/demo-infrastructure/images/tekton-pipeline.png)
@@ -159,19 +175,6 @@ should then access the Tea REST application in the container and show JSON resul
 See [os/cp4i/README.md](os/cp4i/README.md) for details on how to create IntegrationRuntime CRs for CP4i, along
 with a pipeline that included running component tests in a CP4i container during the build to ensure that the
 configurations are valid.
-
-## Tekton dashboard
-
-The Tekton dashboard (for non-OpenShift users) can be installed as follows:
-```
-kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml
-```
-
-By default, the Tekton dashboard is not accessible outside the cluster; assuming a secure host somewhere, the
-dashboard HTTP port can be made available locally as follows:
-```
-kubectl --namespace tekton-pipelines port-forward --address 0.0.0.0 svc/tekton-dashboard 9097:9097
-```
 
 ## ACE-as-a-Service target
 
