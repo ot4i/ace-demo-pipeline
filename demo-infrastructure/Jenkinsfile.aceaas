@@ -2,6 +2,7 @@ pipeline {
   agent { docker { 
     image 'cp.icr.io/cp/appc/ace:12.0.11.0-r1'
     /* image 'ace-minimal:12.0.11.0-alpine' */
+    /* image 'ace-minimal-build:12.0.11.0-alpine' */
     args '-e LICENSE=accept --entrypoint ""'
   } }
   parameters {
@@ -12,6 +13,7 @@ pipeline {
     string(name: 'serverName',   defaultValue: '19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud', description: 'JDBC database host')
     string(name: 'portNumber',   defaultValue: '30699', description: 'JDBC database port')
     string(name: 'deployPrefix',   defaultValue: 'tdolby', description: 'ACEaaS artifact prefix')
+    /* Could put the endpoint in as a credential, but it's not really secret . . . */
     string(name: 'APPCON_ENDPOINT',   defaultValue: 'api.p-vir-c1.appconnect.automation.ibm.com', description: 'ACEaaS endpoint hostname')
     booleanParam(name: 'DEPLOY_CONFIGURATION', defaultValue: false, description: 'Create policies, runtime, etc')
   }
@@ -107,7 +109,7 @@ pipeline {
       }
     }
 
-    stage('Next stage deploy') {
+    stage('Push BAR file') {
       steps {
         sh "echo ${params.APPCON_ENDPOINT} > /tmp/APPCON_ENDPOINT"
         sh "echo ${params.deployPrefix} > /tmp/deployPrefix"
@@ -135,6 +137,10 @@ pipeline {
               --data "{\\"apiKey\\": \\"${APPCON_API_KEY}\\"}" --output /tmp/token-output.txt
             cat /tmp/token-output.txt  | tr -d '{}"' | tr ',' '\n' | grep access_token | sed 's/access_token://g' > /tmp/APPCON_TOKEN
 
+            echo "########################################################################"
+            echo "# PUTting BAR file to ACE service"
+            echo "########################################################################" && echo
+
             curl -X PUT https://`cat /tmp/APPCON_ENDPOINT`/api/v1/bar-files/`cat /tmp/deployPrefix`-tea-jenkins \
               -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
               -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
@@ -150,7 +156,7 @@ pipeline {
       }
     }
 
-    stage('Create configuration') {
+    stage('Create Configurations and IR') {
       when {
         expression {
           return params.DEPLOY_CONFIGURATION
@@ -168,7 +174,7 @@ pipeline {
             export LICENSE=accept
             . /opt/ibm/ace-12/server/bin/mqsiprofile
         
-            #set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+            set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
             echo ========================================================================
             echo Creating `cat /tmp/deployPrefix`-jdbc-policies configuration
@@ -228,7 +234,7 @@ pipeline {
               --data-binary @/tmp/default-policy-project-configuration.json
 
             echo ========================================================================
-            echo Creating IR JSON
+            echo Creating IntegrationRuntime JSON
             echo ========================================================================
             cp tekton/aceaas/create-integrationruntime-template.json /tmp/create-integrationruntime.json
             sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-tea-jenkins-ir/g" /tmp/create-integrationruntime.json
@@ -254,5 +260,7 @@ pipeline {
     APPCON_CLIENT_ID = credentials('APPCON_CLIENT_ID')
     APPCON_CLIENT_SECRET = credentials('APPCON_CLIENT_SECRET')
     APPCON_API_KEY = credentials('APPCON_API_KEY')
+    /* Could put the endpoint in as a credential, but it's not really secret . . . */
+    /* APPCON_ENDPOINT = credentials('APPCON_ENDPOINT') */
   }
 }
