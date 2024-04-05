@@ -118,9 +118,9 @@ pipeline {
             # Set HOME to somewhere writable by Maven
             export HOME=/tmp
 
-            export LICENSE=accept
-            . /opt/ibm/ace-12/server/bin/mqsiprofile
-        
+            # Fix for ace-minimal-build and curl
+            unset LD_LIBRARY_PATH
+       
             set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
             echo "########################################################################"
@@ -187,6 +187,9 @@ pipeline {
             (cd /tmp && /opt/ibm/ace-12/common/jdk/bin/jar cvf /tmp/JDBCPolicies.zip JDBCPolicies)
             cat /tmp/JDBCPolicies.zip | base64 -w 0 > /tmp/JDBCPolicies.zip.base64
             
+            # Fix for ace-minimal-build and curl
+            unset LD_LIBRARY_PATH
+
             cp tekton/aceaas/create-configuration-template.json /tmp/jdbc-policies-configuration.json
             sed -i "s/TEMPLATE_NAME/`cat /tmp/deployPrefix`-jdbc-policies/g" /tmp/jdbc-policies-configuration.json
             sed -i "s/TEMPLATE_TYPE/policyproject/g" /tmp/jdbc-policies-configuration.json
