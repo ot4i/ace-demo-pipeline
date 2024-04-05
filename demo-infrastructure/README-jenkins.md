@@ -34,8 +34,8 @@ For Linux, the pipeline will use containers for the actual build steps, and this
 the `ace` container image from cp.icr.io or the ace-minimal build container image to be created 
 first (for users without an IBM Entitlement Key). The use of a container to run ACE commands ensures 
 that the Jenkins environment (for example, Java level) does not affect ACE commands, and ensures 
-a consistent environment for building ACE artifacts. See the [ace-minimal-build](/demo-infrastructure/docker/ace-minimal-build) 
-directory for information on building the image, or [Obtaining an IBM App Connect Enterprise 
+a consistent environment for building ACE artifacts. See the OT4i [ace-minimal](https://github.com/ot4i/ace-docker/tree/main/experimental/ace-minimal) 
+directory for information on building the `ace-minimal` image, or [Obtaining an IBM App Connect Enterprise 
 server image](https://www.ibm.com/docs/en/app-connect/12.0?topic=cacerid-building-sample-app-connect-enterprise-image-using-docker#aceimages__title__1)
 to download the `ace` image. The Jenkinsfile will need to be updated to use the correct image.
 
@@ -151,17 +151,17 @@ curl -X POST --data '{"name": "Assam", "strength": 5}' http://localhost:7800/tea
 ## ACE-as-a-Service target
 
 See [README-aceaas-pipelines.md](README-aceaas-pipelines.md) for a general overview. The
-Jenkins pipeline for ACEaaS looks as follows, with the (optional) "Create configuration"
+Jenkins pipeline for ACEaaS looks as follows, with the (optional) "Create Configurations and IR"
 shown as running only for the initial build:
 
 ![Pipeline overview](/demo-infrastructure/images/jenkins-aceaas-pipeline.png)
 
 Similar to the integration node pipeline, the following values should be changed in
-[Jenkinsfile.aceaas](/demo-infrastructure/Jenkinsfile.aceaas):
+[Jenkinsfile.aceaas](/demo-infrastructure/Jenkinsfile.aceaas) or set when running the build:
 
 - deployPrefix, which is used as a prefix for the various configurations to avoid conflicts on shared services.
-- APPCON_ENDPOINT, which is the API endpoint
-- DEPLOY_CONFIGURATION, which defaults to `false` but should be set to `true` for the initial configuration creation.
+- APPCON_ENDPOINT, which is the API endpoint.
+- DEPLOY_CONFIGURATION, which enables the "Create Configurations and IR" stage and defaults to `false` but should be set to `true` for the initial configuration creation.
 
 To create the pipeline (and following the Jenkins pipeline tour instructions), a "multibranch 
 pipeline" should be created and pointed at the github repo. This pipeline must refer to 
@@ -176,6 +176,9 @@ for details on how to create the correct credentials, and then set the following
 - APPCON_CLIENT_ID is the client ID created from the "Public API credentials" section of the ACEaaS dashboard 
 - APPCON_CLIENT_SECRET is the client secret created from the "Public API credentials" section of the ACEaaS dashboard 
 - APPCON_API_KEY is the API key created from the ACEaaS dashboard 
+
+The pipeline could be changed to store APPCON_ENDPOINT as a credential as well (similar to the
+Tekton equivalent), but the URL is not secret so in the default case it is provided in the Jenkinsfile.
 
 The pipeline should create the required configurations based on the JDBC credentials
 and other values if the DEPLOY_CONFIGURATION is set to `true`; this should only be used
