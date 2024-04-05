@@ -39,8 +39,12 @@ directory for information on building the image, or [Obtaining an IBM App Connec
 server image](https://www.ibm.com/docs/en/app-connect/12.0?topic=cacerid-building-sample-app-connect-enterprise-image-using-docker#aceimages__title__1)
 to download the `ace` image. The Jenkinsfile will need to be updated to use the correct image.
 
-Once those values have been updated and containers built if needed, then the pipeline can be 
-constructed, but it may be a good idea to change "GitHub API usage" under "System 
+The ACE version does not have to match the exact modification level (12.0.X) of the deploy target
+(integration node or ACEaaS) but keeping build containers up-to-date is a good idea in general in
+order to benefit from fixes and new capabilities.
+
+Once the Jenkinsfile values have been updated and containers built if needed, then the pipeline
+can be constructed, but it may be a good idea to change "GitHub API usage" under "System 
 Configuration" -> "System" in the Jenkins settings as otherwise messages such as the 
 following may appear regularly:
 ```
