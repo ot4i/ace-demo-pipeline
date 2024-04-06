@@ -36,7 +36,7 @@ in this repo generally do not have namespaces specified (other than some CP4i fi
 
 ## Getting started
 
-A Kubernetes cluster will be needed, with Minikube (see [minikube/README.md](tekton/minikube/README.md)) and
+A Kubernetes cluster will be needed, with Minikube (see [minikube/README.md](/tekton/minikube/README.md)) and
 OpenShift 4.14 being the two most-tested. Other clusters should also work with appropriate adjustments to
 ingress routing and container registry settings. Note that the Cloud Pak for Integration (CP4i) has a separate
 pipeline the creates IntegrationRuntime CRs with custom images; see [os/cp4i/README.md](/tekton/os/cp4i/README.md)
