@@ -11,23 +11,29 @@ The overall goal is to deploy a REST HTTP application to an ACE integration serv
 ![Pipeline high-level](/demo-infrastructure/images/pipeline-high-level.png)
 
 The application used to demonstrate the pipeline consists of a REST API that accepts JSON and interacts 
-with a database via JDBC, with a supporting shared library containing a lot of the code. It is designed around 
-indexing different types of tea, storing the name and strength of the tea along with assigning a unique integer 
-id to each type so that it can be retrieved later. Audit data is logged as XML for each operation performed.
+with a database via JDBC, with a supporting shared library containing a lot of the code (hereafter 
+referred to as the "Tea REST application"). It is designed around indexing different types of tea, storing
+the name and strength of the tea along with assigning a unique integer id to each type so that it can be 
+retrieved later. Audit data is logged as XML for each operation performed.
 
 As this application exists to help demonstrate pipelines and how they work with ACE, there are some shortcuts 
 in the code that would not normally be present in a production-ready application: the database table is 
 created on-demand to make setup easier, the logging goes to the console instead of an audit service, etc. 
 
+## Recent changes
+
+- Minikube added as the default "plain Kubernetes" option.
+- ACE-as-a-Service added as a deploy target (see below).
+
 ## Technology and target options
 
 This repo can be built in several different ways, and can deploy to different targets (see
-[Getting started](#getting-started)) for suggestions on how to choose a target) from the same
+[Getting started](#getting-started) for suggestions on how to choose a target) from the same
 source as shown in this diagram:
 
 ![Pipeline overview](/demo-infrastructure/images/pipelines-overview.jpg)
 
-Testing is split into “Unit Test” and "Component Test” categories, where "unit tests" are self-contained
+Testing is split into "Unit Test" and "Component Test" categories, where "unit tests" are self-contained
 and do not connect to external services such as databases (so they can run reliably anywhere) while the
 term "component test" was used in the ACE product development pipeline to mean "unit tests that use external
 services (such as databases)". See 
