@@ -36,6 +36,8 @@ spec:
       # value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal:12.0.11.0-alpine"
       # Minikube
       value: "192.168.49.2:5000/default/ace-minimal:12.0.11.0-alpine"
+      # Local copy of ace container
+      #value: "192.168.49.2:5000/default/ace:12.0.11.0-r1"
     - name: url
       value: "https://github.com/ot4i/ace-demo-pipeline"
     - name: revision

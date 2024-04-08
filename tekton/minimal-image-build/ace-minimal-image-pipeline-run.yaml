@@ -12,20 +12,15 @@ spec:
   params:
     - name: dockerRegistry
       # OpenShift
-      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
       #value: "quay.io/trevor_dolby"
       #value: "us.icr.io/ace-containers"
       #value: "aceDemoRegistry.azurecr.io"
       # Minikube
-      #value: "192.168.49.2:5000/default"
+      value: "192.168.49.2:5000/default"
     - name: aceDownloadUrl
-      value: "http://192.168.1.70:49177/ace/12.0.11.0-ACE-LINUX64-DEVELOPER.tar.gz"
-      #value: "https://iwm.dhe.ibm.com/sdfdl/v2/regs2/mbford/Xa.2/Xb.WJL1CuPI9omKj5inyv9-ir8PMDDUU8v2iYo-Oc5KPVI/Xc.12.0.11.0-ACE-LINUX64-DEVELOPER.tar.gz/Xd./Xf.lPr.D1vk/Xg.12260000/Xi.swg-wmbfd/XY.regsrvs/XZ._4mLAwxEK3xwdP7B6oAhifJgsNyp-ePc/12.0.11.0-ACE-LINUX64-DEVELOPER.tar.gz"
+      value: "https://iwm.dhe.ibm.com/sdfdl/v2/regs2/mbford/Xa.2/Xb.WJL1CuPI9omKj5inyv9-ir8PMDDUU8v2iYo-Oc5KPVI/Xc.12.0.11.0-ACE-LINUX64-DEVELOPER.tar.gz/Xd./Xf.lPr.D1vk/Xg.12260000/Xi.swg-wmbfd/XY.regsrvs/XZ._4mLAwxEK3xwdP7B6oAhifJgsNyp-ePc/12.0.11.0-ACE-LINUX64-DEVELOPER.tar.gz"
     - name: runtimeImage
       # Tag should match the product version; the image will be pushed to 
       # the dockerRegistry specified above.
       value: "ace-minimal:12.0.11.0-alpine"
-    - name: url
-      value: "https://github.com/ot4i/ace-demo-pipeline"
-    - name: revision
-      value: "aceaas-and-minikube"
