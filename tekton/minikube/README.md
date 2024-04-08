@@ -16,6 +16,9 @@ Points to note:
 - The ingress addon is optional, and container testing can be achieved by port forwarding instead.
 - ACE-as-a-Service builds are also possible, and follow the usual pattern described in [/tekton/README.md](/tekton/README.md)
 
+See [Walkthrough](#walkthrough) for a full example including Knative.
+
+## Steps
 
 ```
 minikube start --insecure-registry "192.168.0.0/16"
@@ -109,7 +112,9 @@ cat serverless/tea-tekton-knative-service.yaml | sed 's/DOCKER_REGISTRY/192.168.
 curl -LO https://github.com/knative/client/releases/download/knative-v1.11.2/kn-linux-amd64
 ```
 
-Walkthrough (passwords redacted):
+## Walkthrough
+
+Passwords redacted:
 ```
 ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ minikube start --insecure-registry "192.168.0.0/16"
 😄  minikube v1.32.0 on Ubuntu 22.04
