@@ -21,6 +21,7 @@ For container deployments, more containers are used:
 - lachlanevenson/k8s-kubectl for managing Kubernetes artifacts
 - A runtime base image:
   - The `ace-minimal` image, which is the smallest image and therefore results in quicker builds in some cases.
+    See [minimal image build instructions](minimal-image-build/README.md) for details on building the image.
   - The `ace` image, which should be shadowed to the local registry to avoid pulling from cp.icr.io too often.
   - For CP4i use cases, the `ace-server-prod` image (see [os/cp4i/README.md](os/cp4i/README.md) for CP4i details)
     which should also be shadowed to the local registry.

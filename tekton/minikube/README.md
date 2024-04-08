@@ -54,7 +54,8 @@ kubectl apply -f tekton/minimal-image-build/01-ace-minimal-image-build-and-push-
 kubectl apply -f tekton/minimal-image-build/02-ace-minimal-build-image-build-and-push-task.yaml
 kubectl apply -f tekton/minimal-image-build/ace-minimal-image-pipeline.yaml
 kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline.yaml
-tkn pr delete ace-minimal-build-image-pipeline-run-1 -f  ; kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline-run-minikube.yaml
+
+tkn pr delete ace-minimal-build-image-pipeline-run-1 -f  ; kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline-run.yaml
 tkn pr logs ace-minimal-build-image-pipeline-run-1 -f
 ```
 
