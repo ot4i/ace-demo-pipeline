@@ -12,13 +12,9 @@ spec:
       - name: "HOME"
         value: "/tekton/home"
   params:
-    - name: dockerRegistry
+    - name: outputRegistry
       type: string
     - name: aceDownloadUrl
-      type: string
-    - name: url
-      type: string
-    - name: revision
       type: string
     - name: runtimeImage
       type: string
@@ -30,8 +26,11 @@ spec:
       script: |
         #!/bin/sh
         cd /work
-        git clone "https://github.com/trevor-dolby-at-ibm-com/ace-docker"
-        sed -i 's/alpine:3.18/quay.io\/trevor_dolby\/alpine:3.18/g' /work/ace-docker/experimental/ace-minimal/Dockerfile.alpine
+        git clone https://github.com/ot4i/ace-docker
+
+        # Change the registry location if pull quota exceeded
+        #sed -i 's/alpine:3.18/quay.io\/trevor_dolby\/alpine:3.18/g' /work/ace-docker/experimental/ace-minimal/Dockerfile.alpine
+        
         ls -l /work/ace-docker/experimental/ace-minimal
       volumeMounts:
         - mountPath: /work
@@ -46,8 +45,9 @@ spec:
         - /kaniko/executor
       args:
         - --dockerfile=/work/ace-docker/$(params.aceDockerFile)
-        - --destination=$(params.dockerRegistry)/$(params.runtimeImage)
+        - --destination=$(params.outputRegistry)/$(params.runtimeImage)
         - --context=/work/ace-docker/experimental/ace-minimal
+        - --insecure-registry=192.168.0.0/16
         - --build-arg=DOWNLOAD_URL=$(params.aceDownloadUrl)
         - --skip-tls-verify
       volumeMounts:

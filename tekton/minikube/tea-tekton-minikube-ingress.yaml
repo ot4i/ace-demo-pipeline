@@ -1,0 +1,15 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tea-ingress
+spec:
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: /tea/index
+            backend:
+              service:
+                name: tea-tekton-service
+                port:
+                  number: 7800

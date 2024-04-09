@@ -8,8 +8,8 @@ echo "Pulling in secrets"
 
 set +x
 
-mkdir /home/aceuser/ace-server/run/PreProdPolicies
-echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns2:policyProjectDescriptor xmlns="http://com.ibm.etools.mft.descriptor.base" xmlns:ns2="http://com.ibm.etools.mft.descriptor.policyProject"><references/></ns2:policyProjectDescriptor>' > /home/aceuser/ace-server/run/PreProdPolicies/policy.descriptor
+mkdir /home/aceuser/ace-server/run/JDBCPolicies
+echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns2:policyProjectDescriptor xmlns="http://com.ibm.etools.mft.descriptor.base" xmlns:ns2="http://com.ibm.etools.mft.descriptor.policyProject"><references/></ns2:policyProjectDescriptor>' > /home/aceuser/ace-server/run/JDBCPolicies/policy.descriptor
 
 export TEMPLATE_POLICYXML=/tmp/TEAJDBC.policyxml
 
@@ -31,7 +31,7 @@ then
     
     echo "policy ${TEMPLATE_POLICYXML} after"
     cat ${TEMPLATE_POLICYXML}
-    cp ${TEMPLATE_POLICYXML} /home/aceuser/ace-server/run/PreProdPolicies/
+    cp ${TEMPLATE_POLICYXML} /home/aceuser/ace-server/run/JDBCPolicies/
 
     echo "---" >> /home/aceuser/ace-server/overrides/server.conf.yaml
     echo "Credentials:" >> /home/aceuser/ace-server/overrides/server.conf.yaml
@@ -54,7 +54,7 @@ then
     
     echo "policy ${TEMPLATE_POLICYXML} after"
     cat ${TEMPLATE_POLICYXML}
-    cp ${TEMPLATE_POLICYXML} /home/aceuser/ace-server/run/PreProdPolicies/
+    cp ${TEMPLATE_POLICYXML} /home/aceuser/ace-server/run/JDBCPolicies/
 
     echo "---" >> /home/aceuser/ace-server/overrides/server.conf.yaml
     echo "Credentials:" >> /home/aceuser/ace-server/overrides/server.conf.yaml
@@ -78,12 +78,12 @@ then
     
     echo "policy ${TEMPLATE_POLICYXML} after"
     cat ${TEMPLATE_POLICYXML}
-    cp ${TEMPLATE_POLICYXML} /home/aceuser/ace-server/run/PreProdPolicies/
+    cp ${TEMPLATE_POLICYXML} /home/aceuser/ace-server/run/JDBCPolicies/
     
     mqsisetdbparms -w /home/aceuser/ace-server -n jdbc::tea -u `cat /work/jdbc/USERID` -p `cat /work/jdbc/PASSWORD`
 fi
 
-if [[ -e "/home/aceuser/ace-server/run/PreProdPolicies/TEAJDBC.policyxml" ]]
+if [[ -e "/home/aceuser/ace-server/run/JDBCPolicies/TEAJDBC.policyxml" ]]
 then
     # Already completed
     echo "Not reading kube secrets"
@@ -97,10 +97,10 @@ else
     
     echo "policy ${TEMPLATE_POLICYXML} after"
     cat ${TEMPLATE_POLICYXML}
-    cp ${TEMPLATE_POLICYXML} /home/aceuser/ace-server/run/PreProdPolicies/
+    cp ${TEMPLATE_POLICYXML} /home/aceuser/ace-server/run/JDBCPolicies/
     
     mqsisetdbparms -w /home/aceuser/ace-server -n jdbc::tea -u `cat /run/secrets/jdbc/USERID` -p `cat /run/secrets/jdbc/PASSWORD`
 fi
 
 
-sed -i "s/#policyProject: 'DefaultPolicies'/policyProject: 'PreProdPolicies'/g" /home/aceuser/ace-server/server.conf.yaml
+sed -i "s/#policyProject: 'DefaultPolicies'/policyProject: 'JDBCPolicies'/g" /home/aceuser/ace-server/server.conf.yaml

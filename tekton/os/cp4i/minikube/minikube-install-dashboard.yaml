@@ -1,0 +1,35 @@
+apiVersion: appconnect.ibm.com/v1beta1
+kind: Dashboard
+metadata:
+  name: db01
+  namespace: ace-operator
+spec:
+  license:
+    accept: true
+    license: L-UTKS-P46KK2
+    use: AppConnectEnterpriseProduction
+  pod:
+    containers:
+      content-server:
+        resources:
+          limits:
+            memory: 512Mi
+          requests:
+            cpu: 50m
+            memory: 50Mi
+      control-ui:
+        resources:
+          limits:
+            memory: 512Mi
+          requests:
+            cpu: 50m
+            memory: 125Mi
+  switchServer:
+    name: default
+  replicas: 1
+  storage:
+    sizeLimit: 1Gi
+    type: ephemeral
+  useCommonServices: false
+  version: '12.0'
+  displayMode: IntegrationRuntimes

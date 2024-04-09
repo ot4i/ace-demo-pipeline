@@ -6,11 +6,11 @@ for each pipeline run, creating and deleting the container as part of the build.
 
 ![Pipeline overview](temp-db2-pipeline-20230301.png)
 
-The rest of the pipeline remains unchanged, with only the `maven-ace-build` task changing.
+The rest of the pipeline remains unchanged, with only the `ibmint-ace-build` task changing.
 
 ## Overview
 
-The modified `maven-ace-build` task adds three new steps in order to run new DB2 database
+The modified `ibmint-ace-build` task adds three new steps in order to run new DB2 database
 for each pipeline run. Running a new database each time ensures that the test results are
 repeatable and not influenced by previous test runs, but also requires more cluster resources
 as a new database must be created and started each time.
@@ -79,10 +79,10 @@ Resource consumption is the biggest disdvantage, as it causes some issues:
 
 ## Getting started
 
-The main change required is the updating of the `maven-ace-build` task to include the DB2 
+The main change required is the updating of the `ibmint-ace-build` task to include the DB2 
 container interactions; this requires applying the task YAML in this directory:
 ```
-kubectl apply -f tekton/temp-db2/14-maven-ace-build-temp-db2-task.yaml
+kubectl apply -f tekton/temp-db2/14-ibmint-ace-build-temp-db2-task.yaml
 ```
 The task steps rely on the other files in this directory, but no other configuration changes
 are needed and the pipeline can be run to verify the new steps and configuration are used.
@@ -90,7 +90,7 @@ are needed and the pipeline can be run to verify the new steps and configuration
 ## Notes
 
 The main tekton service account has been adjusted to allow container logs to be queried, which is 
-needed in order to determin ewhen the database has finished starting up.
+needed in order to determine when the database has finished starting up.
 
 Very small clusters may become unstable if multiple DB2 containers are run simultaneously; this is 
 likely to be due to resource contention issues.

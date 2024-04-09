@@ -24,7 +24,7 @@ spec:
       - name: regcred
       containers:
       - name: tea-tekton
-        image: DOCKER_REGISTRY/tea-tekton:latest
+        image: DOCKER_REGISTRY/tea-tekton:IMAGE_TAG
         ports:
         - containerPort: 7800
         imagePullPolicy: Always

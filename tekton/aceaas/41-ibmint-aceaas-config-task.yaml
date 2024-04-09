@@ -1,0 +1,198 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: aceaas-create-config-and-runtime
+spec:
+  stepTemplate:
+    env:
+      - name: "LICENSE"
+        value: "accept"
+  params:
+    - name: url
+      type: string
+    - name: revision
+      type: string
+    - name: buildImage
+      type: string
+    - name: deployPrefix
+      type: string
+    - name: barURL
+      type: string
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      script: |
+        #!/bin/sh
+        set -e # Fail on error
+        cd /work
+        git clone -b $(params.revision) $(params.url)
+        echo barURL:
+        echo $(params.barURL) 
+
+        # Slightly hacky but works . . . 
+        chmod -R 777 /work/ace-demo-pipeline
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: create-config
+      image: $(params.buildImage)
+      #
+      #
+      #
+      script: |
+        #!/bin/bash
+
+        # Avoid errors using curl with ace-minimal-build
+        unset LD_LIBRARY_PATH
+
+        set -e # Fail on error
+        export appConEndpoint=$(cat /run/secrets/aceaas/appConEndpoint)
+        export appConInstanceID=$(cat /run/secrets/aceaas/appConInstanceID)
+        export appConClientID=$(cat /run/secrets/aceaas/appConClientID)
+        export appConApiKey=$(cat /run/secrets/aceaas/appConApiKey)
+        export appConClientSecret=$(cat /run/secrets/aceaas/appConClientSecret)
+
+        echo ========================================================================
+        echo Acquiring token using API key
+        echo ========================================================================
+
+        curl --request POST \
+             --url https://${appConEndpoint}/api/v1/tokens \
+             --header "X-IBM-Client-Id: ${appConClientID}"  \
+             --header "X-IBM-Client-Secret: ${appConClientSecret}" \
+              --header 'accept: application/json' \
+              --header 'content-type: application/json' \
+              --header "x-ibm-instance-id: ${appConInstanceID}" \
+              --data "{\"apiKey\": \"${appConApiKey}\"}" --output /tmp/token-output.txt
+        cat /tmp/token-output.txt  | tr -d '{}"' | tr ',' '\n' | grep access_token | sed 's/access_token://g' > /work/APPCON_TOKEN
+        export appConToken=$(cat /work/APPCON_TOKEN)
+
+        echo ========================================================================
+        echo Creating JDBCPolicies project
+        echo ========================================================================
+        mkdir /tmp/JDBCPolicies
+        echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns2:policyProjectDescriptor xmlns="http://com.ibm.etools.mft.descriptor.base" xmlns:ns2="http://com.ibm.etools.mft.descriptor.policyProject"><references/></ns2:policyProjectDescriptor>' > /tmp/JDBCPolicies/policy.descriptor
+        cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml    /tmp/JDBCPolicies/
+        sed -i "s/DATABASE_NAME/`cat /var/run/secrets/jdbc/databaseName`/g" /tmp/JDBCPolicies/TEAJDBC.policyxml
+        sed -i "s/SERVER_NAME/`cat /var/run/secrets/jdbc/serverName`/g"     /tmp/JDBCPolicies/TEAJDBC.policyxml
+        sed -i "s/PORT_NUMBER/`cat /var/run/secrets/jdbc/portNumber`/g"     /tmp/JDBCPolicies/TEAJDBC.policyxml
+        echo "Contents of TEAJDBC policy:"
+        cat /tmp/JDBCPolicies/TEAJDBC.policyxml
+
+        
+        echo ========================================================================
+        echo Creating $(params.deployPrefix)-jdbc-policies configuration
+        echo ========================================================================
+        cd /tmp
+        # Using "zip" would be more obvious, but not all ACE images have it available.
+        /opt/ibm/ace-12/common/jdk/bin/jar cvf /tmp/JDBCPolicies.zip JDBCPolicies
+        cat /tmp/JDBCPolicies.zip | base64 -w 0 > /tmp/JDBCPolicies.zip.base64
+        
+        # Not sure if this is better than the template way of doing things below . . . (TCD 20240305)
+        cat << EOF > /tmp/jdbc-policies-configuration.json
+        { "metadata": { "name": "$(params.deployPrefix)-jdbc-policies" }, "spec": {
+          "type": "policyproject", "description": "$(params.deployPrefix) JDBCPolicies project",
+          "data": "`cat /tmp/JDBCPolicies.zip.base64`"}}
+        EOF
+
+        curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-jdbc-policies \
+          -H "x-ibm-instance-id: ${appConInstanceID}" -H "Content-Type: application/json" \
+          -H "Accept: application/json" -H "X-IBM-Client-Id: ${appConClientID}" -H "authorization: Bearer ${appConToken}" \
+          --data-binary @/tmp/jdbc-policies-configuration.json
+        echo
+
+        echo ========================================================================
+        echo Creating jdbc::tea as $(params.deployPrefix)-jdbc-setdbparms configuration
+        echo ========================================================================
+        echo -n jdbc::tea `cat /var/run/secrets/jdbc/USERID` `cat /var/run/secrets/jdbc/PASSWORD` | base64 -w 0 > /tmp/jdbc-setdbparms.base64
+        # Could use the cat << EOF approach instead (TCD 20240305)
+        cp /work/ace-demo-pipeline/tekton/aceaas/create-configuration-template.json /tmp/jdbc-setdbparms-configuration.json
+        sed -i "s/TEMPLATE_NAME/$(params.deployPrefix)-jdbc-setdbparms/g" /tmp/jdbc-setdbparms-configuration.json
+        sed -i "s/TEMPLATE_TYPE/setdbparms/g" /tmp/jdbc-setdbparms-configuration.json
+        sed -i "s/TEMPLATE_DESCRIPTION/$(params.deployPrefix) JDBC credentials/g" /tmp/jdbc-setdbparms-configuration.json
+        sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/jdbc-setdbparms.base64 | sed 's/\//\\\\\\//g'`/g" /tmp/jdbc-setdbparms-configuration.json
+        cat /tmp/jdbc-setdbparms-configuration.json
+
+        curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-jdbc-setdbparms \
+          -H "x-ibm-instance-id: ${appConInstanceID}" -H "Content-Type: application/json" \
+          -H "Accept: application/json" -H "X-IBM-Client-Id: ${appConClientID}" -H "authorization: Bearer ${appConToken}" \
+          --data-binary @/tmp/jdbc-setdbparms-configuration.json
+        echo
+
+        echo ========================================================================
+        echo Creating default policy project setting as $(params.deployPrefix)-default-policy-project configuration
+        echo ========================================================================
+        (echo "Defaults:" && echo "  policyProject: 'JDBCPolicies'") | base64 -w 0 > /tmp/default-policy-project.base64
+        cp /work/ace-demo-pipeline/tekton/aceaas/create-configuration-template.json /tmp/default-policy-project-configuration.json
+        sed -i "s/TEMPLATE_NAME/$(params.deployPrefix)-default-policy-project/g" /tmp/default-policy-project-configuration.json
+        sed -i "s/TEMPLATE_TYPE/serverconf/g" /tmp/default-policy-project-configuration.json
+        sed -i "s/TEMPLATE_DESCRIPTION/$(params.deployPrefix) default policy project for JDBC/g" /tmp/default-policy-project-configuration.json
+        sed -i "s/TEMPLATE_BASE64DATA/`cat /tmp/default-policy-project.base64 | sed 's/\//\\\\\\//g'`/g" /tmp/default-policy-project-configuration.json
+        cat /tmp/default-policy-project-configuration.json
+
+        curl -X PUT https://${appConEndpoint}/api/v1/configurations/$(params.deployPrefix)-default-policy-project \
+          -H "x-ibm-instance-id: ${appConInstanceID}" -H "Content-Type: application/json" \
+          -H "Accept: application/json" -H "X-IBM-Client-Id: ${appConClientID}" -H "authorization: Bearer ${appConToken}" \
+          --data-binary @/tmp/default-policy-project-configuration.json
+        echo
+      volumeMounts:
+        - mountPath: /work
+          name: work
+        - name: secret-volume-2
+          mountPath: /var/run/secrets/jdbc
+        - name: secret-volume-3
+          mountPath: /var/run/secrets/aceaas
+    - name: create-integrationruntime
+      image: $(params.buildImage)
+      #
+      #
+      #
+      script: |
+        #!/bin/bash
+
+        # Avoid errors using curl with ace-minimal-build
+        unset LD_LIBRARY_PATH
+
+        set -e # Fail on error
+        export appConEndpoint=$(cat /run/secrets/aceaas/appConEndpoint)
+        export appConInstanceID=$(cat /run/secrets/aceaas/appConInstanceID)
+        export appConClientID=$(cat /run/secrets/aceaas/appConClientID)
+        export appConApiKey=$(cat /run/secrets/aceaas/appConApiKey)
+        export appConClientSecret=$(cat /run/secrets/aceaas/appConClientSecret)
+        export appConToken=$(cat /work/APPCON_TOKEN)
+
+        echo ========================================================================
+        echo Creating IR JSON
+        echo ========================================================================
+        #export BARURL='https://dataplane-api-dash.appconnect:3443/v1/ac2vkpa0udw/directories/tdolby-tea-tekton?'
+        cp /work/ace-demo-pipeline/tekton/aceaas/create-integrationruntime-template.json /tmp/create-integrationruntime.json
+        sed -i "s/TEMPLATE_NAME/$(params.deployPrefix)-tea-tekton-ir/g" /tmp/create-integrationruntime.json
+        sed -i "s/TEMPLATE_BARURL/`echo $(params.barURL) | sed 's/\//\\\\\\//g'`/g" /tmp/create-integrationruntime.json
+        sed -i "s/TEMPLATE_POLICYPROJECT/$(params.deployPrefix)-jdbc-policies/g" /tmp/create-integrationruntime.json
+        sed -i "s/TEMPLATE_SERVERCONF/$(params.deployPrefix)-default-policy-project/g" /tmp/create-integrationruntime.json
+        sed -i "s/TEMPLATE_SETDBPARMS/$(params.deployPrefix)-jdbc-setdbparms/g" /tmp/create-integrationruntime.json
+        echo "Contents of create-integrationruntime.json:"
+        cat /tmp/create-integrationruntime.json
+
+        
+        curl -X PUT https://${appConEndpoint}/api/v1/integration-runtimes/$(params.deployPrefix)-tea-tekton-ir \
+          -H "x-ibm-instance-id: ${appConInstanceID}" -H "Content-Type: application/json" \
+          -H "Accept: application/json" -H "X-IBM-Client-Id: ${appConClientID}" -H "authorization: Bearer ${appConToken}" \
+          --data-binary @/tmp/create-integrationruntime.json
+        echo
+      volumeMounts:
+        - mountPath: /work
+          name: work
+        - name: secret-volume-3
+          mountPath: /var/run/secrets/aceaas
+  volumes:
+    - name: work
+      emptyDir: {}
+    - name: secret-volume-2
+      # Used create database policy and credentials
+      secret:
+        secretName: jdbc-secret
+    - name: secret-volume-3
+      # Used to push to ACEaaS
+      secret:
+        secretName: aceaas-credentials

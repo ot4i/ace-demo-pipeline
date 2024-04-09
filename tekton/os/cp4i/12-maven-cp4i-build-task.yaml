@@ -10,7 +10,7 @@ kind: Task
 # CP4i-style configuration mechanism, so verification in CP4i is needed also.
 #
 metadata:
-  name: maven-cp4i-build
+  name: cp4i-build
   namespace: cp4i
 spec:
   # The security and environment settings are needed for OpenShift in a non-default
@@ -22,7 +22,7 @@ spec:
       - name: "HOME"
         value: "/tekton/home"
   params:
-    - name: dockerRegistry
+    - name: outputRegistry
       type: string
     - name: url
       type: string
@@ -30,23 +30,37 @@ spec:
       type: string
     - name: buildImage
       type: string
-    - name: runtimeImage
+    - name: runtimeBaseImage
       type: string
+  results:
+    - name: tag
+      description: image tag of the form 20240220135127-6fe9106
+    - name: sha
+      description: container image hash for the application container
+    - name: ctsha
+      description: container image hash for the component test container
   steps:
     - name: clone
       image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
       #
-      # The script just clones the repo but could be extended.
+      # The script clones the repo and sets the TAG result
       # 
       script: |
         #!/bin/sh
+        set -e # Fail on error
         cd /work
         git clone -b $(params.revision) $(params.url)
+        cd ace-demo-pipeline
+        export DATE=$(date '+%Y%m%d%H%M%S')
+        export COMMIT=$(git log -1 --pretty=%h)
+        export TAG="$DATE"-"$COMMIT"
+        echo Setting container tag to "$TAG"
+        echo -n "$TAG" > $(results.tag.path)
       volumeMounts:
         - mountPath: /work
           name: work
     - name: maven-build
-      image: $(params.dockerRegistry)/$(params.buildImage)
+      image: $(params.buildImage)
       #
       # Runs the build and unit test phases, leaving the results in the work directory
       # for later steps.
@@ -65,7 +79,7 @@ spec:
         - mountPath: /work
           name: work
     - name: container-setup
-      image: $(params.dockerRegistry)/$(params.buildImage)
+      image: $(params.buildImage)
       #
       # Copies files around and changes permissions to allow Kaniko to build the actual
       # runtime image in the next step. Also copies the Dockerfile into place for Kaniko.
@@ -83,35 +97,39 @@ spec:
         - mountPath: /work
           name: work
     - name: docker-build-and-push
-      # kaniko is expecting to run as root to build images
+      #image: quay.io/buildah/stable:v1
+      image: registry.redhat.io/rhel8/buildah:8.9-5
       securityContext:
         runAsUser: 0
+        # Needed for hostPath volumes on OpenShift
+        #privileged: true
         capabilities:
           add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
-      image: gcr.io/kaniko-project/executor:latest
-      # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
+      # specifying DOCKER_CONFIG is required to allow buildah to detect docker credential
       env:
         - name: "DOCKER_CONFIG"
           value: "/tekton/home/.docker/"
-      command:
-        - /kaniko/executor
-      args:
-        - --dockerfile=/work/maven-output/Dockerfile
-        - --destination=$(params.dockerRegistry)/tea-tekton-cp4i
-        - --context=/work/maven-output
-        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/$(params.runtimeImage)
-        - --skip-tls-verify
-        - --snapshot-mode=redo
-        - --use-new-run
-        #- --cache-dir=/cache
-        #- --cache=true
+      script: |
+        date
+        export TAG=`cat $(results.tag.path)`
+        echo Using $TAG as image tag
+        buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
+          --build-arg BASE_IMAGE=$(params.runtimeBaseImage) \
+          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i:$TAG /work/maven-output
+        date
+        buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
+          $(params.outputRegistry)/tea-tekton-cp4i:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i:$TAG"
+        echo image digest:
+        cat /tmp/image-digest && echo
+        cat /tmp/image-digest >> $(results.sha.path)
+        date
       volumeMounts:
         - mountPath: /work
           name: work
-        #- name: kaniko-cache
-        #  mountPath: /cache
+        - name: varlibcontainers
+          mountPath: /var/lib/containers
     - name: component-test
-      image: $(params.dockerRegistry)/$(params.buildImage)
+      image: $(params.buildImage)
       #
       # Builds and runs the component tests using the JDBC credentials provided from
       # the secret. Also uses the same init-creds.sh script used by the non-CP4i image
@@ -132,6 +150,9 @@ spec:
         cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml /tmp/
         bash /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh
         # Build and run the tests
+        
+        set -e # Fail on error
+        
         cd /work/ace-demo-pipeline/TeaRESTApplication_ComponentTest
         mvn --no-transfer-progress -Dct.work.directory=/home/aceuser/ace-server verify
         # Slightly hacky, but quicker than building everything again!
@@ -142,7 +163,7 @@ spec:
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
     - name: container-setup-ct
-      image: $(params.dockerRegistry)/$(params.buildImage)
+      image: $(params.buildImage)
       #
       # Copies files around and changes permissions to allow Kaniko to build the component
       # test image in the next step. Also copies the Dockerfile into place for Kaniko.
@@ -160,39 +181,76 @@ spec:
         - mountPath: /work
           name: work
     - name: docker-build-and-push-ct
-      # kaniko is expecting to run as root to build images
+      #image: quay.io/buildah/stable:v1
+      image: registry.redhat.io/rhel8/buildah:8.9-5
       securityContext:
         runAsUser: 0
+        # Needed for hostPath volumes on OpenShift
+        #privileged: true
         capabilities:
           add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
-      image: gcr.io/kaniko-project/executor:latest
-      # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
+      # specifying DOCKER_CONFIG is required to allow buildah to detect docker credential
       env:
         - name: "DOCKER_CONFIG"
           value: "/tekton/home/.docker/"
-      command:
-        - /kaniko/executor
-      args:
-        - --dockerfile=/work/maven-output/Dockerfile
-        - --destination=$(params.dockerRegistry)/tea-tekton-cp4i-ct
-        - --context=/work/maven-output
-        - --build-arg=BASE_IMAGE=$(params.dockerRegistry)/tea-tekton-cp4i
-        - --skip-tls-verify
-        - --snapshot-mode=redo
-        - --use-new-run
-        #- --cache-dir=/cache
-        #- --cache=true
+      script: |
+        date
+        export TAG=`cat $(results.tag.path)`
+        echo Using $TAG as image tag
+        buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
+          --build-arg BASE_IMAGE=$(params.outputRegistry)/tea-tekton-cp4i:$TAG \
+          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG /work/maven-output
+        date
+        buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
+          $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG"
+        echo image digest:
+        cat /tmp/image-digest && echo
+        cat /tmp/image-digest >> $(results.ctsha.path)
+        date
       volumeMounts:
         - mountPath: /work
           name: work
-        #- name: kaniko-cache
-        #  mountPath: /cache
+        - name: varlibcontainers
+          mountPath: /var/lib/containers
   volumes:
     - name: work
       emptyDir: {}
     - name: secret-volume-2
       secret:
         secretName: jdbc-secret
-    #- name: kaniko-cache
+    # 
+    # Default buildah approach using emptyDir; takes about 2 minutes on a test SNO cluster
+    # 
+    - name: varlibcontainers
+      emptyDir: {}
+    # 
+    # Local directory for this pipeline; takes a few seconds after initial pull
+    # 
+    #- name: varlibcontainers
+    #  hostPath:
+    #    path: '/var/hostPath/buildah-cache'
+    #    type: Directory
+    # 
+    # Sharing the host containers; takes a few seconds
+    # 
+    #- name: varlibcontainers
+    #  hostPath:
+    #    path: '/var/lib/containers'
+    #    type: Directory
+    # 
+    # Local disk using LVM operator on SNO; same speed as hostPath
+    # 
+    #- name: varlibcontainers
     #  persistentVolumeClaim:
-    #    claimName: kaniko-cache-pvc
+    #    claimName: buildah-cache
+    # 
+    # NFS mount from same subnet; initial pull took 35 minutes, and
+    # subsequent builds took around 9 minutes.
+    #
+    # May also see messages like
+    #
+    #    time="2024-02-15T00:55:11Z" level=error msg="'overlay' is not supported over nfs at \"/var/lib/containers/storage/overlay\""
+    # 
+    #- name: varlibcontainers
+    #  persistentVolumeClaim:
+    #    claimName: buildah-cache-nfs

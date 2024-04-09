@@ -10,7 +10,7 @@ spec:
     toolkitFlow: true
   license:
     accept: true
-    license: L-UTKS-P46KK2
+    license: L-DMRW-D3HQHQ
     use: AppConnectEnterpriseNonProductionFREE
   configurations:
     - teajdbc-policy
@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - image: >-
-            DOCKER_REGISTRY/tea-tekton-cp4i-ct:latest
+            DOCKER_REGISTRY/tea-tekton-cp4i-ct:IMAGE_TAG
           env:  
             - name: MQSI_PREVENT_CONTAINER_SHUTDOWN
               value: 'true'
@@ -38,4 +38,4 @@ spec:
               memory: 1024Mi
       imagePullSecrets:
         - name: regcred
-  version: 12.0.10.0-r1
+  version: 12.0.11.1-r1

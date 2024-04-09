@@ -1,5 +1,9 @@
 pipeline {
-  agent { docker { image 'ace-minimal-build:12.0.10.0-alpine' } }
+  agent { docker { 
+    image 'cp.icr.io/cp/appc/ace:12.0.11.0-r1'
+    /* image 'ace-minimal:12.0.11.0-alpine' */
+    args '-e LICENSE=accept --entrypoint ""'
+  } }
   parameters {
     /* These values would be better moved to a configuration file and provided by */
     /* the Config File Provider plugin (or equivalent), but this is good enough   */
@@ -18,17 +22,40 @@ pipeline {
             # Set HOME to somewhere writable by Maven
             export HOME=/tmp
 
-            # Clean up just in case files have been left around
-            rm -f */maven-reports/TEST*.xml
-            rm -rf $PWD/ace-server
+            export LICENSE=accept
+            . /opt/ibm/ace-12/server/bin/mqsiprofile
+        
+            set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
-            mvn --no-transfer-progress -Dinstall.work.directory=$PWD/ace-server install
+            # Clean up just in case files have been left around
+            rm -f */junit-reports/TEST*.xml
+            rm -rf /tmp/test-work-dir
+
+            echo ========================================================================
+            echo Building application
+            echo ========================================================================
+            # Using --compile-maps-and-schemas for 12.0.11 and later . . . 
+            ibmint package --input-path . --output-bar-file $PWD/tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
+
+            echo ========================================================================
+            echo Building unit tests
+            echo ========================================================================
+            # Create the unit test work directory
+            mqsicreateworkdir /tmp/test-work-dir
+            mqsibar -w /tmp/test-work-dir -a $PWD/tea-application-combined.bar 
+            # Build just the unit tests
+            ibmint deploy --input-path . --output-work-directory /tmp/test-work-dir --project TeaRESTApplication_UnitTest
+
+            echo ========================================================================
+            echo Running unit tests
+            echo ========================================================================
+            IntegrationServer -w /tmp/test-work-dir --no-nodejs --start-msgflows false --test-project TeaRESTApplication_UnitTest --test-junit-options --reports-dir=junit-reports
             '''
 
       }
       post {
         always {
-            junit '**/maven-reports/TEST*.xml'
+            junit '**/junit-reports/TEST*.xml'
         }
       }
     }
@@ -41,9 +68,14 @@ pipeline {
         
         sh  '''#!/bin/bash
             # Should alread have the projects unpacked
-            export WORKDIR=$PWD/ace-server
+            export WORKDIR=/tmp/test-work-dir
             # Set HOME to somewhere writable by Maven
             export HOME=/tmp
+
+            export LICENSE=accept
+            . /opt/ibm/ace-12/server/bin/mqsiprofile
+        
+            set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
             mkdir ${WORKDIR}/run/CTPolicies
             echo '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><ns2:policyProjectDescriptor xmlns="http://com.ibm.etools.mft.descriptor.base" xmlns:ns2="http://com.ibm.etools.mft.descriptor.policyProject"><references/></ns2:policyProjectDescriptor>' > ${WORKDIR}/run/CTPolicies/policy.descriptor
@@ -51,40 +83,33 @@ pipeline {
             mqsisetdbparms -w ${WORKDIR} -n jdbc::tea -u $CT_JDBC_USR -p $CT_JDBC_PSW
             sed -i "s/#policyProject: 'DefaultPolicies'/policyProject: 'CTPolicies'/g" ${WORKDIR}/server.conf.yaml
 
-            rm -f */maven-reports/TEST*.xml
-            ( cd TeaRESTApplication_ComponentTest && mvn --no-transfer-progress -Dct.work.directory=${WORKDIR} verify )
+            rm -f */junit-reports/TEST*.xml
+
+            
+            echo ========================================================================
+            echo Building component tests
+            echo ========================================================================
+            
+            # Build just the component tests
+            ibmint deploy --input-path . --output-work-directory ${WORKDIR} --project TeaRESTApplication_ComponentTest
+
+            echo ========================================================================
+            echo Running component tests
+            echo ========================================================================
+            IntegrationServer -w ${WORKDIR} --no-nodejs --start-msgflows false --test-project TeaRESTApplication_ComponentTest --test-junit-options --reports-dir=junit-reports
+
             '''
       }
       post {
         always {
-            junit '**/maven-reports/TEST*.xml'
+            junit '**/junit-reports/TEST*.xml'
         }
-      }
-    }
-
-    stage('Next stage BAR build') {
-      steps {
-         sh  '''#!/bin/bash
-            # Build a single BAR file that contains everything rather than deploying two BAR files.
-            # Deploying two BAR files (one for the shared library and the other for the application)
-            # would work, but would take longer on redeploys due to reloading the application on
-            # each deploy.
-            #
-            # The Tekton pipeline doesn't have this issue because the application and library are
-            # unpacked into a work directory in a container image in that pipeline, so there is no
-            # deploy to a running server.
-            mqsipackagebar -w $PWD -a tea-application-combined.bar -y TeaSharedLibrary -k TeaRESTApplication
-
-            # Optional compile for XMLNSC, DFDL, and map resources. Useful as long as the target 
-            # broker is the same OS, CPU, and installation including ifixes as the build system.
-            # mqsibar --bar-file tea-application-combined.bar --compile
-            '''
       }
     }
 
     stage('Next stage deploy') {
       steps {
-        sh "bash -c \"mqsideploy -i ${params.integrationNodeHost} -p ${params.integrationNodePort} -e ${params.integrationServerName} -a tea-application-combined.bar\""
+        sh "bash -c \"export LICENSE=accept ; . /opt/ibm/ace-12/server/bin/mqsiprofile ; mqsideploy -i ${params.integrationNodeHost} -p ${params.integrationNodePort} -e ${params.integrationServerName} -a tea-application-combined.bar\""
       }
     }
 

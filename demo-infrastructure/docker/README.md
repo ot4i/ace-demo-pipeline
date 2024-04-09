@@ -1,6 +1,6 @@
 # Docker images for build pipelines to use
 
-Building on top of ace-minimal (see https://github.com/trevor-dolby-at-ibm-com/ace-docker/tree/master/experimental/ace-minimal
+Building on top of ace-minimal (see https://github.com/ot4i/ace-docker/tree/master/experimental/ace-minimal
 for more information) to create a builder image that contains build-time code that should not be pushed into the final application.
 
 - ace-minimal-build is used for running the Tekton pipeline for the demo application build and also for running Jenkins

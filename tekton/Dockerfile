@@ -33,13 +33,19 @@ RUN chown -R aceuser:mqbrkrs /tmp/* && \
 # Kaniko seems to chmod this directory 755 by mistake sometimes, which causes trouble later
 RUN chmod 1777 /tmp
 
-# Needed for OpenShift support due to random userids at runtime
-RUN chmod -R 777 /home/aceuser/ace-server /var/mqsi || /bin/true
+
+# This seems to be needed for OpenShift support due to random userids at runtime
+RUN chmod -R 777 /home/aceuser /var/mqsi || /bin/true
 
 USER aceuser
 
 # We're in an internal pipeline
 ENV LICENSE=accept
 
+# Set BASH_ENV to source mqsiprofile when using docker exec bash -c
+ENV BASH_ENV=/opt/ibm/ace-12/server/bin/mqsiprofile
+
 # Set entrypoint to run the server; should move the apply overrides to the startup script at some point
-ENTRYPOINT ["bash", "-c", "/home/aceuser/ace-server/ace-startup-script.sh && ibmint apply overrides /home/aceuser/ace-server/application-overrides.txt --work-directory /home/aceuser/ace-server && IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 --no-nodejs"]
+ENTRYPOINT ["bash", "-c", "/home/aceuser/ace-server/ace-startup-script.sh && \
+                           ibmint apply overrides /home/aceuser/ace-server/application-overrides.txt --work-directory /home/aceuser/ace-server && \
+                           IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 --no-nodejs"]

@@ -1,0 +1,28 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  # Can use generated names with kubectl create; follow logs with "tkn pipeline logs aceaas-pipeline -f" to
+  # avoid needing a fixed name.
+  #generateName: aceaas-pipeline-run-
+
+  # Fixed name allows "tkn pr delete aceaas-pipeline-run-1 -f ; kubectl apply -f tekton/aceaas/aceaas-pipeline-run.yaml ; tkn pr logs aceaas-pipeline-run-1 -f"
+  # which has a slightly nicer log format.
+  name: aceaas-pipeline-run-1
+spec:
+  serviceAccountName: ace-tekton-service-account
+  pipelineRef:
+    name: aceaas-pipeline
+  params:
+    - name: buildImage
+      # Requires an IBM Entitlement Key
+      value: "cp.icr.io/cp/appc/ace:12.0.11.0-r1"
+      # ace-minimal does not have curl, so we need to use the -build image for curl
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal-build:12.0.11.0-alpine"
+    - name: url
+      value: "https://github.com/ot4i/ace-demo-pipeline"
+    - name: revision
+      value: "main"
+    - name: deployPrefix
+      value: "tdolby"
+    - name: createConfiguration
+      value: "true"
