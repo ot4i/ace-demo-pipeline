@@ -21,6 +21,7 @@ For container deployments, more containers are used:
 - lachlanevenson/k8s-kubectl for managing Kubernetes artifacts
 - A runtime base image:
   - The `ace-minimal` image, which is the smallest image and therefore results in quicker builds in some cases.
+    See [minimal image build instructions](minimal-image-build/README.md) for details on building the image.
   - The `ace` image, which should be shadowed to the local registry to avoid pulling from cp.icr.io too often.
   - For CP4i use cases, the `ace-server-prod` image (see [os/cp4i/README.md](os/cp4i/README.md) for CP4i details)
     which should also be shadowed to the local registry.
@@ -35,6 +36,12 @@ in this repo generally do not have namespaces specified (other than some CP4i fi
 `oc project ace-demo` to set the default namespace should provide the correct results.
 
 ## Getting started
+
+A Kubernetes cluster will be needed, with Minikube (see [minikube/README.md](/tekton/minikube/README.md)) and
+OpenShift 4.14 being the two most-tested. Other clusters should also work with appropriate adjustments to
+ingress routing and container registry settings. Note that the Cloud Pak for Integration (CP4i) has a separate
+pipeline the creates IntegrationRuntime CRs with custom images; see [os/cp4i/README.md](/tekton/os/cp4i/README.md)
+for more details.
 
 Many of the artifacts in this repo (such as ace-pipeline-run.yaml) will need to be customized depending on
 the exact cluster layout. The defaults are set up for Minikube running with Docker on Ubuntu, and may need
@@ -71,6 +78,22 @@ See [cloud-resources.md](cloud-resources.md) for DB2 on Cloud instructions, with
 kubectl create secret generic jdbc-secret --from-literal=USERID='blah' --from-literal=PASSWORD='blah' --from-literal=databaseName='BLUDB' --from-literal=serverName='19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='30699' 
 ```
 with the obvious replacements.
+
+## Tekton dashboard
+
+The Tekton dashboard (for non-OpenShift users) can be installed as follows:
+```
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml
+```
+and shows pipeline runs in a UI:
+
+![/demo-infrastructure/images/tekton-dashboard.png](/demo-infrastructure/images/tekton-dashboard.png)
+
+By default, the Tekton dashboard is not accessible outside the cluster; assuming a secure host somewhere, the
+dashboard HTTP port can be made available locally as follows:
+```
+kubectl --namespace tekton-pipelines port-forward --address 0.0.0.0 svc/tekton-dashboard 9097:9097
+```
 
 ## Container deploy target
 
@@ -160,19 +183,6 @@ See [os/cp4i/README.md](os/cp4i/README.md) for details on how to create Integrat
 with a pipeline that included running component tests in a CP4i container during the build to ensure that the
 configurations are valid.
 
-## Tekton dashboard
-
-The Tekton dashboard (for non-OpenShift users) can be installed as follows:
-```
-kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml
-```
-
-By default, the Tekton dashboard is not accessible outside the cluster; assuming a secure host somewhere, the
-dashboard HTTP port can be made available locally as follows:
-```
-kubectl --namespace tekton-pipelines port-forward --address 0.0.0.0 svc/tekton-dashboard 9097:9097
-```
-
 ## ACE-as-a-Service target
 
 See [README-aceaas-pipelines.md](README-aceaas-pipelines.md) for a general overview. The
@@ -188,7 +198,8 @@ appropriate credentials:
 ```
 kubectl create secret docker-registry ibm-entitlement-key --docker-username=cp --docker-password=myEntitlementKey --docker-server=cp.icr.io
 ```
-For those without an IBM Entitlement Key, the `ace-minimal` image will also work.
+Ensure that the ace-tekton-service-account includes the `ibm-entitlement-key` secret for both secrets
+and imagePullSecrets. For those without an IBM Entitlement Key, the `ace-minimal` image will also work.
 
 Setting up the pipeline requires Tekton to be installed (which may already have happend via OpenShift operators, in which case
 skip the first line), tasks to be created, and the pipeline itself to be configured:

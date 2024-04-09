@@ -32,10 +32,6 @@ spec:
           value: $(params.dockerRegistry)
         - name: aceDownloadUrl
           value: $(params.aceDownloadUrl)
-        - name: url
-          value: $(params.url)
-        - name: revision
-          value: $(params.revision)
         - name: runtimeImage
           value: $(params.runtimeImage)
         - name: aceDockerFile

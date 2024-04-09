@@ -8,12 +8,6 @@ spec:
       type: string
     - name: aceDownloadUrl
       type: string
-    - name: url
-      type: string
-      default: "https://github.com/ot4i/ace-demo-pipeline"
-    - name: revision
-      type: string
-      default: "main"
     - name: runtimeImage
       type: string
       default: "ace-minimal:12.0.11.0-alpine"
@@ -29,10 +23,6 @@ spec:
           value: $(params.dockerRegistry)
         - name: aceDownloadUrl
           value: $(params.aceDownloadUrl)
-        - name: url
-          value: $(params.url)
-        - name: revision
-          value: $(params.revision)
         - name: runtimeImage
           value: $(params.runtimeImage)
         - name: aceDockerFile

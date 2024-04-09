@@ -1,6 +1,12 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
+  # Can use generated names with kubectl create; follow logs with "tkn pipeline logs ace-pipeline -f" to
+  # avoid needing a fixed name.
+  #generateName: ace-pipeline-run-
+
+  # Fixed name allows "tkn pr delete ace-pipeline-run-1 -f ; kubectl apply -f tekton/ace-pipeline-run.yaml ; tkn pr logs ace-pipeline-run-1 -f"
+  # which has a slightly nicer log format.
   name: ace-pipeline-run-1
 spec:
   serviceAccountName: ace-tekton-service-account
@@ -30,6 +36,8 @@ spec:
       # value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal:12.0.11.0-alpine"
       # Minikube
       value: "192.168.49.2:5000/default/ace-minimal:12.0.11.0-alpine"
+      # Local copy of ace container
+      #value: "192.168.49.2:5000/default/ace:12.0.11.0-r1"
     - name: url
       value: "https://github.com/ot4i/ace-demo-pipeline"
     - name: revision
