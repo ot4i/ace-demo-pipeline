@@ -198,7 +198,8 @@ appropriate credentials:
 ```
 kubectl create secret docker-registry ibm-entitlement-key --docker-username=cp --docker-password=myEntitlementKey --docker-server=cp.icr.io
 ```
-For those without an IBM Entitlement Key, the `ace-minimal` image will also work.
+Ensure that the ace-tekton-service-account includes the `ibm-entitlement-key` secret for both secrets
+and imagePullSecrets. For those without an IBM Entitlement Key, the `ace-minimal` image will also work.
 
 Setting up the pipeline requires Tekton to be installed (which may already have happend via OpenShift operators, in which case
 skip the first line), tasks to be created, and the pipeline itself to be configured:
