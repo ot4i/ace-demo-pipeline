@@ -21,7 +21,7 @@ spec:
     - name: url
       value: "https://github.com/ot4i/ace-demo-pipeline"
     - name: revision
-      value: "aceaas-and-minikube"
+      value: "main"
     - name: deployPrefix
       value: "tdolby"
     - name: createConfiguration

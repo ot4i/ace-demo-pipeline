@@ -11,7 +11,5 @@ spec:
       value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
     - name: url
       value: "https://github.com/ot4i/ace-demo-pipeline"
-#    - name: revision
-#      value: "main"
     - name: revision
-      value: "aceaas-and-minikube"
+      value: "main"
