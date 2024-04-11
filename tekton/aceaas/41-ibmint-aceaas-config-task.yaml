@@ -14,6 +14,8 @@ spec:
       type: string
     - name: buildImage
       type: string
+    - name: appConEndpoint
+      type: string
     - name: deployPrefix
       type: string
     - name: barURL
@@ -46,7 +48,7 @@ spec:
         unset LD_LIBRARY_PATH
 
         set -e # Fail on error
-        export appConEndpoint=$(cat /run/secrets/aceaas/appConEndpoint)
+        export appConEndpoint=$(params.appConEndpoint)
         export appConInstanceID=$(cat /run/secrets/aceaas/appConInstanceID)
         export appConClientID=$(cat /run/secrets/aceaas/appConClientID)
         export appConApiKey=$(cat /run/secrets/aceaas/appConApiKey)
@@ -154,7 +156,7 @@ spec:
         unset LD_LIBRARY_PATH
 
         set -e # Fail on error
-        export appConEndpoint=$(cat /run/secrets/aceaas/appConEndpoint)
+        export appConEndpoint=$(params.appConEndpoint)
         export appConInstanceID=$(cat /run/secrets/aceaas/appConInstanceID)
         export appConClientID=$(cat /run/secrets/aceaas/appConClientID)
         export appConApiKey=$(cat /run/secrets/aceaas/appConApiKey)
