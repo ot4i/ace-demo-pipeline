@@ -174,8 +174,8 @@ registry authentication for some reason when using single-node OpenShift with a 
 After that, the pipeline run YAML should be changed to point to the OpenShift registry, and the 
 pipeline run as normal:
 ```
-kubectl apply -f tekton/ace-pipeline-run.yaml
-tkn pipelinerun logs ace-pipeline-run-1 -f
+kubectl create -f tekton/ace-pipeline-run.yaml
+tkn pipelinerun logs -L -f
 ```
 The OpenShift Pipeline operator provides a web interface for the pipeline runs also, which may be
 an easier way to view progress.
