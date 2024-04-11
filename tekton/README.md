@@ -79,7 +79,7 @@ kubectl create secret generic jdbc-secret --from-literal=USERID='blah' --from-li
 ```
 with the obvious replacements.
 
-## Tekton dashboard
+### Tekton dashboard
 
 The Tekton dashboard (for non-OpenShift users) can be installed as follows:
 ```
@@ -94,6 +94,11 @@ dashboard HTTP port can be made available locally as follows:
 ```
 kubectl --namespace tekton-pipelines port-forward --address 0.0.0.0 svc/tekton-dashboard 9097:9097
 ```
+
+### Pipeline creation
+
+At this point, the instructions split into two: for deployment to containers, see the following section.
+For ACE-as-a-Service, see [ACE-as-a-Service target](#ace-as-a-service-target) below.
 
 ## Container deploy target
 
@@ -199,7 +204,8 @@ appropriate credentials:
 kubectl create secret docker-registry ibm-entitlement-key --docker-username=cp --docker-password=myEntitlementKey --docker-server=cp.icr.io
 ```
 Ensure that the ace-tekton-service-account includes the `ibm-entitlement-key` secret for both secrets
-and imagePullSecrets. For those without an IBM Entitlement Key, the `ace-minimal` image will also work.
+and imagePullSecrets. For those without an IBM Entitlement Key, the `ace-minimal` image will also work, and
+the service account will not need to be changed.
 
 Setting up the pipeline requires Tekton to be installed (which may already have happend via OpenShift operators, in which case
 skip the first line), tasks to be created, and the pipeline itself to be configured:
