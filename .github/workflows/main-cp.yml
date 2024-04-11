@@ -15,7 +15,7 @@ jobs:
     # Set the cp.icr.io ace container as runtime.
     # Running as root (-u 0) allows the installation of the docker binaries.
     container: 
-      image: cp.icr.io/cp/appc/ace:12.0.10.0-r1
+      image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
       options: -u 0
       credentials:
         username: ${{ secrets.CP_USERNAME }}
