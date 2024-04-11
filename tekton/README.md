@@ -118,11 +118,18 @@ task is only run if `knativeDeploy` is set to `true` when the pipeline is run).
 
 Once that has been accomplished, the simplest way to run the pipeline is
 ```
-kubectl apply -f tekton/ace-pipeline-run.yaml
-tkn pipelinerun logs ace-pipeline-run-1 -f
+kubectl create -f tekton/ace-pipeline-run.yaml
+tkn pipelinerun logs -L -f
 ```
 
 and this should build the projects, run the unit tests, create a docker image, and then create a deployment that runs the application.
+
+Note that previous versions of the instructions suggested running
+```
+kubectl apply -f tekton/ace-pipeline-run.yaml
+tkn pipelinerun logs ace-pipeline-run-1 -f
+```
+using a fixed name for the pipeline run, but using a generated name allows build hiustory to be preserved.
 
 ### How to know if the container deploy pipeline has succeeded
 
