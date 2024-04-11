@@ -84,8 +84,8 @@ image and push it to the registry:
 kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
 kubectl apply -f tekton/minimal-image-build/01-ace-minimal-image-build-and-push-task.yaml
 kubectl apply -f tekton/minimal-image-build/ace-minimal-image-pipeline.yaml
-kubectl apply -f tekton/minimal-image-build/ace-minimal-image-pipeline-run.yaml
-tkn pipelinerun logs ace-minimal-image-pipeline-run-1 -f
+kubectl create -f tekton/minimal-image-build/ace-minimal-image-pipeline-run.yaml
+tkn pipelinerun logs -L -f
 ```
 
 The ace-minimal-build-image-pipeline builds not only the ace-minimal-build image but also
@@ -95,8 +95,8 @@ kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/
 kubectl apply -f tekton/minimal-image-build/01-ace-minimal-image-build-and-push-task.yaml
 kubectl apply -f tekton/minimal-image-build/02-ace-minimal-build-image-build-and-push-task.yaml
 kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline.yaml
-kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline-run.yaml
-tkn pipelinerun logs ace-minimal-build-image-pipeline-run-1 -f
+kubectl create -f tekton/minimal-image-build/ace-minimal-build-image-pipeline-run.yaml
+tkn pipelinerun logs -L -f
 ```
 
 ## OpenShift

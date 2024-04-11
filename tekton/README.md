@@ -129,7 +129,7 @@ Note that previous versions of the instructions suggested running
 kubectl apply -f tekton/ace-pipeline-run.yaml
 tkn pipelinerun logs ace-pipeline-run-1 -f
 ```
-using a fixed name for the pipeline run, but using a generated name allows build hiustory to be preserved.
+using a fixed name for the pipeline run, but using a generated name allows build history to be preserved.
 
 ### How to know if the container deploy pipeline has succeeded
 
