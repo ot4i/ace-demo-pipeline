@@ -1,6 +1,6 @@
 {
     "name": "ace-demo-pipeline-toolkit-xvnc-devcontainer",
-    "image": "tdolby/experimental:ace-devcontainer-xvnc-12.0.10.0",
+    "image": "tdolby/experimental:ace-devcontainer-xvnc-12.0.11.0",
     "containerEnv": {
         "LICENSE": "accept"
     },

@@ -1,13 +1,9 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  # Can use generated names with kubectl create; follow logs with "tkn pipeline logs ace-pipeline -f" to
-  # avoid needing a fixed name.
-  #generateName: ace-pipeline-run-
-
+  generateName: ace-pipeline-run-
   # Fixed name allows "tkn pr delete ace-pipeline-run-1 -f ; kubectl apply -f tekton/ace-pipeline-run.yaml ; tkn pr logs ace-pipeline-run-1 -f"
-  # which has a slightly nicer log format.
-  name: ace-pipeline-run-1
+  #name: ace-pipeline-run-1
 spec:
   serviceAccountName: ace-tekton-service-account
   pipelineRef:

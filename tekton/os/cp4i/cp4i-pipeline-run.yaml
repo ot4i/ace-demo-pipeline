@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: cp4i-pipeline-run-1
+  generateName: cp4i-pipeline-run-
   namespace: cp4i
 spec:
   serviceAccountName: cp4i-tekton-service-account
@@ -15,7 +15,7 @@ spec:
     - name: revision
       value: "main"
     - name: buildImage
-      #value: "cp.icr.io/cp/appc/ace:12.0.11.0-r1"
-      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal-build:12.0.11.0-alpine"
+      value: "cp.icr.io/cp/appc/ace:12.0.11.0-r1"
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal-build:12.0.11.0-alpine"
     - name: runtimeBaseImage
       value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.11.1-r1-20240125-170703"

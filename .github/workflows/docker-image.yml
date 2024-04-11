@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: tdolby/experimental:ace-minimal-build-12.0.10.0-alpine
+      image: tdolby/experimental:ace-minimal-build-12.0.11.0-alpine
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
       options: -u 0
@@ -37,7 +37,7 @@ jobs:
       - name: Build the image
         run: |
           cd /tmp/build
-          docker build --file Dockerfile --build-arg BASE_IMAGE=tdolby/experimental:ace-minimal-12.0.10.0-alpine -t tdolby/experimental:tea-github-action-latest .
+          docker build --file Dockerfile --build-arg BASE_IMAGE=tdolby/experimental:ace-minimal-12.0.11.0-alpine -t tdolby/experimental:tea-github-action-latest .
 
       - name: Push the image
         run: |

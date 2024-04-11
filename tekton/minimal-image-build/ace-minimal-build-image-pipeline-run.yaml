@@ -1,7 +1,9 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: ace-minimal-build-image-pipeline-run-1
+  generateName: ace-minimal-build-image-pipeline-run-
+  # Fixed name allows "tkn pr delete ace-minimal-build-image-pipeline-run-1 -f ; kubectl apply -f tekton/ace-minimal-build-image-pipeline-run.yaml ; tkn pr logs ace-minimal-build-image-pipeline-run-1 -f"
+  #name: ace-minimal-build-image-pipeline-run-1
 spec:
   serviceAccountName: ace-tekton-service-account
   # Use this instead if building in a CP4i environment 

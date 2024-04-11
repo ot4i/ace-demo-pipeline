@@ -79,7 +79,7 @@ kubectl create secret generic jdbc-secret --from-literal=USERID='blah' --from-li
 ```
 with the obvious replacements.
 
-## Tekton dashboard
+### Tekton dashboard
 
 The Tekton dashboard (for non-OpenShift users) can be installed as follows:
 ```
@@ -94,6 +94,11 @@ dashboard HTTP port can be made available locally as follows:
 ```
 kubectl --namespace tekton-pipelines port-forward --address 0.0.0.0 svc/tekton-dashboard 9097:9097
 ```
+
+### Pipeline creation
+
+At this point, the instructions split into two: for deployment to containers, see the following section.
+For ACE-as-a-Service, see [ACE-as-a-Service target](#ace-as-a-service-target) below.
 
 ## Container deploy target
 
@@ -113,11 +118,18 @@ task is only run if `knativeDeploy` is set to `true` when the pipeline is run).
 
 Once that has been accomplished, the simplest way to run the pipeline is
 ```
-kubectl apply -f tekton/ace-pipeline-run.yaml
-tkn pipelinerun logs ace-pipeline-run-1 -f
+kubectl create -f tekton/ace-pipeline-run.yaml
+tkn pipelinerun logs -L -f
 ```
 
 and this should build the projects, run the unit tests, create a docker image, and then create a deployment that runs the application.
+
+Note that previous versions of the instructions suggested running
+```
+kubectl apply -f tekton/ace-pipeline-run.yaml
+tkn pipelinerun logs ace-pipeline-run-1 -f
+```
+using a fixed name for the pipeline run, but using a generated name allows build history to be preserved.
 
 ### How to know if the container deploy pipeline has succeeded
 
@@ -162,8 +174,8 @@ registry authentication for some reason when using single-node OpenShift with a 
 After that, the pipeline run YAML should be changed to point to the OpenShift registry, and the 
 pipeline run as normal:
 ```
-kubectl apply -f tekton/ace-pipeline-run.yaml
-tkn pipelinerun logs ace-pipeline-run-1 -f
+kubectl create -f tekton/ace-pipeline-run.yaml
+tkn pipelinerun logs -L -f
 ```
 The OpenShift Pipeline operator provides a web interface for the pipeline runs also, which may be
 an easier way to view progress.
@@ -199,7 +211,8 @@ appropriate credentials:
 kubectl create secret docker-registry ibm-entitlement-key --docker-username=cp --docker-password=myEntitlementKey --docker-server=cp.icr.io
 ```
 Ensure that the ace-tekton-service-account includes the `ibm-entitlement-key` secret for both secrets
-and imagePullSecrets. For those without an IBM Entitlement Key, the `ace-minimal` image will also work.
+and imagePullSecrets. For those without an IBM Entitlement Key, the `ace-minimal` image will also work, and
+the service account will not need to be changed.
 
 Setting up the pipeline requires Tekton to be installed (which may already have happend via OpenShift operators, in which case
 skip the first line), tasks to be created, and the pipeline itself to be configured:
@@ -215,7 +228,7 @@ should be created using values acquired using the ACEaaS console. See
 [https://www.ibm.com/docs/en/app-connect/saas?topic=overview-accessing-api](https://www.ibm.com/docs/en/app-connect/saas?topic=overview-accessing-api)
 for details on how to find or create the correct credentials, and then set the following 
 ```
-kubectl create secret generic aceaas-credentials --from-literal=appConEndpoint=MYENDPOINT --from-literal=appConInstanceID=MYINSTANECID --from-literal=appConClientID=HEXNUMBERSTRING --from-literal=appConApiKey=BASE64APIKEY --from-literal=appConClientSecret=HEXNUMBERCLIENTSECRET
+kubectl create secret generic aceaas-credentials --from-literal=appConInstanceID=MYINSTANCEID --from-literal=appConClientID=HEXNUMBERSTRING --from-literal=appConApiKey=BASE64APIKEY --from-literal=appConClientSecret=HEXNUMBERCLIENTSECRET
 ```
 The pipeline should create the required configurations based on the JDBC credentials
 and other values if the createConfiguration parameter is set to `true`; this should only be used
@@ -223,10 +236,11 @@ for the first pipeline run or after any change to the credentials (see the "ACEa
 limits" section of [README-aceaas-pipelines.md](/demo-infrastructure/README-aceaas-pipelines.md) 
 for more information).
 
-Once that has been accomplished, the simplest way to run the pipeline is
+Once the required edits to `aceaas-pipeline-run.yaml` have been made (including setting the 
+ACEaaS API endpoint, if not using the US East region), the simplest way to run the pipeline is
 ```
-kubectl apply -f tekton/aceaas/aceaas-pipeline-run.yaml
-tkn pipelinerun logs aceaas-pipeline-run-1 -f
+kubectl create -f tekton/aceaas/aceaas-pipeline-run.yaml
+tkn pipelinerun logs -L -f
 ```
 
 and this should build the projects, run the tests, and then deploy to ACEaaS.

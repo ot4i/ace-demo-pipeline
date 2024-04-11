@@ -1,6 +1,6 @@
 {
     "name": "ace-demo-pipeline-devcontainer-quay-io",
-    "image": "quay.io/trevor_dolby/ace-minimal-devcontainer:12.0.10.0",
+    "image": "quay.io/trevor_dolby/ace-minimal-devcontainer:12.0.11.0",
     "containerEnv": {
         "LICENSE": "accept"
     },
