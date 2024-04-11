@@ -14,6 +14,9 @@ spec:
       type: string
     - name: deployPrefix
       type: string
+    - name: appConEndpoint
+      type: string
+      default: "api.p-vir-c1.appconnect.automation.ibm.com"
     - name: createConfiguration
       type: string
       default: "false"
@@ -30,6 +33,8 @@ spec:
           value: $(params.buildImage)
         - name: deployPrefix
           value: $(params.deployPrefix)
+        - name: appConEndpoint
+          value: $(params.appConEndpoint)
     - name: create-config-and-runtime
       taskRef:
         name: aceaas-create-config-and-runtime
@@ -40,6 +45,8 @@ spec:
           value: $(params.revision)
         - name: buildImage
           value: $(params.buildImage)
+        - name: appConEndpoint
+          value: $(params.appConEndpoint)
         - name: deployPrefix
           value: $(params.deployPrefix)
         - name: barURL

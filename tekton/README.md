@@ -215,7 +215,7 @@ should be created using values acquired using the ACEaaS console. See
 [https://www.ibm.com/docs/en/app-connect/saas?topic=overview-accessing-api](https://www.ibm.com/docs/en/app-connect/saas?topic=overview-accessing-api)
 for details on how to find or create the correct credentials, and then set the following 
 ```
-kubectl create secret generic aceaas-credentials --from-literal=appConEndpoint=MYENDPOINT --from-literal=appConInstanceID=MYINSTANECID --from-literal=appConClientID=HEXNUMBERSTRING --from-literal=appConApiKey=BASE64APIKEY --from-literal=appConClientSecret=HEXNUMBERCLIENTSECRET
+kubectl create secret generic aceaas-credentials --from-literal=appConInstanceID=MYINSTANCEID --from-literal=appConClientID=HEXNUMBERSTRING --from-literal=appConApiKey=BASE64APIKEY --from-literal=appConClientSecret=HEXNUMBERCLIENTSECRET
 ```
 The pipeline should create the required configurations based on the JDBC credentials
 and other values if the createConfiguration parameter is set to `true`; this should only be used
@@ -223,10 +223,11 @@ for the first pipeline run or after any change to the credentials (see the "ACEa
 limits" section of [README-aceaas-pipelines.md](/demo-infrastructure/README-aceaas-pipelines.md) 
 for more information).
 
-Once that has been accomplished, the simplest way to run the pipeline is
+Once the required edits to `aceaas-pipeline-run.yaml` have been made (including setting the 
+ACEaaS API endpoint, if not using the US East region), the simplest way to run the pipeline is
 ```
-kubectl apply -f tekton/aceaas/aceaas-pipeline-run.yaml
-tkn pipelinerun logs aceaas-pipeline-run-1 -f
+kubectl create -f tekton/aceaas/aceaas-pipeline-run.yaml
+tkn pipelinerun logs -L -f
 ```
 
 and this should build the projects, run the tests, and then deploy to ACEaaS.
