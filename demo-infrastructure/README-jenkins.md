@@ -28,7 +28,7 @@ so that the component tests can run successfully. This is required regardless of
 deploy target (integration node or ACEaaS).
 
 For Windows, the ACE_COMMAND environment variable may need to be changed to match a locally-installed
-version of ACE (currently set to 12.0.10). Container support is not required.
+version of ACE (currently set to 12.0.11). Container support is not required.
 
 For Linux, the pipeline will use containers for the actual build steps, and this requires either 
 the `ace` container image from cp.icr.io or the `ace-minimal-build` container image to be created 

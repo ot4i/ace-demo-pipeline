@@ -2,15 +2,15 @@
 # Licensed under the MIT license (see LICENSE for details)
 
 #FROM tdolby/experimental:ace-minimal-11.0.0.11-alpine
-ARG BASE_IMAGE=ace-minimal:12.0.10.0-alpine
+ARG BASE_IMAGE=ace-minimal:12.0.11.0-alpine
 FROM $BASE_IMAGE
 
 # Used for tekton and Maven containers
 #
 # To run locally, build into an ace-server directory somewhere (such as /tmp/maven-output/ace-server), copy
-# this Dockerfile into the parent directory, and then (assuming 12.0.10) run
+# this Dockerfile into the parent directory, and then (assuming 12.0.11) run
 #
-# docker build --build-arg BASE_IMAGE=tdolby/experimental:ace-minimal-12.0.10.0-alpine  -t tea-tekton-test .
+# docker build --build-arg BASE_IMAGE=tdolby/experimental:ace-minimal-12.0.11.0-alpine  -t tea-tekton-test .
 #
 # from the parent directory (such as /tmp/maven-output)
 #
