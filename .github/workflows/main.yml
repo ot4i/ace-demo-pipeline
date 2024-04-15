@@ -6,9 +6,9 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main, aceaas-and-minikube ]
+    branches: [ main, action-update ]
   pull_request:
-    branches: [ main, aceaas-and-minikube ]
+    branches: [ main, action-update ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -26,19 +26,32 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-      
-      - name: Install gradle
-        run: |
-          # ace-minimal doesn't have gradle so we install it here.
-          
-          # LD_LIBRARY_PATH includes glibc to make ACE work but that
-          # breaks apk so we unset it.
-          unset LD_LIBRARY_PATH || /bin/true
-          apk add gradle
           
       - name: Build the application and test it
         shell: bash
         run: |
-          # This shell has mqsiprofile already loaded
-          echo "Running Gradle build and unit test"
-          gradle -PCLASSPATH=$CLASSPATH
+          echo "Loading ACE profile"
+          export LICENSE=accept
+          . /opt/ibm/ace-12/server/bin/mqsiprofile
+
+          set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+
+          echo ========================================================================
+          echo Building application
+          echo ========================================================================
+          # Using --compile-maps-and-schemas for 12.0.11 and later . . . 
+          ibmint package --input-path . --output-bar-file $PWD/tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
+
+          echo ========================================================================
+          echo Building unit tests
+          echo ========================================================================
+          # Create the unit test work directory
+          mqsicreateworkdir /tmp/test-work-dir
+          mqsibar -w /tmp/test-work-dir -a $PWD/tea-application-combined.bar 
+          # Build just the unit tests
+          ibmint deploy --input-path . --output-work-directory /tmp/test-work-dir --project TeaRESTApplication_UnitTest
+
+          echo ========================================================================
+          echo Running unit tests
+          echo ========================================================================
+          IntegrationServer -w /tmp/test-work-dir --no-nodejs --start-msgflows false --test-project TeaRESTApplication_UnitTest --test-junit-options --reports-dir=junit-reports
