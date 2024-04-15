@@ -32,6 +32,7 @@ jobs:
         run: |
           echo "Loading ACE profile"
           export LICENSE=accept
+          set +e # Don't fail on error
           . /opt/ibm/ace-12/server/bin/mqsiprofile
 
           set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
