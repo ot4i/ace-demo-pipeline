@@ -20,21 +20,19 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: tdolby/experimental:ace-minimal-12.0.11.0-alpine
-      options: -u 0
       env:
         LICENSE: accept
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
           
       - name: Build the application and test it
         shell: bash
         run: |
           echo "Loading ACE profile"
           export LICENSE=accept
-          set +e # Don't fail on error
+          set +e # Don't fail on error if the profile has already been loaded
           . /opt/ibm/ace-12/server/bin/mqsiprofile
-
           set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
           echo ========================================================================
