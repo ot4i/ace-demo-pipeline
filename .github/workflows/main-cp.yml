@@ -20,15 +20,15 @@ jobs:
         password: ${{ secrets.CP_PASSWORD }}
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Build the application and test it
         shell: bash
         run: |
           echo "Loading ACE profile"
           export LICENSE=accept
+          set +e # Don't fail on error if the profile has already been loaded
           . /opt/ibm/ace-12/server/bin/mqsiprofile
-
           set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
           echo ========================================================================
@@ -49,4 +49,4 @@ jobs:
           echo ========================================================================
           echo Running unit tests
           echo ========================================================================
-          IntegrationServer -w /tmp/test-work-dir --no-nodejs --start-msgflows false --test-project TeaRESTApplication_UnitTest --test-junit-options --reports-dir=junit-reports
+          IntegrationServer -w /tmp/test-work-dir --no-nodejs --start-msgflows false --test-project TeaRESTApplication_UnitTest
