@@ -99,7 +99,9 @@ Regardless of the pipeline technology and deployment target, some initial steps 
   (forked) repo locally with the pre-installed eGit plugin. Although development and testing
   can be done online using a GitHub-hosted container (see [README-codespaces](README-codespaces.md) 
   for details), having the toolkit available locally is helpful for replicating the most common
-  ACE development experience.
+  ACE development experience. See the developer edition [download page](https://www.ibm.com/docs/en/app-connect/12.0?topic=enterprise-download-ace-developer-edition-get-started)
+  for a free version (limited to one transaction per second per flow) if your organization does
+  not have existing ACE licenses.
 
 Beyond those common steps, the choice of pipeline and target determine the next steps. The simplest 
 way to choose the pipeline is to choose the target (Kubernetes, ACEaaS, or integration nodes), and
