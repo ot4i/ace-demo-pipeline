@@ -10,12 +10,15 @@ spec:
   params:
     - name: dockerRegistry
       value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
+      # Minikube
+      #value: "192.168.49.2:5000/default"
     - name: url
       value: "https://github.com/ot4i/ace-demo-pipeline"
     - name: revision
       value: "main"
     - name: buildImage
-      value: "cp.icr.io/cp/appc/ace:12.0.11.0-r1"
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal-build:12.0.11.0-alpine"
+      value: "cp.icr.io/cp/appc/ace:12.0.12.0-r1"
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal-build:12.0.1w.0-alpine"
     - name: runtimeBaseImage
-      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.11.1-r1-20240125-170703"
+      value: "cp.icr.io/cp/appc/ace-server-prod:12.0.12.0-r1-20240417-022324"
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.12.0-r1-20240417-022324"

@@ -10,7 +10,7 @@ spec:
     toolkitFlow: true
   license:
     accept: true
-    license: L-DMRW-D3HQHQ
+    license: L-QECF-MBXVLU
     use: AppConnectEnterpriseNonProductionFREE
   template:
     spec:
@@ -29,4 +29,4 @@ spec:
     - teajdbc-policy
     - default-policy
     - teajdbc
-  version: 12.0.11.1-r1
+  version: 12.0.12.0-r2

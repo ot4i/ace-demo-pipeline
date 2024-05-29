@@ -2,11 +2,11 @@ apiVersion: appconnect.ibm.com/v1beta1
 kind: Dashboard
 metadata:
   name: db01
-  namespace: ace-operator
+  namespace: cp4i
 spec:
   license:
     accept: true
-    license: L-UTKS-P46KK2
+    license: L-QECF-MBXVLU
     use: AppConnectEnterpriseProduction
   pod:
     containers:
@@ -30,6 +30,11 @@ spec:
   storage:
     sizeLimit: 1Gi
     type: ephemeral
-  useCommonServices: false
+  authentication:
+    integrationKeycloak:
+      enabled: false
+  authorization:
+    integrationKeycloak:
+      enabled: false
   version: '12.0'
   displayMode: IntegrationRuntimes

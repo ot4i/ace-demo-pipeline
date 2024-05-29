@@ -114,6 +114,15 @@ spec:
             rc=0
             break
           fi
+          # Minikube doesn't have routes so the CR stays at phase Warning.
+          if [ "$lastError" == "Warning" ]; then
+          lastStatus=`kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct '--template={{(index .status.conditions 0).status}} {{(index .status.conditions 0).type}} {{(index .status.conditions 0).message}}' 2>&1`
+            if [ "$lastStatus" == "True Ready IntegrationRuntime is ready." ]; then
+              echo "Container is ready (Warning) at " `date`
+              rc=0
+              break
+            fi
+          fi
           sleep 5
         done
         if [ "$rc" == "1" ]; then
