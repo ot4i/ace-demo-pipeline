@@ -1,16 +1,16 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: db01-ingress
+  name: tea-ingress
   namespace: cp4i
 spec:
   rules:
-    - https:
+    - http:
         paths:
           - pathType: Prefix
-            path: /
+            path: /tea/index
             backend:
               service:
-                name: db01-dash
+                name: tea-tekton-cp4i-ir
                 port:
-                  number: 8300
+                  number: 7800

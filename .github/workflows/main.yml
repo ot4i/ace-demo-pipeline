@@ -6,9 +6,9 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main, action-update ]
+    branches: [ main, minikube-cp4i ]
   pull_request:
-    branches: [ main, action-update ]
+    branches: [ main, minikube-cp4i ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
