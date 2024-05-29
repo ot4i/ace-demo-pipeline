@@ -114,8 +114,9 @@ spec:
         - mountPath: /work
           name: work
     - name: docker-build-and-push
-      #image: quay.io/buildah/stable:v1
-      image: registry.redhat.io/rhel8/buildah:8.9-5
+      image: quay.io/buildah/stable:v1
+      # registry.redhat.io requires auth which works with OpenShift but not Minikube
+      #image: registry.redhat.io/rhel8/buildah:8.9-5
       securityContext:
         runAsUser: 0
         # Needed for hostPath volumes on OpenShift
@@ -208,8 +209,9 @@ spec:
         - mountPath: /work
           name: work
     - name: docker-build-and-push-ct
-      #image: quay.io/buildah/stable:v1
-      image: registry.redhat.io/rhel8/buildah:8.9-5
+      image: quay.io/buildah/stable:v1
+      # registry.redhat.io requires auth which works with OpenShift but not Minikube
+      #image: registry.redhat.io/rhel8/buildah:8.9-5
       securityContext:
         runAsUser: 0
         # Needed for hostPath volumes on OpenShift
