@@ -43,20 +43,23 @@ For the `ace` image (following https://www.ibm.com/docs/en/app-connect/container
 kubectl create secret docker-registry ibm-entitlement-key --docker-username=cp --docker-password=myEntitlementKey --docker-server=cp.icr.io
 minikube ssh
 docker login cp.icr.io -u cp -p ibmEntitlementKey
-docker pull cp.icr.io/cp/appc/ace:12.0.11.0-r1
-docker tag cp.icr.io/cp/appc/ace:12.0.11.0-r1 192.168.49.2:5000/default/ace:12.0.11.0-r1
-docker push 192.168.49.2:5000/default/ace:12.0.11.0-r1
+docker pull cp.icr.io/cp/appc/ace:12.0.12.0-r1
+docker tag cp.icr.io/cp/appc/ace:12.0.12.0-r1 192.168.49.2:5000/default/ace:12.0.12.0-r1
+docker push 192.168.49.2:5000/default/ace:12.0.12.0-r1
 ```
 
-For `ace-minimal` and `ace-minimal-build`:
+For `ace-minimal` and `ace-minimal-build`, update the `aceDownloadUrl` parameter in
+tekton/minimal-image-build/ace-minimal-build-image-pipeline-run.yaml to a valid download URL
+(see [setting-the-correct-product-version](/tekton/minimal-image-build/README.md#setting-the-correct-product-version)
+for details) and then run:
 ```
 kubectl apply -f tekton/minimal-image-build/01-ace-minimal-image-build-and-push-task.yaml
 kubectl apply -f tekton/minimal-image-build/02-ace-minimal-build-image-build-and-push-task.yaml
 kubectl apply -f tekton/minimal-image-build/ace-minimal-image-pipeline.yaml
 kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline.yaml
 
-tkn pr delete ace-minimal-build-image-pipeline-run-1 -f  ; kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline-run.yaml
-tkn pr logs ace-minimal-build-image-pipeline-run-1 -f
+kubectl create -f tekton/minimal-image-build/ace-minimal-build-image-pipeline-run.yaml
+tkn pipelinerun logs -L -f
 ```
 
 Building and deploying the application:
@@ -65,14 +68,17 @@ kubectl apply -f tekton/10-ibmint-ace-build-task.yaml
 kubectl apply -f tekton/20-deploy-to-cluster-task.yaml
 kubectl apply -f tekton/21-knative-deploy-task.yaml
 kubectl apply -f tekton/ace-pipeline.yaml
-tkn pr delete ace-pipeline-run-1 -f  ; kubectl apply -f tekton/ace-pipeline-run.yaml
-tkn pr logs ace-pipeline-run-1 -f
+
+kubectl create -f tekton/ace-pipeline-run.yaml
+tkn pipelinerun logs -L -f
 
 minikube addons enable ingress
 kubectl apply -f tekton/minikube/tea-tekton-minikube-ingress.yaml
 ```
+The application should now be available and can be tested with `curl http://192.168.49.2/tea/index/2` to GET index 2.
 
-Knative setup:
+
+## Knative setup:
 
 ```
 kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.1/serving-crds.yaml
