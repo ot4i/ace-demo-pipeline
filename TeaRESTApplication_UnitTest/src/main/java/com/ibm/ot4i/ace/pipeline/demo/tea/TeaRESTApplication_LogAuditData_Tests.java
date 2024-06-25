@@ -57,7 +57,7 @@ public class TeaRESTApplication_LogAuditData_Tests {
             /* Compare Output Message 1 at output terminal out */
             TestMessageAssembly actualMessageAssembly = nodeSpy.propagatedMessageAssembly("out", 1);
 
-            assertEquals("Earl Grey", actualMessageAssembly.messagePath("XMLNSC.logData.info.name").getStringValue());
+            assertEquals("Ear Grey", actualMessageAssembly.messagePath("XMLNSC.logData.info.name").getStringValue());
     }
 	@Test
     public void TeaRESTApplication_LogAuditData_RemoveXML_Test() throws TestException {
