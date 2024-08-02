@@ -1,0 +1,125 @@
+name: CP4i Image Build using Crane
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: cp.icr.io/cp/appc/ace:12.0.12.0-r1
+      credentials:
+        username: ${{ secrets.CP_USERNAME }}
+        password: ${{ secrets.CP_PASSWORD }}
+      env:
+        LICENSE: accept
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+      options: -u 0
+    steps:
+      - name: Install git
+        shell: bash
+        run: |
+          microdnf install git -y
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Build the application and test it
+        shell: bash
+        run: |
+          echo "Loading ACE profile"
+          export LICENSE=accept
+          set +e # Don't fail on error if the profile has already been loaded
+          . /opt/ibm/ace-12/server/bin/mqsiprofile
+          set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+
+          echo ========================================================================
+          echo Building application
+          echo ========================================================================
+          # Using --compile-maps-and-schemas for 12.0.11 and later . . . 
+          ibmint package --input-path . --output-bar-file $PWD/tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
+
+          echo ========================================================================
+          echo Building unit tests
+          echo ========================================================================
+          # Create the unit test work directory
+          mqsicreateworkdir /tmp/test-work-dir
+          mqsibar -w /tmp/test-work-dir -a $PWD/tea-application-combined.bar 
+          # Build just the unit tests
+          ibmint deploy --input-path . --output-work-directory /tmp/test-work-dir --project TeaRESTApplication_UnitTest
+
+          echo ========================================================================
+          echo Running unit tests
+          echo ========================================================================
+          IntegrationServer -w /tmp/test-work-dir --no-nodejs --start-msgflows false --test-project TeaRESTApplication_UnitTest --test-junit-options --reports-dir=junit-reports
+          
+      - name: Create the container structure
+        run: |
+          echo "Loading ACE profile"
+          export LICENSE=accept
+          set +e # Don't fail on error if the profile has already been loaded
+          . /opt/ibm/ace-12/server/bin/mqsiprofile
+          set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+          rm -rf /tmp/build
+          mkdir -p /tmp/build
+          echo ========================================================================
+          echo Creating work directory structure
+          echo ========================================================================
+          mqsicreateworkdir /tmp/build/ace-server
+          mqsibar -w /tmp/build/ace-server -a $PWD/tea-application-combined.bar
+          ibmint optimize server --work-dir /tmp/build/ace-server
+                    
+          echo ========================================================================
+          echo Copy in various startup files
+          echo ========================================================================
+          cp $PWD/demo-infrastructure/TEAJDBC.policyxml /tmp/build/ace-server/
+          cp $PWD/demo-infrastructure/application-overrides.txt /tmp/build/ace-server/
+          cp $PWD/demo-infrastructure/init-creds.sh /tmp/build/ace-server/ace-startup-script.sh
+          cp $PWD/demo-infrastructure/read-hashicorp-creds.sh /tmp/build/ace-server/
+          cp $PWD/demo-infrastructure/read-xml-creds.sh /tmp/build/ace-server/
+          cp tekton/os/cp4i/Dockerfile /tmp/build
+
+      - name: Install docker
+        run: |
+          set -e # Fail on error
+          cd /tmp && curl https://download.docker.com/linux/static/stable/x86_64/docker-27.1.1.tgz | tar -xzvf -
+          mv /tmp/docker/docker /usr/bin/docker
+
+      - name: Login to cp.icr.io (base images)
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.CP_USERNAME }}
+          password: ${{ secrets.CP_PASSWORD }}
+          registry: cp.icr.io
+
+      - name: Login to Docker Hub (destination)
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Create container image
+        run: |
+          # checkout v4 does this and the removes it
+          git config --global --add safe.directory $PWD
+
+          set -e # Fail on error
+          
+          export DATE=$(date '+%Y%m%d%H%M%S')
+          export COMMIT=$(git log -1 --pretty=%h)
+          export TAG="$DATE"-"$COMMIT"
+          echo Setting container tag to "$TAG"
+          
+          cd /tmp/build
+          chmod -R 777 .
+          echo ========================================================================
+          echo Building container image
+          echo ========================================================================
+          docker build --file Dockerfile --build-arg BASE_IMAGE=cp.icr.io/cp/appc/ace-server-prod:12.0.12.0-r1-20240417-022324 -t tdolby/experimental:tea-github-action-$TAG .
+          
+          echo ========================================================================
+          echo Pushing container image
+          echo ========================================================================
+          docker push tdolby/experimental:tea-github-action-$TAG
