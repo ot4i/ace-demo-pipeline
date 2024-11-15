@@ -124,46 +124,53 @@ spec:
       image: $(params.buildImage)
       script: |
         #!/bin/bash
+        
+        set -e # Fail on error
+        
         cd /work/ibmint-output
-        mkdir -p home/aceuser/ace-server
-        (cd /work/ibmint-output/ace-server && tar -cf - * ) | (cd home/aceuser/ace-server && tar -xf - )
+        cp /work/ace-demo-pipeline/tekton/Dockerfile Dockerfile
 
-        cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml home/aceuser/ace-server/
-        cp /work/ace-demo-pipeline/demo-infrastructure/application-overrides.txt home/aceuser/ace-server/
-        cp /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh home/aceuser/ace-server/ace-startup-script.sh
-        cp /work/ace-demo-pipeline/demo-infrastructure/read-hashicorp-creds.sh home/aceuser/ace-server/
-        cp /work/ace-demo-pipeline/demo-infrastructure/read-xml-creds.sh home/aceuser/ace-server/
+        # Copy in various startup files
+        cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml ace-server/
+        cp /work/ace-demo-pipeline/demo-infrastructure/application-overrides.txt ace-server/
+        cp /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh ace-server/ace-startup-script.sh
+        cp /work/ace-demo-pipeline/demo-infrastructure/read-hashicorp-creds.sh ace-server/
+        cp /work/ace-demo-pipeline/demo-infrastructure/read-xml-creds.sh ace-server/
 
         echo Contents of /work/ibmint-output/ace-server/server.components.yaml
         cat /work/ibmint-output/ace-server/server.components.yaml || /bin/true
-        
-        # This seems to be needed for OpenShift support due to random userids at runtime
-        chmod -R 777 .
-        echo ========================================================================
-        echo Create tar file of server contents
-        echo ========================================================================
-        # Must have the full directory tree from / in the tar file
-        tar -cvzf /work/crane-append-file.tar.gz home
       volumeMounts:
         - mountPath: /work
           name: work
-    - name: crane-push
-      image: ghcr.io/shortbrain/golang-tasks/crane@sha256:5d2dea205584b1f172cd9f0e68d00df0fbaeabd75894be475af42f092a47ee39
+    - name: docker-build-and-push
+      image: quay.io/buildah/stable:v1
+      #image: registry.redhat.io/rhel8/buildah:8.9-5
+      securityContext:
+        runAsUser: 0
+        # Needed for hostPath volumes on OpenShift
+        #privileged: true
+        capabilities:
+          add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
+      # specifying DOCKER_CONFIG is required to allow buildah to detect docker credential
+      env:
+        - name: "DOCKER_CONFIG"
+          value: "/tekton/home/.docker/"
       script: |
-        #!/bin/bash
         date
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
-        
-        echo ========================================================================
-        echo Appending server contents tar file to create new image
-        echo ========================================================================
-        crane append -b $(params.runtimeBaseImage) -f /work/crane-append-file.tar.gz -t $(params.outputRegistry)/tea-tekton:$TAG
-        crane mutate --env "LICENSE=accept" --entrypoint='bash,-c,"/home/aceuser/ace-server/ace-startup-script.sh && ibmint apply overrides /home/aceuser/ace-server/application-overrides.txt --work-directory /home/aceuser/ace-server && IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 --no-nodejs && IntegrationServer -w /home/aceuser/ace-server"' $(params.outputRegistry)/tea-tekton:$TAG
+        buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
+          --build-arg BASE_IMAGE=$(params.runtimeBaseImage) \
+          -f /work/ibmint-output/Dockerfile -t $(params.outputRegistry)/tea-tekton:$TAG /work/ibmint-output
+        date
+        buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
+          $(params.outputRegistry)/tea-tekton:$TAG  "docker://$(params.outputRegistry)/tea-tekton:$TAG"
         date
       volumeMounts:
         - mountPath: /work
           name: work
+        - name: varlibcontainers
+          mountPath: /var/lib/containers
   volumes:
     - name: work
       emptyDir: {}

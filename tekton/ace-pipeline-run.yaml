@@ -11,31 +11,35 @@ spec:
   params:
     - name: outputRegistry
       # OpenShift
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
+      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace-temp"
       #value: "quay.io/trevor_dolby"
       #value: "us.icr.io/ace-containers"
       #value: "aceDemoRegistry.azurecr.io"
       # Minikube
-      value: "192.168.49.2:5000/default"
+      #value: "192.168.49.2:5000/default"
     - name: buildImage
       # Requires an IBM Entitlement Key
       #value: "cp.icr.io/cp/appc/ace:13.0.1.0-r1"
+      # Cached locally
+      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace-temp/ace:13.0.1.0-r1"
       # ace-minimal can be built from the ACE package without needing a key
       #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal:13.0.1.0-alpine"
       # Need to use the -build image for Maven
       #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal-build:13.0.1.0-alpine"
-      value: "192.168.49.2:5000/default/ace-minimal-build:13.0.1.0-alpine"
+      #value: "192.168.49.2:5000/default/ace-minimal-build:13.0.1.0-alpine"
     - name: runtimeBaseImage
       # Requires an IBM Entitlement Key
       #value: "cp.icr.io/cp/appc/ace:13.0.1.0-r1"
+      # Cached locally
+      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace-temp/ace:13.0.1.0-r1"
       # ace-minimal can be built from the ACE package without needing a key
       # value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal:13.0.1.0-alpine"
       # Minikube
-      value: "192.168.49.2:5000/default/ace-minimal:13.0.1.0-alpine"
+      #value: "192.168.49.2:5000/default/ace-minimal:13.0.1.0-alpine"
       # Local copy of ace container
       #value: "192.168.49.2:5000/default/ace:13.0.1.0-r1"
     - name: url
-      value: "https://github.com/ot4i/ace-demo-pipeline"
+      value: "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
     - name: revision
       value: "main"
     #- name: knativeDeploy
