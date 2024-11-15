@@ -19,7 +19,7 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     container: 
-      image: tdolby/experimental:ace-minimal-12.0.11.0-alpine
+      image: tdolby/experimental:ace-minimal-13.0.1.0-alpine
       env:
         LICENSE: accept
     steps:
@@ -32,13 +32,13 @@ jobs:
           echo "Loading ACE profile"
           export LICENSE=accept
           set +e # Don't fail on error if the profile has already been loaded
-          . /opt/ibm/ace-12/server/bin/mqsiprofile
+          . /opt/ibm/ace-13/server/bin/mqsiprofile
           set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
           echo ========================================================================
           echo Building application
           echo ========================================================================
-          # Using --compile-maps-and-schemas for 12.0.11 and later . . . 
+          # Using --compile-maps-and-schemas for 13.0.1 and later . . . 
           ibmint package --input-path . --output-bar-file $PWD/tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
 
           echo ========================================================================
