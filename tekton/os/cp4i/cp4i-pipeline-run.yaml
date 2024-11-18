@@ -15,9 +15,9 @@ spec:
     - name: appName
       value: "tea-tekton-cp4i"
     - name: url
-      value: "https://github.com/mrislam11378/ace-demo-pipeline.git"
+      value: "https://github.com/ot4i/ace-demo-pipeline"
     - name: revision
-      value: "main"
+      value: "v13-update"
     - name: buildImage
       value: "cp.icr.io/cp/appc/ace:12.0.12.0-r1"
       #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal-build:12.0.1w.0-alpine"
