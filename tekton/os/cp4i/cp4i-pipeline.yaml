@@ -46,6 +46,22 @@ spec:
           value: $(params.buildImage)
         - name: runtimeBaseImage
           value: $(params.runtimeBaseImage)
+    # - name: component-test-in-cp4i
+    #   taskRef:
+    #     name: component-test-in-cp4i
+    #   params:
+    #     - name: dockerRegistry
+    #       value: $(params.dockerRegistry)
+    #     - name: url
+    #       value: $(params.url)
+    #     - name: revision
+    #       value: $(params.revision)
+    #     - name: tag
+    #       value: "$(tasks.build-from-source.results.tag)"
+    #     - name: ctsha
+    #       value: "$(tasks.build-from-source.results.ctsha)"
+    #   runAfter:
+    #     - build-from-source
     - name: deploy-to-cp4i
       taskRef:
         name: deploy-to-cp4i

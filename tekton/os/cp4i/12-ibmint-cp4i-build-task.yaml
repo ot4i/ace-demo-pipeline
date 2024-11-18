@@ -154,6 +154,104 @@ spec:
           name: work
         - name: varlibcontainers
           mountPath: /var/lib/containers
+
+    # - name: component-test
+    #   image: $(params.buildImage)
+    #   #image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
+    #   #
+    #   # Builds and runs the component tests using the JDBC credentials provided from
+    #   # the secret. Also uses the same init-creds.sh script used by the non-CP4i image
+    #   # to load credentials at startup.
+    #   #
+    #   # Leaves the resulting component test project in the work directory to be picked
+    #   # up by the second Kaniko build in the next step.
+    #   #
+    #   script: |
+    #     #!/bin/bash
+        
+    #     export LICENSE=accept
+    #     . /opt/ibm/ace-12/server/bin/mqsiprofile
+
+    #     set -e # Fail on error
+        
+    #     export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+    #     # Slightly hacky, but quicker than building everything again!
+    #     (cd /work/ibmint-output/ace-server && tar -cf - * ) | (cd /home/aceuser/ace-server && tar -xf - )
+    #     ls -l /home/aceuser/ace-server
+    #     # Set up credentials for the component tests; init-creds.sh looks in /tmp for policy
+    #     cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml /tmp/
+    #     bash /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh
+    #     # Build and run the tests
+    #     cd /work/ace-demo-pipeline
+
+    #     # Build just the component tests
+    #     ibmint deploy --input-path . --output-work-directory /home/aceuser/ace-server --project TeaRESTApplication_ComponentTest
+
+    #     # Run the component tests
+    #     IntegrationServer -w /home/aceuser/ace-server --no-nodejs --start-msgflows false --test-project TeaRESTApplication_ComponentTest
+
+    #     # Quicker than building everything again - we just copy the component test work directory 
+    #     # into the correct location for the container build in the next step
+    #     (cd /home/aceuser/ace-server && tar -cf - * ) | (cd /work/ibmint-output/ace-server && tar -xf - )
+    #   volumeMounts:
+    #     - mountPath: /work
+    #       name: work
+    #     - name: secret-volume-2
+    #       mountPath: /var/run/secrets/jdbc
+  
+    # - name: container-setup-ct
+    #   image: $(params.buildImage)
+    #   #
+    #   # Copies files around and changes permissions to allow Kaniko to build the component
+    #   # test image in the next step. Also copies the Dockerfile into place for Kaniko.
+    #   #
+    #   script: |
+    #     #!/bin/bash
+    #     cd /work/ibmint-output
+    #     cp /work/ace-demo-pipeline/tekton/os/cp4i/Dockerfile Dockerfile
+    #     # Fix permissions issues 
+    #     chmod 777 /work/ibmint-output /work/ibmint-output/Dockerfile
+    #     chmod -R a+r /work/ibmint-output
+    #     find /work/ibmint-output -type d -print | xargs chmod 775
+    #     ls -l /work/ibmint-output/ace-server/run
+    #   volumeMounts:
+    #     - mountPath: /work
+    #       name: work
+    
+    # - name: docker-build-and-push-ct
+    #   image: quay.io/buildah/stable:v1
+    #   # registry.redhat.io requires auth which works with OpenShift but not Minikube
+    #   #image: registry.redhat.io/rhel8/buildah:8.9-5
+    #   securityContext:
+    #     runAsUser: 0
+    #     # Needed for hostPath volumes on OpenShift
+    #     # Must also change cp4i-scc.yaml
+    #     #privileged: true
+    #     capabilities:
+    #       add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
+    #   # specifying DOCKER_CONFIG is required to allow buildah to detect docker credential
+    #   env:
+    #     - name: "DOCKER_CONFIG"
+    #       value: "/tekton/home/.docker/"
+    #   script: |
+    #     date
+    #     export TAG=`cat $(results.tag.path)`
+    #     echo Using $TAG as image tag
+    #     buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
+    #       --build-arg BASE_IMAGE=$(params.outputRegistry)/tea-tekton-cp4i:$TAG \
+    #       -f /work/ibmint-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG /work/ibmint-output
+    #     date
+    #     buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
+    #       $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG"
+    #     echo image digest:
+    #     cat /tmp/image-digest && echo
+    #     cat /tmp/image-digest >> $(results.ctsha.path)
+    #     date
+    #   volumeMounts:
+    #     - mountPath: /work
+    #       name: work
+    #     - name: varlibcontainers
+    #       mountPath: /var/lib/containers
   volumes:
     - name: work
       emptyDir: {}
