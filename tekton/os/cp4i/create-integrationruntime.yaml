@@ -3,8 +3,8 @@ kind: IntegrationRuntime
 metadata:
   annotations:
     appconnect.ibm.com/hibernate: 'false'
-  name: tea-tekton-cp4i
-  namespace: cp4i
+  name: APP_NAME
+  namespace: APP_NAMESPACE
 spec:
   flowType:
     toolkitFlow: true
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - image: >-
-            DOCKER_REGISTRY/tea-tekton-cp4i:IMAGE_TAG
+            IR_IMAGE_PLACEHOLDER
           imagePullPolicy: Always
           name: runtime
           resources:

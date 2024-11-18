@@ -8,6 +8,11 @@ spec:
     - name: dockerRegistry
       type: string
       default: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
+    - name: appName
+      type: string
+    - name: appNamespace
+      type: string
+      default: "cp4i"
     - name: url
       type: string
       default: "https://github.com/ot4i/ace-demo-pipeline"
@@ -29,6 +34,10 @@ spec:
       params:
         - name: outputRegistry
           value: $(params.dockerRegistry)
+        - name: appName
+          value: $(params.appName)
+        - name: appNamespace
+          value: $(params.appNamespace)
         - name: url
           value: $(params.url)
         - name: revision
@@ -37,28 +46,16 @@ spec:
           value: $(params.buildImage)
         - name: runtimeBaseImage
           value: $(params.runtimeBaseImage)
-    - name: component-test-in-cp4i
-      taskRef:
-        name: component-test-in-cp4i
-      params:
-        - name: dockerRegistry
-          value: $(params.dockerRegistry)
-        - name: url
-          value: $(params.url)
-        - name: revision
-          value: $(params.revision)
-        - name: tag
-          value: "$(tasks.build-from-source.results.tag)"
-        - name: ctsha
-          value: "$(tasks.build-from-source.results.ctsha)"
-      runAfter:
-        - build-from-source
     - name: deploy-to-cp4i
       taskRef:
         name: deploy-to-cp4i
       params:
         - name: dockerRegistry
           value: $(params.dockerRegistry)
+        - name: appName
+          value: $(params.appName)
+        - name: appNamespace
+          value: $(params.appNamespace)
         - name: url
           value: $(params.url)
         - name: revision
@@ -68,4 +65,4 @@ spec:
         - name: sha
           value: "$(tasks.build-from-source.results.sha)"
       runAfter:
-        - component-test-in-cp4i
+        - build-from-source
