@@ -23,8 +23,10 @@ spec:
             requests:
               cpu: 300m
               memory: 368Mi
-      imagePullSecrets:
-        - name: regcred
+      # This is now handled via the "default" service account
+      # kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "regcred"}]}'
+      #imagePullSecrets:
+      #- name: regcred
   configurations:
     - teajdbc-policy
     - default-policy

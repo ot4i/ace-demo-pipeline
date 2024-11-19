@@ -17,7 +17,7 @@ spec:
     - name: url
       value: "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
     - name: revision
-      value: "v13-update"
+      value: "main"
     - name: buildImage
       value: "cp.icr.io/cp/appc/ace:13.0.1.0-r1"
       #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-minimal-build:13.0.1.0-alpine"
