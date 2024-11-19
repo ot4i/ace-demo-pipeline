@@ -23,8 +23,16 @@ spec:
         value: "/tekton/home"
       - name: "LICENSE"
         value: "accept"
+      - name: APP_NAME
+        value: $(params.appName)
+      - name: APP_NAMESPACE
+        value: $(params.appNamespace)
   params:
     - name: outputRegistry
+      type: string
+    - name: appName
+      type: string
+    - name: appNamespace
       type: string
     - name: url
       type: string
@@ -104,27 +112,31 @@ spec:
       script: |
         #!/bin/bash
         cd /work/ibmint-output
-        cp /work/ace-demo-pipeline/tekton/os/cp4i/Dockerfile Dockerfile
+        ls -l /work/ibmint-output
+        ls -l /work/ibmint-output/ace-server
+
+        mkdir -p home/aceuser/ace-server
+        mv ace-server/run home/aceuser/ace-server/
+        
+        # Move optimize server componenets
+        mv ace-server/server.components.yaml home/aceuser/ace-server/ 
+
         # Fix permissions issues 
-        chmod 777 /work/ibmint-output /work/ibmint-output/Dockerfile
+        # chmod 777 /work/ibmint-output /work/ibmint-output/Dockerfile
         chmod -R a+r /work/ibmint-output
         find /work/ibmint-output -type d -print | xargs chmod 775
-        ls -l /work/ibmint-output
+
+        echo ========================================================================
+        echo Create tar file of server contents
+        echo ========================================================================
+        # Must have the full directory tree from / in the tar file
+        tar -cvzf /work/ibmint-output/crane-append-file.tar.gz home
+
       volumeMounts:
         - mountPath: /work
           name: work
-    - name: docker-build-and-push
-      image: quay.io/buildah/stable:v1
-      # registry.redhat.io requires auth which works with OpenShift but not Minikube
-      #image: registry.redhat.io/rhel8/buildah:8.9-5
-      securityContext:
-        runAsUser: 0
-        # Needed for hostPath volumes on OpenShift
-        # Must also change cp4i-scc.yaml
-        #privileged: true
-        capabilities:
-          add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
-      # specifying DOCKER_CONFIG is required to allow buildah to detect docker credential
+    - name: build-and-push-image
+      image: ghcr.io/shortbrain/golang-tasks/crane@sha256:5d2dea205584b1f172cd9f0e68d00df0fbaeabd75894be475af42f092a47ee39
       env:
         - name: "DOCKER_CONFIG"
           value: "/tekton/home/.docker/"
@@ -132,15 +144,10 @@ spec:
         date
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
-        buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
-          --build-arg BASE_IMAGE=$(params.runtimeBaseImage) \
-          -f /work/ibmint-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i:$TAG /work/ibmint-output
-        date
-        buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.outputRegistry)/tea-tekton-cp4i:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i:$TAG"
-        echo image digest:
-        cat /tmp/image-digest && echo
-        cat /tmp/image-digest >> $(results.sha.path)
+        crane append -b $(params.runtimeBaseImage) -f /work/ibmint-output/crane-append-file.tar.gz \
+          -t $(params.outputRegistry)/$APP_NAME:$TAG
+                
+        crane digest $(params.outputRegistry)/$APP_NAME:$TAG | tr -d '\n' >> $(results.sha.path)
         date
       volumeMounts:
         - mountPath: /work
@@ -163,9 +170,8 @@ spec:
         
         export LICENSE=accept
         . /opt/ibm/ace-13/server/bin/mqsiprofile
+        # set -e # Fail on error
 
-        set -e # Fail on error
-        
         export PATH=/opt/ibm/ace-13/common/jdk/bin:$PATH
         # Slightly hacky, but quicker than building everything again!
         (cd /work/ibmint-output/ace-server && tar -cf - * ) | (cd /home/aceuser/ace-server && tar -xf - )
@@ -181,7 +187,7 @@ spec:
 
         # Run the component tests
         IntegrationServer -w /home/aceuser/ace-server --no-nodejs --start-msgflows false --test-project TeaRESTApplication_ComponentTest
-
+        
         # Quicker than building everything again - we just copy the component test work directory 
         # into the correct location for the container build in the next step
         (cd /home/aceuser/ace-server && tar -cf - * ) | (cd /work/ibmint-output/ace-server && tar -xf - )
@@ -190,58 +196,60 @@ spec:
           name: work
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
-    - name: container-setup-ct
-      image: $(params.buildImage)
-      #
-      # Copies files around and changes permissions to allow Kaniko to build the component
-      # test image in the next step. Also copies the Dockerfile into place for Kaniko.
-      #
-      script: |
-        #!/bin/bash
-        cd /work/ibmint-output
-        cp /work/ace-demo-pipeline/tekton/os/cp4i/Dockerfile Dockerfile
-        # Fix permissions issues 
-        chmod 777 /work/ibmint-output /work/ibmint-output/Dockerfile
-        chmod -R a+r /work/ibmint-output
-        find /work/ibmint-output -type d -print | xargs chmod 775
-        ls -l /work/ibmint-output/ace-server/run
-      volumeMounts:
-        - mountPath: /work
-          name: work
-    - name: docker-build-and-push-ct
-      image: quay.io/buildah/stable:v1
-      # registry.redhat.io requires auth which works with OpenShift but not Minikube
-      #image: registry.redhat.io/rhel8/buildah:8.9-5
-      securityContext:
-        runAsUser: 0
-        # Needed for hostPath volumes on OpenShift
-        # Must also change cp4i-scc.yaml
-        #privileged: true
-        capabilities:
-          add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
-      # specifying DOCKER_CONFIG is required to allow buildah to detect docker credential
-      env:
-        - name: "DOCKER_CONFIG"
-          value: "/tekton/home/.docker/"
-      script: |
-        date
-        export TAG=`cat $(results.tag.path)`
-        echo Using $TAG as image tag
-        buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
-          --build-arg BASE_IMAGE=$(params.outputRegistry)/tea-tekton-cp4i:$TAG \
-          -f /work/ibmint-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG /work/ibmint-output
-        date
-        buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG"
-        echo image digest:
-        cat /tmp/image-digest && echo
-        cat /tmp/image-digest >> $(results.ctsha.path)
-        date
-      volumeMounts:
-        - mountPath: /work
-          name: work
-        - name: varlibcontainers
-          mountPath: /var/lib/containers
+  
+    # - name: container-setup-ct
+    #   image: $(params.buildImage)
+    #   #
+    #   # Copies files around and changes permissions to allow Kaniko to build the component
+    #   # test image in the next step. Also copies the Dockerfile into place for Kaniko.
+    #   #
+    #   script: |
+    #     #!/bin/bash
+    #     cd /work/ibmint-output
+    #     cp /work/ace-demo-pipeline/tekton/os/cp4i/Dockerfile Dockerfile
+    #     # Fix permissions issues 
+    #     chmod 777 /work/ibmint-output /work/ibmint-output/Dockerfile
+    #     chmod -R a+r /work/ibmint-output
+    #     find /work/ibmint-output -type d -print | xargs chmod 775
+    #     ls -l /work/ibmint-output/ace-server/run
+    #   volumeMounts:
+    #     - mountPath: /work
+    #       name: work
+    
+    # - name: docker-build-and-push-ct
+    #   image: quay.io/buildah/stable:v1
+    #   # registry.redhat.io requires auth which works with OpenShift but not Minikube
+    #   #image: registry.redhat.io/rhel8/buildah:8.9-5
+    #   securityContext:
+    #     runAsUser: 0
+    #     # Needed for hostPath volumes on OpenShift
+    #     # Must also change cp4i-scc.yaml
+    #     #privileged: true
+    #     capabilities:
+    #       add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
+    #   # specifying DOCKER_CONFIG is required to allow buildah to detect docker credential
+    #   env:
+    #     - name: "DOCKER_CONFIG"
+    #       value: "/tekton/home/.docker/"
+    #   script: |
+    #     date
+    #     export TAG=`cat $(results.tag.path)`
+    #     echo Using $TAG as image tag
+    #     buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
+    #       --build-arg BASE_IMAGE=$(params.outputRegistry)/tea-tekton-cp4i:$TAG \
+    #       -f /work/ibmint-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG /work/ibmint-output
+    #     date
+    #     buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
+    #       $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG"
+    #     echo image digest:
+    #     cat /tmp/image-digest && echo
+    #     cat /tmp/image-digest >> $(results.ctsha.path)
+    #     date
+    #   volumeMounts:
+    #     - mountPath: /work
+    #       name: work
+    #     - name: varlibcontainers
+    #       mountPath: /var/lib/containers
   volumes:
     - name: work
       emptyDir: {}

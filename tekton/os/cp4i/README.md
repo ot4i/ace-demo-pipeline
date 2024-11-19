@@ -80,22 +80,56 @@ The JDBC credentials also need to be placed in a Kubernetes secret called `jdbc-
 component test can access them during the pipeline run. This step (`component-test` in [ibmint-cp4i-build](12-ibmint-cp4i-build-task.yaml))
 proves that the code itself is working and connections are possible to the specified DB2 instance, while the later
 [CP4i-based component test](13-component-test-in-cp4i-task.yaml) demonstrates that the configurations are also valid
-and that the ACE server in the certified container can connect to DB2.
+and that the ACE server in the certified container can connect to DB2. 
 
-The initial commands are 
+Create the `jdbc-secret`
+
+```bash
+kubectl create secret generic jdbc-secret -n cp4i --from-literal=USERID='USERNAME' --from-literal=PASSWORD='PASSWORD' --from-literal=databaseName='BLUDB' --from-literal=serverName='19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='30699'
 ```
-kubectl create secret generic jdbc-secret --from-literal=USERID='USERNAME' --from-literal=PASSWORD='PASSWORD' --from-literal=databaseName='BLUDB' --from-literal=serverName='19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='30699'
+
+The Tekton pipeline expects docker credentials to be provided for [Crane](https://github.com/google/go-containerregistry/tree/main/cmd/crane) to use when pushing the built image, and these credentials must be associated with the service account for the pipeline. If this has not already been done elsewhere, then create them with the following format for OpenShift
+
+```bash
 kubectl create secret -n cp4i docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
+```
+
+Given we need to pull the ace prod image from `cp.icr.io` we need the entitlemnt in our openshift namespace. If `ibm-entitlement-key` needs to be created
+
+```bash
+oc create secret docker-registry ibm-entitlement-key \
+ --docker-username=cp\
+ --docker-password=<entitlement-key> \
+ --docker-server=cp.icr.io \
+ --namespace=<namespace>
+```
+
+Otherwise, if IBM entitlement key needs to be copied from one Namespace to another then
+
+```bash
+oc get secret ibm-entitlement-key -n SOURCE_NAMESPACE -o yaml | sed 's/namespace: SOURCE_NAMESPACE//g' | oc apply -n TARGET_NAMESPACE -f -
+```
+
+The service account needs `regcred` and `ibm-entitlement-key` associated with it. Also it needs the ability to create services, deployments, etc, which are necessary for running the service.
+
+```bash
 kubectl apply -f tekton/os/cp4i/cp4i-scc.yaml
 kubectl apply -f tekton/os/cp4i/service-account-cp4i.yaml
 oc adm policy add-scc-to-user cp4i-scc -n cp4i -z cp4i-tekton-service-account
+```
+
+Setting up the pipeline requires the tasks to be created, and the pipeline itself to be configured:
+
+```bash
 kubectl apply -f tekton/os/cp4i/12-ibmint-cp4i-build-task.yaml
 kubectl apply -f tekton/os/cp4i/13-component-test-in-cp4i-task.yaml
 kubectl apply -f tekton/os/cp4i/22-deploy-to-cp4i-task.yaml
 kubectl apply -f tekton/os/cp4i/cp4i-pipeline.yaml
 ```
+
 and to run the pipeline
-```
+
+```bash
 kubectl create -f tekton/os/cp4i/cp4i-pipeline-run.yaml
 tkn pipelinerun -n cp4i logs -L -f
 ```
