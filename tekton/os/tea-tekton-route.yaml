@@ -4,7 +4,8 @@ metadata:
   name: tea-route
 spec:
   # Adjust for namespace (replace default) and cluster name (replace openshift.mycompany.com)
-  host: tea-route-default.apps.openshift.mycompany.com
+  #host: tea-route-default.apps.openshift.mycompany.com
+  host: tea-route-ace-temp.apps.openshift-20240503.dolbyfamily.org
   to:
     kind: Service
     name: tea-tekton-service

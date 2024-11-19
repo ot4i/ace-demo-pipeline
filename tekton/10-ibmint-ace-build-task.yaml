@@ -59,7 +59,6 @@ spec:
         
         export LICENSE=accept
         . /opt/ibm/ace-13/server/bin/mqsiprofile
-        
         set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
         cd /work/ace-demo-pipeline
@@ -138,12 +137,15 @@ spec:
         cat /work/ibmint-output/ace-server/server.components.yaml || /bin/true
         
         # This seems to be needed for OpenShift support due to random userids at runtime
+        mkdir -p var/mqsi
+        (cd /var/mqsi && tar -cf - * ) | (cd var/mqsi && tar -xf - )
+        rm var/mqsi/common/log/* || /bin/true
         chmod -R 777 .
         echo ========================================================================
         echo Create tar file of server contents
         echo ========================================================================
         # Must have the full directory tree from / in the tar file
-        tar -cvzf /work/crane-append-file.tar.gz home
+        tar -cvzf /work/crane-append-file.tar.gz home var
       volumeMounts:
         - mountPath: /work
           name: work
@@ -159,7 +161,7 @@ spec:
         echo Appending server contents tar file to create new image
         echo ========================================================================
         crane append -b $(params.runtimeBaseImage) -f /work/crane-append-file.tar.gz -t $(params.outputRegistry)/tea-tekton:$TAG
-        crane mutate --env "LICENSE=accept" --entrypoint='bash,-c,"/home/aceuser/ace-server/ace-startup-script.sh && ibmint apply overrides /home/aceuser/ace-server/application-overrides.txt --work-directory /home/aceuser/ace-server && IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 --no-nodejs && IntegrationServer -w /home/aceuser/ace-server"' $(params.outputRegistry)/tea-tekton:$TAG
+        crane mutate --env "LICENSE=accept" --entrypoint='bash,-c,". /opt/ibm/ace-13/server/bin/mqsiprofile && /home/aceuser/ace-server/ace-startup-script.sh && ibmint apply overrides /home/aceuser/ace-server/application-overrides.txt --work-directory /home/aceuser/ace-server && IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 --no-nodejs && IntegrationServer -w /home/aceuser/ace-server"' $(params.outputRegistry)/tea-tekton:$TAG
         date
       volumeMounts:
         - mountPath: /work
