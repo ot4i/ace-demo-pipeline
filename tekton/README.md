@@ -204,9 +204,7 @@ shown as a separate task that only runs when requested:
 ![Pipeline overview](/demo-infrastructure/images/tekton-aceaas-pipeline.png)
 
 As there is no runtime container, this pipeline can run using the `ace` image as the 
-build image without any performance concerns because there are no buildah or Kaniko steps
-that would need to unpack the image; this requires an IBM Entitlement Key and the 
-appropriate credentials:
+build image; this requires an IBM Entitlement Key and the appropriate credentials:
 ```
 kubectl create secret docker-registry ibm-entitlement-key --docker-username=cp --docker-password=myEntitlementKey --docker-server=cp.icr.io
 ```

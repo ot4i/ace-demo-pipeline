@@ -9,7 +9,7 @@ allow JDBC connections to be tested using the same CP4i configurations used by t
 ## Container builds
 
 The pipeline creates the main application image first, and then builds the component test image on top of the first image.
-Kaniko is used to build both images in the pipeline, with ibmint or Maven building the applications and libraries.
+Crane is used to build both images in the pipeline, with ibmint or Maven building the applications and libraries.
 
 ![Container images](images/cp4i-container-images.png)
 
@@ -46,7 +46,7 @@ anything about running tests.
 ## Pipeline setup and run
 
 Many of the steps are the same as the main repo, but use the `cp4i` namespace. Security constraints are more of an issue
-in OpenShift, and buildah/Kaniko seems to require quite a lot of extra permissions when not running in the default namespace.
+in OpenShift, but using crane avoids a lot of extra permissions seen with kaniko and buildah.
 
 The pipeline assumes the CP4i ACE integration server image has been copied to the local image registry to make the
 container builds go faster; the image must match the locations in the YAML files. See 
@@ -60,19 +60,19 @@ at which point the OpenShift registry will be accessible from localhost:5000.
 
 FIX THIS! The image tags and SHA hashes are wrong . . . 
 
-As an example, the following sequence would tage the 13.0.1.0-r1 image and upload to the registry:
+As an example, the following sequence would tage the 13.0.1.0-r2 image and upload to the registry:
 ```
-docker pull cp.icr.io/cp/appc/ace-server-prod@sha256:6a317b9b057c3ad433dd447c4ff929c6b0af1c9c6e2bcc4d7bab4989e3c95cca
-docker tag cp.icr.io/cp/appc/ace-server-prod@sha256:6a317b9b057c3ad433dd447c4ff929c6b0af1c9c6e2bcc4d7bab4989e3c95cca
- image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.1.0-r1
-docker push image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.1.0-r1
+docker pull cp.icr.io/cp/appc/ace-server-prod:13.0.1.0-r2@sha256:d52aae2d2c649c1d2ddc53b0157eaa435fcab833b036e52516d5cd508f018289
+docker tag cp.icr.io/cp/appc/ace-server-prod:13.0.1.0-r2@sha256:d52aae2d2c649c1d2ddc53b0157eaa435fcab833b036e52516d5cd508f018289
+ image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.1.0-r2
+docker push image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.1.0-r2
 ```
 
 Note that the ACE operator often uses the version-and-date form of the image tag when creating
 containers, which would also work; the following tags refer to the same image:
 ```
-cp.icr.io/cp/appc/ace-server-prod:13.0.1.1-r1-20240125-170703
-cp.icr.io/cp/appc/ace-server-prod@sha256:6a317b9b057c3ad433dd447c4ff929c6b0af1c9c6e2bcc4d7bab4989e3c95cca
+cp.icr.io/cp/appc/ace-server-prod:13.0.1.0-r2-20241024-142903
+cp.icr.io/cp/appc/ace-server-prod@sha256:d52aae2d2c649c1d2ddc53b0157eaa435fcab833b036e52516d5cd508f018289
 ```
 
 Configurations need to be created for the JDBC credentials (teajdbc-policy and teajdbc) and default policy project name

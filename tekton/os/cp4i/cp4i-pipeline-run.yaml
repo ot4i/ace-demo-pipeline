@@ -19,8 +19,8 @@ spec:
     - name: revision
       value: "main"
     - name: buildImage
-      value: "cp.icr.io/cp/appc/ace:13.0.1.0-r1"
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-minimal-build:13.0.1.0-alpine"
+      #value: "cp.icr.io/cp/appc/ace:13.0.1.0-r1"
+      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-minimal-build:13.0.1.0-alpine"
     - name: runtimeBaseImage
       value: "cp.icr.io/cp/appc/ace-server-prod:13.0.1.0-r2-20241024-142903"
       #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.1.0-r2-20241024-142903"

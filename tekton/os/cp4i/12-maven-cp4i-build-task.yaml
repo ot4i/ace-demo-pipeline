@@ -14,15 +14,23 @@ metadata:
   namespace: cp4i
 spec:
   # The security and environment settings are needed for OpenShift in a non-default
-  # namespace such as cp4i. Kaniko is expecting to be root in the container.
+  # namespace such as cp4i. Kaniko and buildah are expecting to be root in the container.
   stepTemplate:
     securityContext:
       runAsUser: 0
     env:
       - name: "HOME"
         value: "/tekton/home"
+      - name: APP_NAME
+        value: $(params.appName)
+      - name: APP_NAMESPACE
+        value: $(params.appNamespace)
   params:
     - name: outputRegistry
+      type: string
+    - name: appName
+      type: string
+    - name: appNamespace
       type: string
     - name: url
       type: string
@@ -115,10 +123,10 @@ spec:
         echo Using $TAG as image tag
         buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
           --build-arg BASE_IMAGE=$(params.runtimeBaseImage) \
-          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i:$TAG /work/maven-output
+          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}:$TAG /work/maven-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.outputRegistry)/tea-tekton-cp4i:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i:$TAG"
+          $(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}:$TAG  "docker://$(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}:$TAG"
         echo image digest:
         cat /tmp/image-digest && echo
         cat /tmp/image-digest >> $(results.sha.path)
@@ -198,11 +206,11 @@ spec:
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
         buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
-          --build-arg BASE_IMAGE=$(params.outputRegistry)/tea-tekton-cp4i:$TAG \
-          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG /work/maven-output
+          --build-arg BASE_IMAGE=$(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}:$TAG \
+          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}-ct:$TAG /work/maven-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG"
+          $(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}-ct:$TAG  "docker://$(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}-ct:$TAG"
         echo image digest:
         cat /tmp/image-digest && echo
         cat /tmp/image-digest >> $(results.ctsha.path)
