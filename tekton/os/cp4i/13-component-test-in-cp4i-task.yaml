@@ -57,8 +57,8 @@ spec:
 
         export SHA=$(params.ctsha)
         export TAG=$(params.tag)
-        export TARGET_IMAGE=$DOCKER_REGISTRY/$APP_NAMESPACE/${APP_NAME}-ct@$SHA
-        echo "Using $TARGET_IMAGE as image placeholder (tag $TAG)"
+        export TARGET_IMAGE=$DOCKER_REGISTRY/$APP_NAMESPACE/${APP_NAME}-ct:$TAG@$SHA
+        echo "Using $TARGET_IMAGE as image placeholder"
 
         sed -i "s|IR_IMAGE_PLACEHOLDER|$TARGET_IMAGE|g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
         sed -i "s|APP_NAMESPACE|$APP_NAMESPACE|g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
