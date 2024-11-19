@@ -87,7 +87,7 @@ spec:
         echo ========================================================================
         cd /tmp
         # Using "zip" would be more obvious, but not all ACE images have it available.
-        /opt/ibm/ace-12/common/jdk/bin/jar cvf /tmp/JDBCPolicies.zip JDBCPolicies
+        /opt/ibm/ace-13/common/jdk/bin/jar cvf /tmp/JDBCPolicies.zip JDBCPolicies
         cat /tmp/JDBCPolicies.zip | base64 -w 0 > /tmp/JDBCPolicies.zip.base64
         
         # Not sure if this is better than the template way of doing things below . . . (TCD 20240305)

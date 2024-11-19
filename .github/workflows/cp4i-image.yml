@@ -1,31 +1,23 @@
-# CI build to validate PR changes before merging
+name: CP4i Image Build
 
-name: CI
-
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches: [ main, minikube-cp4i ]
-  pull_request:
-    branches: [ main, minikube-cp4i ]
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    container: 
+    container:
       image: tdolby/experimental:ace-minimal-13.0.1.0-alpine
       env:
         LICENSE: accept
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+      options: -u 0
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
-          
+
       - name: Build the application and test it
         shell: bash
         run: |
@@ -54,3 +46,14 @@ jobs:
           echo Running unit tests
           echo ========================================================================
           IntegrationServer -w /tmp/test-work-dir --no-nodejs --start-msgflows false --test-project TeaRESTApplication_UnitTest --test-junit-options --reports-dir=junit-reports
+          
+      - name: Create the container structure
+        run: |
+          rm -rf /tmp/build
+          mkdir -p /tmp/build
+          cp tekton/Dockerfile /tmp/build/Dockerfile
+        
+      - name: Install docker
+        run: |
+          unset LD_LIBRARY_PATH || /bin/true
+          apk add docker

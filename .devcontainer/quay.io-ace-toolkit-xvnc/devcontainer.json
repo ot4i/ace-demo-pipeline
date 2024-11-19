@@ -1,6 +1,6 @@
 {
     "name": "ace-demo-pipeline-quay.io-toolkit-xvnc-devcontainer",
-    "image": "quay.io/trevor_dolby/ace-devcontainer-xvnc:12.0.11.0",
+    "image": "quay.io/trevor_dolby/ace-devcontainer-xvnc:13.0.1.0",
     "containerEnv": {
         "LICENSE": "accept"
     },

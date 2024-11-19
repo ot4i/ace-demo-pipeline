@@ -6,7 +6,7 @@
 
 if [ ! -n "$MQSI_WORKPATH" ]
 then
-    . /opt/ibm/ace-12/server/bin/mqsiprofile
+    . /opt/ibm/ace-13/server/bin/mqsiprofile
 fi
 
 if [ ! -n "$WORKSPACE" ]

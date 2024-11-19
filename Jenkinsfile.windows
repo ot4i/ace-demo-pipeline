@@ -12,7 +12,7 @@ pipeline {
     string(name: 'integrationServerName',   defaultValue: 'default', description: 'Integration server name')
   }
   environment {
-    ACE_COMMAND = "C:\\Program Files\\IBM\\ACE\\12.0.11.0\\ace"
+    ACE_COMMAND = "C:\\Program Files\\IBM\\ACE\\13.0.1.0\\ace"
     CT_JDBC = credentials('CT_JDBC')
   }
   stages {

@@ -37,7 +37,7 @@ spec:
           name: work
     - name: ibmint-build
       image: $(params.buildImage)
-      #image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
+      #image: cp.icr.io/cp/appc/ace:13.0.1.0-r1
       #
       # Runs the build and unit test phases, leaving the application BAR file in the 
       # /work/ibmint-output directory for later steps to use.
@@ -46,7 +46,7 @@ spec:
         #!/bin/bash
         
         export LICENSE=accept
-        . /opt/ibm/ace-12/server/bin/mqsiprofile
+        . /opt/ibm/ace-13/server/bin/mqsiprofile
         
         set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
@@ -55,7 +55,7 @@ spec:
         echo ========================================================================
         echo Building application
         echo ========================================================================
-        # Using --compile-maps-and-schemas for 12.0.11 and later . . . 
+        # Using --compile-maps-and-schemas for 13.0.1 and later . . . 
         ibmint package --input-path . --output-bar-file /work/ibmint-output/tea-tekton.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
 
         echo ========================================================================
@@ -76,7 +76,7 @@ spec:
           name: work
     - name: component-test
       image: $(params.buildImage)
-      #image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
+      #image: cp.icr.io/cp/appc/ace:13.0.1.0-r1
       #
       # Builds and runs the component tests using the JDBC credentials provided from
       # the secret. Also uses the same init-creds.sh script used by the non-CP4i image
@@ -85,7 +85,7 @@ spec:
       script: |
         #!/bin/bash
 
-        . /opt/ibm/ace-12/server/bin/mqsiprofile
+        . /opt/ibm/ace-13/server/bin/mqsiprofile
 
         set -e # Fail on error
         

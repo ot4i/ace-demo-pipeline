@@ -49,7 +49,7 @@ spec:
           name: work
     - name: ibmint-build
       image: $(params.buildImage)
-      #image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
+      #image: cp.icr.io/cp/appc/ace:13.0.1.0-r1
       #
       # Runs the build and unit test phases, leaving the results in the work directory
       # for later steps.
@@ -58,14 +58,14 @@ spec:
         #!/bin/bash
         
         export LICENSE=accept
-        . /opt/ibm/ace-12/server/bin/mqsiprofile
+        . /opt/ibm/ace-13/server/bin/mqsiprofile
         
         set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
         cd /work/ace-demo-pipeline
         mkdir /work/ibmint-output
         mqsicreateworkdir /work/ibmint-output/ace-server
-        # Using --compile-maps-and-schemas for 12.0.11 and later . . . 
+        # Using --compile-maps-and-schemas for 13.0.1 and later . . . 
         ibmint deploy --input-path . --output-work-directory /work/ibmint-output/ace-server --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
         ibmint optimize server --work-dir /work/ibmint-output/ace-server --disable NodeJS
 
@@ -84,7 +84,7 @@ spec:
           name: work
     - name: component-test
       image: $(params.buildImage)
-      #image: cp.icr.io/cp/appc/ace:12.0.11.0-r1
+      #image: cp.icr.io/cp/appc/ace:13.0.1.0-r1
       #
       # Builds and runs the component tests using the JDBC credentials provided from
       # the secret. Also uses the same init-creds.sh script used by the non-CP4i image
@@ -96,11 +96,11 @@ spec:
       script: |
         #!/bin/bash
 
-        . /opt/ibm/ace-12/server/bin/mqsiprofile
+        . /opt/ibm/ace-13/server/bin/mqsiprofile
 
         set -e # Fail on error
         
-        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+        export PATH=/opt/ibm/ace-13/common/jdk/bin:$PATH
         # Slightly hacky, but quicker than building everything again!
         (cd /work/ibmint-output/ace-server && tar -cf - * ) | (cd /home/aceuser/ace-server && tar -xf - )
         ls -l /home/aceuser/ace-server
@@ -124,53 +124,46 @@ spec:
       image: $(params.buildImage)
       script: |
         #!/bin/bash
-        
-        set -e # Fail on error
-        
         cd /work/ibmint-output
-        cp /work/ace-demo-pipeline/tekton/Dockerfile Dockerfile
+        mkdir -p home/aceuser/ace-server
+        (cd /work/ibmint-output/ace-server && tar -cf - * ) | (cd home/aceuser/ace-server && tar -xf - )
 
-        # Copy in various startup files
-        cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml ace-server/
-        cp /work/ace-demo-pipeline/demo-infrastructure/application-overrides.txt ace-server/
-        cp /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh ace-server/ace-startup-script.sh
-        cp /work/ace-demo-pipeline/demo-infrastructure/read-hashicorp-creds.sh ace-server/
-        cp /work/ace-demo-pipeline/demo-infrastructure/read-xml-creds.sh ace-server/
+        cp /work/ace-demo-pipeline/demo-infrastructure/TEAJDBC.policyxml home/aceuser/ace-server/
+        cp /work/ace-demo-pipeline/demo-infrastructure/application-overrides.txt home/aceuser/ace-server/
+        cp /work/ace-demo-pipeline/demo-infrastructure/init-creds.sh home/aceuser/ace-server/ace-startup-script.sh
+        cp /work/ace-demo-pipeline/demo-infrastructure/read-hashicorp-creds.sh home/aceuser/ace-server/
+        cp /work/ace-demo-pipeline/demo-infrastructure/read-xml-creds.sh home/aceuser/ace-server/
 
         echo Contents of /work/ibmint-output/ace-server/server.components.yaml
         cat /work/ibmint-output/ace-server/server.components.yaml || /bin/true
+        
+        # This seems to be needed for OpenShift support due to random userids at runtime
+        chmod -R 777 .
+        echo ========================================================================
+        echo Create tar file of server contents
+        echo ========================================================================
+        # Must have the full directory tree from / in the tar file
+        tar -cvzf /work/crane-append-file.tar.gz home
       volumeMounts:
         - mountPath: /work
           name: work
-    - name: docker-build-and-push
-      image: quay.io/buildah/stable:v1
-      #image: registry.redhat.io/rhel8/buildah:8.9-5
-      securityContext:
-        runAsUser: 0
-        # Needed for hostPath volumes on OpenShift
-        #privileged: true
-        capabilities:
-          add: ["CHOWN", "DAC_OVERRIDE","FOWNER","SETFCAP","SETGID","SETUID"]
-      # specifying DOCKER_CONFIG is required to allow buildah to detect docker credential
-      env:
-        - name: "DOCKER_CONFIG"
-          value: "/tekton/home/.docker/"
+    - name: crane-push
+      image: ghcr.io/shortbrain/golang-tasks/crane@sha256:5d2dea205584b1f172cd9f0e68d00df0fbaeabd75894be475af42f092a47ee39
       script: |
+        #!/bin/bash
         date
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
-        buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
-          --build-arg BASE_IMAGE=$(params.runtimeBaseImage) \
-          -f /work/ibmint-output/Dockerfile -t $(params.outputRegistry)/tea-tekton:$TAG /work/ibmint-output
-        date
-        buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.outputRegistry)/tea-tekton:$TAG  "docker://$(params.outputRegistry)/tea-tekton:$TAG"
+        
+        echo ========================================================================
+        echo Appending server contents tar file to create new image
+        echo ========================================================================
+        crane append -b $(params.runtimeBaseImage) -f /work/crane-append-file.tar.gz -t $(params.outputRegistry)/tea-tekton:$TAG
+        crane mutate --env "LICENSE=accept" --entrypoint='bash,-c,"/home/aceuser/ace-server/ace-startup-script.sh && ibmint apply overrides /home/aceuser/ace-server/application-overrides.txt --work-directory /home/aceuser/ace-server && IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 --no-nodejs && IntegrationServer -w /home/aceuser/ace-server"' $(params.outputRegistry)/tea-tekton:$TAG
         date
       volumeMounts:
         - mountPath: /work
           name: work
-        - name: varlibcontainers
-          mountPath: /var/lib/containers
   volumes:
     - name: work
       emptyDir: {}
