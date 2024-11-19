@@ -10,7 +10,7 @@ spec:
     toolkitFlow: true
   license:
     accept: true
-    license: L-QECF-MBXVLU
+    license: L-KPRV-AUG9NC
     use: AppConnectEnterpriseNonProductionFREE
   template:
     spec:

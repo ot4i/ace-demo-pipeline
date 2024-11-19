@@ -58,12 +58,14 @@ kubectl --namespace openshift-image-registry port-forward --address 0.0.0.0 svc/
 ```
 at which point the OpenShift registry will be accessible from localhost:5000.
 
+FIX THIS! The image tags and SHA hashes are wrong . . . 
+
 As an example, the following sequence would tage the 13.0.1.0-r1 image and upload to the registry:
 ```
 docker pull cp.icr.io/cp/appc/ace-server-prod@sha256:6a317b9b057c3ad433dd447c4ff929c6b0af1c9c6e2bcc4d7bab4989e3c95cca
 docker tag cp.icr.io/cp/appc/ace-server-prod@sha256:6a317b9b057c3ad433dd447c4ff929c6b0af1c9c6e2bcc4d7bab4989e3c95cca
- image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:13.0.1.0-r1
-docker push image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:13.0.1.0-r1
+ image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.1.0-r1
+docker push image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.1.0-r1
 ```
 
 Note that the ACE operator often uses the version-and-date form of the image tag when creating

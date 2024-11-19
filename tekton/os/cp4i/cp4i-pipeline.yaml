@@ -7,9 +7,10 @@ spec:
   params:
     - name: dockerRegistry
       type: string
-      default: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
+      default: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i"
     - name: appName
       type: string
+      default: "tea-tekton-cp4i"
     - name: appNamespace
       type: string
       default: "cp4i"
@@ -22,11 +23,11 @@ spec:
     - name: buildImage
       type: string
       default: "cp.icr.io/cp/appc/ace:13.0.1.0-r1"
-      #default: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal-build:13.0.1.0-alpine"
+      #default: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-minimal-build:13.0.1.0-alpine"
     - name: runtimeBaseImage
       type: string
       default: "cp.icr.io/cp/appc/ace-server-prod:13.0.1.1-r1-20240125-170703"
-      #default: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:13.0.1.1-r1-20240125-170703"
+      #default: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.1.1-r1-20240125-170703"
   tasks:
     - name: build-from-source
       taskRef:

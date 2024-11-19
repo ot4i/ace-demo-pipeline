@@ -36,7 +36,7 @@ being one example:
 ```
     - name: dockerRegistry
       # OpenShift
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace"
       #value: "quay.io/trevor_dolby"
       #value: "us.icr.io/ace-containers"
       #value: "aceDemoRegistry.azurecr.io"
@@ -113,7 +113,7 @@ as [ace-minimal-build-image-pipeline-run.yaml](ace-minimal-build-image-pipeline-
 ```
     - name: dockerRegistry
       # OpenShift
-      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
+      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace"
       #value: "quay.io/trevor_dolby"
       #value: "us.icr.io/ace-containers"
       #value: "aceDemoRegistry.azurecr.io"

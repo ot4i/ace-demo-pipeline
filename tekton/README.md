@@ -52,9 +52,9 @@ comments, with [ace-pipeline-run.yaml](ace-pipeline-run.yaml) being one example:
       # Requires an IBM Entitlement Key
       #value: "cp.icr.io/cp/appc/ace:13.0.1.0-r1"
       # ace-minimal can be built from the ACE package without needing a key
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal:13.0.1.0-alpine"
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace/ace-minimal:13.0.1.0-alpine"
       # Need to use the -build image for Maven
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal-build:13.0.1.0-alpine"
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace/ace-minimal-build:13.0.1.0-alpine"
       value: "192.168.49.2:5000/default/ace-minimal-build:13.0.1.0-alpine"
 ```
 
