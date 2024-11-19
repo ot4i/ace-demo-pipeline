@@ -119,9 +119,14 @@ spec:
         mv ace-server/server.components.yaml home/aceuser/ace-server/ 
 
         # Fix permissions issues 
-        # chmod 777 /work/ibmint-output /work/ibmint-output/Dockerfile
-        chmod -R a+r /work/ibmint-output
-        find /work/ibmint-output -type d -print | xargs chmod 775
+        #
+        # The ACE operator support code in the ace-server-prod container tries to
+        # move /home/aceuser/ace-server to an emptyDir mount, and will print errors
+        # of the following form if we don't fix the permissions:
+        # 
+        # 2024-11-19T20:38:49.224Z Attempting to move / symlink /home/aceuser/ace-server to shared mount
+        # 2024-11-19T20:38:49.267Z Error deleting original work dir - Error:/usr/bin/rm: exit status 1: rm: cannot remove '/home/aceuser/ace-server/adminLog': Permission denied
+        chmod -R 777 /work/ibmint-output
 
         echo ========================================================================
         echo Create tar file of server contents
@@ -212,9 +217,14 @@ spec:
         mv ace-server/server.components.yaml home/aceuser/ace-server/ 
 
         # Fix permissions issues 
-        # chmod 777 /work/ibmint-output /work/ibmint-output/Dockerfile
-        chmod -R a+r /work/ibmint-output
-        find /work/ibmint-output -type d -print | xargs chmod 775
+        #
+        # The ACE operator support code in the ace-server-prod container tries to
+        # move /home/aceuser/ace-server to an emptyDir mount, and will print errors
+        # of the following form if we don't fix the permissions:
+        # 
+        # 2024-11-19T20:38:49.224Z Attempting to move / symlink /home/aceuser/ace-server to shared mount
+        # 2024-11-19T20:38:49.267Z Error deleting original work dir - Error:/usr/bin/rm: exit status 1: rm: cannot remove '/home/aceuser/ace-server/adminLog': Permission denied
+        chmod -R 777 /work/ibmint-output
 
         echo ========================================================================
         echo Create tar file of server contents including component tests

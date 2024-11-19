@@ -24,7 +24,7 @@ spec:
           env:  
             - name: MQSI_PREVENT_CONTAINER_SHUTDOWN
               value: 'true'
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: runtime
           livenessProbe:
             failureThreshold: 1000000

@@ -17,7 +17,7 @@ spec:
       containers:
         - image: >-
             IR_IMAGE_PLACEHOLDER
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: runtime
           resources:
             requests:
