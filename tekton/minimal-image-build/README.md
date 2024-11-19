@@ -64,7 +64,7 @@ eliminate the issue without causing problems) and seems to need the `--docker-em
 
 The aceDownloadUrl value in ace-minimal-image-pipeline-run.yaml is likely to need updating, either to another version
 in the same server directory (if available) or else to an ACE developer edition URL from the IBM website. In the latter
-case, start at https://www.ibm.com/docs/en/app-connect/12.0?topic=enterprise-download-ace-developer-edition-get-started
+case, start at https://www.ibm.com/docs/en/app-connect/13.0?topic=enterprise-download-ace-developer-edition-get-started
 and proceed through the pages until the main download page with a link: 
 
 ![download page](ace-dev-edition-download.png)

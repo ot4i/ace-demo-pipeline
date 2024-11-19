@@ -12,7 +12,7 @@ The tasks rely on several different containers for all use cases:
   - The `ace-minimal` image (see [minimal image build instructions](minimal-image-build/README.md) for details).
     This image can be built from the ACE developer edition package (no purchase necessary) and is much
     smaller than most other ACE images.
-  - The `ace` image from cp.icr.io (see [Obtaining an IBM App Connect Enterprise server image](https://www.ibm.com/docs/en/app-connect/12.0?topic=cacerid-building-sample-app-connect-enterprise-image-using-docker#aceimages__title__1) for versions and necessary credentials).
+  - The `ace` image from cp.icr.io (see [Obtaining an IBM App Connect Enterprise server image](https://www.ibm.com/docs/en/app-connect/13.0?topic=cacerid-building-sample-app-connect-enterprise-image-using-docker#aceimages__title__1) for versions and necessary credentials).
     This image is created by IBM and requires an IBM Entitlement Key for access.
 
 For container deployments, more containers are used:
