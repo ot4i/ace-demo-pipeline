@@ -140,10 +140,11 @@ spec:
       script: |
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
+        set -x
         crane append -b $(params.runtimeBaseImage) -f /work/ibmint-output/crane-append-file.tar.gz \
-          -t $(params.outputRegistry)/$APP_NAME:$TAG
+          -t $(params.outputRegistry)/$APP_NAMESPACE/$APP_NAME:$TAG
                 
-        crane digest $(params.outputRegistry)/$APP_NAME:$TAG | tr -d '\n' >> $(results.sha.path)
+        crane digest $(params.outputRegistry)/$APP_NAMESPACE/$APP_NAME:$TAG | tr -d '\n' >> $(results.sha.path)
       volumeMounts:
         - mountPath: /work
           name: work
@@ -232,10 +233,11 @@ spec:
       script: |
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
-        crane append -b $(params.outputRegistry)/$APP_NAME:$TAG -f /work/ibmint-output/crane-append-file-ct.tar.gz \
-          -t $(params.outputRegistry)/${APP_NAME}-ct:$TAG
+        set -x
+        crane append -b $(params.outputRegistry)/$APP_NAMESPACE/$APP_NAME:$TAG -f /work/ibmint-output/crane-append-file-ct.tar.gz \
+          -t $(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}-ct:$TAG
         
-        crane digest $(params.outputRegistry)/${APP_NAME}-ct:$TAG | tr -d '\n' >> $(results.ctsha.path)
+        crane digest $(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}-ct:$TAG | tr -d '\n' >> $(results.ctsha.path)
       volumeMounts:
         - mountPath: /work
           name: work
