@@ -37,7 +37,7 @@ spec:
               cpu: 2000m
               memory: 1024Mi
       # This is now handled via the "default" service account
-      # kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "regcred"}]}'
+      # kubectl patch serviceaccount default --type=json -p='[{"op": "add", "path": "/imagePullSecrets/-", "value": {"name": "regcred"}}]'
       #imagePullSecrets:
       #- name: regcred
   version: 13.0.1.0-r2

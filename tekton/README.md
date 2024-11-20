@@ -83,7 +83,7 @@ only that the service accounts have the `system:image-builder` role and dummy cr
 service account needs to be given the credentials:
   ```
   kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=<user> --docker-password=<password>
-  kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "regcred"}]}'
+  kubectl patch serviceaccount default --type=json -p='[{"op": "add", "path": "/imagePullSecrets/-", "value": {"name": "regcred"}}]'
   kubectl apply -f tekton/service-account.yaml
   ```
 The service account also has the ability to create services, deployments, etc, which are necessary for running the service.
