@@ -36,5 +36,5 @@ spec:
   authorization:
     integrationKeycloak:
       enabled: false
-  version: '12.0'
+  version: '13.0'
   displayMode: IntegrationRuntimes

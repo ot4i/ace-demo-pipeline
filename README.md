@@ -22,8 +22,8 @@ created on-demand to make setup easier, the logging goes to the console instead 
 
 ## Recent changes
 
-- Minikube added as the default "plain Kubernetes" option.
-- ACE-as-a-Service added as a deploy target (see below).
+- Upgraded to ACE 13.0.1
+- Uses [Crane](https://github.com/google/go-containerregistry/tree/main/cmd/crane) for faster container image builds.
 
 ## Technology and target options
 
@@ -60,7 +60,7 @@ ACE deploy targets currently include:
   locally) and OpenShift can be used with the former, while the latter expects to deploy to the Cloud
   Pak for Integration (CP4i). See [tekton/README.md#container-deploy-target](tekton/README.md#container-deploy-target)
   for a description of the container deploy pipelines.
-- [ACE-as-a-Service](https://www.ibm.com/docs/en/app-connect/12.0?topic=app-connect-enterprise-as-service)
+- [ACE-as-a-Service](https://www.ibm.com/docs/en/app-connect/13.0?topic=app-connect-enterprise-as-service)
   (ACEaaS) running on Amazon Web Services (AWS). This option requires an instance (which can be a trial instance)
   of ACEaaS to be available but does not require ACE servers to managed directly (in virtual machines or containers)
   as the flows run entirely in the cloud. See [demo-infrastructure/README-aceaas-pipelines.md](demo-infrastructure/README-aceaas-pipelines.md)
@@ -99,7 +99,7 @@ Regardless of the pipeline technology and deployment target, some initial steps 
   (forked) repo locally with the pre-installed eGit plugin. Although development and testing
   can be done online using a GitHub-hosted container (see [README-codespaces](README-codespaces.md) 
   for details), having the toolkit available locally is helpful for replicating the most common
-  ACE development experience. See the developer edition [download page](https://www.ibm.com/docs/en/app-connect/12.0?topic=enterprise-download-ace-developer-edition-get-started)
+  ACE development experience. See the developer edition [download page](https://www.ibm.com/docs/en/app-connect/13.0?topic=enterprise-download-ace-developer-edition-get-started)
   for a free version (limited to one transaction per second per flow) if your organization does
   not have existing ACE licenses.
 

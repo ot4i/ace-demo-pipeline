@@ -4,7 +4,7 @@ metadata:
   name: ace-build
 spec:
   # The security and environment settings are needed for OpenShift in a non-default
-  # namespace such as cp4i. Kaniko is expecting to be root in the container.
+  # namespace such as cp4i. Buildah is expecting to be root in the container.
   stepTemplate:
     securityContext:
       runAsUser: 0

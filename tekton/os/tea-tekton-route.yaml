@@ -3,8 +3,8 @@ apiVersion: route.openshift.io/v1
 metadata:
   name: tea-route
 spec:
-  # Adjust for namespace (replace default) and cluster name (replace openshift.mycompany.com)
-  host: tea-route-default.apps.openshift.mycompany.com
+  # Adjust for namespace (replace ace) and cluster name (replace openshift.mycompany.com)
+  host: tea-route-ace.apps.openshift.mycompany.com
   to:
     kind: Service
     name: tea-tekton-service

@@ -102,7 +102,7 @@
         <mxCell id="o9Dw2uAFvMvjfERwR4WU-45" value="k8s-kubectl" style="rounded=0;whiteSpace=wrap;html=1;fontSize=18;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="o9Dw2uAFvMvjfERwR4WU-51">
           <mxGeometry x="620" y="40" width="147.5" height="49" as="geometry" />
         </mxCell>
-        <mxCell id="o9Dw2uAFvMvjfERwR4WU-44" value="Kaniko or buildah" style="rounded=0;whiteSpace=wrap;html=1;fontSize=18;fillColor=#cce5ff;strokeColor=#36393d;" vertex="1" parent="o9Dw2uAFvMvjfERwR4WU-51">
+        <mxCell id="o9Dw2uAFvMvjfERwR4WU-44" value="Crane" style="rounded=0;whiteSpace=wrap;html=1;fontSize=18;fillColor=#cce5ff;strokeColor=#36393d;" vertex="1" parent="o9Dw2uAFvMvjfERwR4WU-51">
           <mxGeometry x="387.5" y="40" width="212.5" height="50" as="geometry" />
         </mxCell>
         <mxCell id="o9Dw2uAFvMvjfERwR4WU-41" value="ACE build container" style="rounded=0;whiteSpace=wrap;html=1;fontSize=18;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="o9Dw2uAFvMvjfERwR4WU-51">

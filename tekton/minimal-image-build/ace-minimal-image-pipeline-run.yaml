@@ -14,7 +14,7 @@ spec:
   params:
     - name: dockerRegistry
       # OpenShift
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace"
       #value: "quay.io/trevor_dolby"
       #value: "us.icr.io/ace-containers"
       #value: "aceDemoRegistry.azurecr.io"

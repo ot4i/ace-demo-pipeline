@@ -12,15 +12,15 @@
   <dependencies>
     <!-- LOCAL DEPENDENCY -->
     <dependency>
-      <groupId>ACEv12</groupId><artifactId>IntegrationAPI</artifactId><version>12.0</version><scope>system</scope>
+      <groupId>ACEv13</groupId><artifactId>IntegrationAPI</artifactId><version>13.0</version><scope>system</scope>
       <systemPath>${MQSI_BASE_FILEPATH}/common/classes/IntegrationAPI.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>ACEv12</groupId><artifactId>jplugin2</artifactId><version>12.0</version><scope>system</scope>
+      <groupId>ACEv13</groupId><artifactId>jplugin2</artifactId><version>13.0</version><scope>system</scope>
       <systemPath>${MQSI_BASE_FILEPATH}/server/classes/jplugin2.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>ACEv12</groupId><artifactId>bipbroker</artifactId><version>12.0</version><scope>system</scope>
+      <groupId>ACEv13</groupId><artifactId>bipbroker</artifactId><version>13.0</version><scope>system</scope>
       <systemPath>${MQSI_BASE_FILEPATH}/server/classes/bipbroker.jar</systemPath>
     </dependency>
   </dependencies>

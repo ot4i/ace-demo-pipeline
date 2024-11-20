@@ -26,10 +26,10 @@ spec:
       script: |
         #!/bin/sh
         cd /work
-        git clone https://github.com/ot4i/ace-docker
+        git clone https://github.com/trevor-dolby-at-ibm-com/ace-docker
 
         # Change the registry location if pull quota exceeded
-        #sed -i 's/alpine:3.18/quay.io\/trevor_dolby\/alpine:3.18/g' /work/ace-docker/experimental/ace-minimal/Dockerfile.alpine
+        #sed -i 's/alpine:3.20/quay.io\/trevor_dolby\/alpine:3.20/g' /work/ace-docker/experimental/ace-minimal/Dockerfile.alpine
         
         ls -l /work/ace-docker/experimental/ace-minimal
       volumeMounts:

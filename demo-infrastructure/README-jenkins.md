@@ -8,7 +8,7 @@ available, and will run on Windows (integration node only) or via docker on Unix
 
 ## Running Jenkins
 
-Jenkins can be run from a command line (using Java11) as follows once downloaded:
+Jenkins can be run from a command line (using Java11 or greater) as follows once downloaded:
 ```
 java -jar jenkins.war --httpPort=8080
 ```
@@ -36,10 +36,10 @@ first (for users without an IBM Entitlement Key). The use of a container to run 
 that the Jenkins environment (for example, Java level) does not affect ACE commands, and ensures 
 a consistent environment for building ACE artifacts. See the [ace-minimal-build](/demo-infrastructure/docker/ace-minimal-build) 
 directory for information on building the image, or [Obtaining an IBM App Connect Enterprise 
-server image](https://www.ibm.com/docs/en/app-connect/12.0?topic=cacerid-building-sample-app-connect-enterprise-image-using-docker#aceimages__title__1)
+server image](https://www.ibm.com/docs/en/app-connect/13.0?topic=cacerid-building-sample-app-connect-enterprise-image-using-docker#aceimages__title__1)
 to download the `ace` image. The Jenkinsfile will need to be updated to use the correct image.
 
-The ACE version does not have to match the exact modification level (12.0.X) of the deploy target
+The ACE version does not have to match the exact modification level (13.0.X) of the deploy target
 (integration node or ACEaaS) but keeping build containers up-to-date is a good idea in general in
 order to benefit from fixes and new capabilities.
 

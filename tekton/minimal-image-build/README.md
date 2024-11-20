@@ -44,18 +44,33 @@ being one example:
       value: "192.168.49.2:5000/default"
 ```
 
-The Tekton pipeline expects docker credentials to be provided for Kaniko to use when pushing the built image, and 
-these credentials must be associated with the service account for the pipeline. If this has not already been done 
-elsewhere, then create them with the following format for single-node OpenShift using temporary admin credentials
-```
-kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
-kubectl apply -f tekton/service-account.yaml
-```
-or a dummy variant for Minikube without registry authentication enabled:
-```
-kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=dummy --docker-password=dummy
-kubectl apply -f tekton/service-account.yaml
-```
+The Tekton pipeline and ACE runtime rely on having permission to access the container registry,
+and this may require the provision of credentials for the service accounts to use:
+
+- Minikube container registry does not have authentication enabled by default, and so dummy
+credentials can be used for the `regcred` secret:
+  ```
+  kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
+  kubectl apply -f tekton/service-account.yaml
+  ```
+- OpenShift container registry does have authentication enabled, but this is integrated and requires
+only that the service accounts have the `system:image-builder` role and dummy credentials can be used:
+  ```
+  kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
+  kubectl apply -f tekton/service-account.yaml
+  ```
+  It is also possible to use the logged-in user's token, which may be necessary in some cases:
+  ```
+  kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
+  ```
+  See the "Openshift" section below for more details.
+- External registries normally require authentication, and in that case the default runtime 
+service account needs to be given the credentials:
+  ```
+  kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=<user> --docker-password=<password>
+  kubectl patch serviceaccount default --type=json -p='[{"op": "add", "path": "/imagePullSecrets/-", "value": {"name": "regcred"}}]'
+  kubectl apply -f tekton/service-account.yaml
+  ```
 The service account also has the ability to create services, deployments, etc, which are necessary for running the service. 
 Note that on Windows, kubectl sometimes complains about not being able to validate files (using --validate=false appears to 
 eliminate the issue without causing problems) and seems to need the `--docker-email` parameter also, but the value can be anything.
@@ -64,7 +79,7 @@ eliminate the issue without causing problems) and seems to need the `--docker-em
 
 The aceDownloadUrl value in ace-minimal-image-pipeline-run.yaml is likely to need updating, either to another version
 in the same server directory (if available) or else to an ACE developer edition URL from the IBM website. In the latter
-case, start at https://www.ibm.com/docs/en/app-connect/12.0?topic=enterprise-download-ace-developer-edition-get-started
+case, start at https://www.ibm.com/docs/en/app-connect/13.0?topic=enterprise-download-ace-developer-edition-get-started
 and proceed through the pages until the main download page with a link: 
 
 ![download page](ace-dev-edition-download.png)
@@ -101,23 +116,36 @@ tkn pipelinerun logs -L -f
 
 ## OpenShift
 
-The majority of steps are the same, but the registry authentication is a little different; assuming a session logged in as kubeadmin, it would look as follows:
+Tekton is not normally installed directly on OpenShift, and the Red Hat OpenShift Pipelines operator
+would be used instead. The majority of the other steps are the same, but the registry authentication is 
+a little different: the namespace in which the pipeline and pod are running must match the project
+name in the image registry tags. The examples show 
+`image-registry.openshift-image-registry.svc.cluster.local:5000/ace/ace-minimal:13.0.1.0-alpine`,
+which will work for the `ace` namespace.
+
+To run outside the default namespace, a special SecurityContextConstraints definition must be created
+and associated with the service account:
 ```
-kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
+kubectl apply -f tekton/os/ace-scc.yaml
+oc adm policy add-scc-to-user ace-scc -z ace-tekton-service-account
 ```
-Note that the actual password itself (as opposed to the hash provided by "oc whoami -t") does not work for
-registry authentication for some reason when using single-node OpenShift with a temporary admin user.
+Without this change, errors of the form
+```
+task build-images has failed: pods "ace-minimal-image-pipeline-run-db8lw-build-images-pod" is forbidden: unable to validate against any security context constraint: 
+```
+may prevent the pipeline running correctly.
 
 After that, the pipeline run files need to be adjusted to use the OpenShift registry, such 
 as [ace-minimal-build-image-pipeline-run.yaml](ace-minimal-build-image-pipeline-run.yaml):
 ```
     - name: dockerRegistry
       # OpenShift
-      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
+      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace"
       #value: "quay.io/trevor_dolby"
       #value: "us.icr.io/ace-containers"
       #value: "aceDemoRegistry.azurecr.io"
       # Minikube
       #value: "192.168.49.2:5000/default"
 ```
-and then the pipelines can be run as usual.
+and then the pipelines can be run as usual. The OpenShift Pipeline operator provides a 
+web interface for the pipeline runs, which may be an easier way to view progress.

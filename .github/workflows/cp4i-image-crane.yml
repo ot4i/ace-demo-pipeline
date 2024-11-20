@@ -117,7 +117,7 @@ jobs:
           echo ========================================================================
           echo Building container image
           echo ========================================================================
-          docker build --file Dockerfile --build-arg BASE_IMAGE=cp.icr.io/cp/appc/ace-server-prod:13.0.1.0-r1-20240417-022324 -t tdolby/experimental:tea-github-action-$TAG .
+          docker build --file Dockerfile --build-arg BASE_IMAGE=cp.icr.io/cp/appc/ace-server-prod:13.0.1.0-r2-20241024-142903 -t tdolby/experimental:tea-github-action-$TAG .
           
           echo ========================================================================
           echo Pushing container image

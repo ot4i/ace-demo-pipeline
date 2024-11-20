@@ -18,8 +18,22 @@ metadata:
   name: component-test-in-cp4i
   namespace: cp4i
 spec:
+  stepTemplate:
+    env:
+      - name: "LICENSE"
+        value: "accept"
+      - name: DOCKER_REGISTRY
+        value: $(params.dockerRegistry)
+      - name: APP_NAME
+        value: $(params.appName)
+      - name: APP_NAMESPACE
+        value: $(params.appNamespace)
   params:
     - name: dockerRegistry
+      type: string
+    - name: appName
+      type: string
+    - name: appNamespace
       type: string
     - name: url
       type: string
@@ -40,13 +54,15 @@ spec:
         #set -x
         cd /work
         git clone -b $(params.revision) $(params.url)
-        export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
-        echo Using $REG_WITH_ESCAPED_SLASH as registry name
-        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+
         export SHA=$(params.ctsha)
         export TAG=$(params.tag)
-        echo Using $TAG@$SHA as image tag
-        sed -i "s/IMAGE_TAG/$TAG@$SHA/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+        export TARGET_IMAGE=$DOCKER_REGISTRY/$APP_NAMESPACE/${APP_NAME}-ct:$TAG@$SHA
+        echo "Using $TARGET_IMAGE as image placeholder"
+
+        sed -i "s|IR_IMAGE_PLACEHOLDER|$TARGET_IMAGE|g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+        sed -i "s|APP_NAMESPACE|$APP_NAMESPACE|g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+        sed -i "s|APP_NAME|$APP_NAME|g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
       volumeMounts:
         - mountPath: /work
           name: work
@@ -62,14 +78,14 @@ spec:
         kubectl get pods -n cp4i
         
         echo "Checking for previous component test leftovers at " `date`
-        kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
+        kubectl get -n cp4i IntegrationRuntime/${APP_NAME}-ct
         if [ "$?" == "0" ]; then
             echo "Found CR; deleting it at " `date`
-            kubectl delete -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
+            kubectl delete -n cp4i IntegrationRuntime/${APP_NAME}-ct
             for i in `seq 1 24`
             do
               #echo $i
-              podName=`kubectl get -n cp4i -l app.kubernetes.io/name=tea-tekton-cp4i-ct pod -o name`
+              podName=`kubectl get -n cp4i -l app.kubernetes.io/name=${APP_NAME}-ct pod -o name`
               if [ "$podName" == "" ]; then
                 echo "Pods not running at " `date`
                 rc=0
@@ -107,8 +123,8 @@ spec:
         for i in `seq 1 60`
         do
           #echo $i
-          #kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
-          lastError=`kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct --template={{.status.phase}} 2>&1`
+          #kubectl get -n cp4i IntegrationRuntime/${APP_NAME}-ct
+          lastError=`kubectl get -n cp4i IntegrationRuntime/${APP_NAME}-ct --template={{.status.phase}} 2>&1`
           if [ "$lastError" == "Ready" ]; then
             echo "Container is ready at " `date`
             rc=0
@@ -116,7 +132,7 @@ spec:
           fi
           # Minikube doesn't have routes so the CR stays at phase Warning.
           if [ "$lastError" == "Warning" ]; then
-          lastStatus=`kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct '--template={{(index .status.conditions 0).status}} {{(index .status.conditions 0).type}} {{(index .status.conditions 0).message}}' 2>&1`
+          lastStatus=`kubectl get -n cp4i IntegrationRuntime/${APP_NAME}-ct '--template={{(index .status.conditions 0).status}} {{(index .status.conditions 0).type}} {{(index .status.conditions 0).message}}' 2>&1`
             if [ "$lastStatus" == "True Ready IntegrationRuntime is ready." ]; then
               echo "Container is ready (Warning) at " `date`
               rc=0
@@ -129,7 +145,7 @@ spec:
             echo "Container start failed; giving up at " `date`
             echo "Current state of the CR:"
             echo "----------------------------------------"
-            kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
+            kubectl get -n cp4i IntegrationRuntime/${APP_NAME}-ct
             echo "----------------------------------------"
             return 1
         fi
@@ -149,7 +165,7 @@ spec:
         #!/bin/sh
         #set -x
         cd /work
-        podName=`kubectl get -n cp4i -l app.kubernetes.io/name=tea-tekton-cp4i-ct pod -o name`
+        podName=`kubectl get -n cp4i -l app.kubernetes.io/name=${APP_NAME}-ct pod -o name`
         echo "Found pod name $podName; sending 'kill -INT 1'"
         kubectl exec -n cp4i $podName -- kill -INT 1
         rc=1
@@ -172,7 +188,7 @@ spec:
             echo "Server stop failed; giving up at " `date`
             echo "Current state of the CR:"
             echo "----------------------------------------"
-            kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
+            kubectl get -n cp4i IntegrationRuntime/${APP_NAME}-ct
             echo "----------------------------------------"
             echo "Last ps output:"
             echo "----------------------------------------"
@@ -192,20 +208,20 @@ spec:
         #!/bin/sh
         #set -x
         cd /work
-        podName=`kubectl get -n cp4i -l app.kubernetes.io/name=tea-tekton-cp4i-ct pod -o name`
+        podName=`kubectl get -n cp4i -l app.kubernetes.io/name=${APP_NAME}-ct pod -o name`
         echo "Running tests in $podName at " `date`
         kubectl exec -n cp4i $podName -- bash -c "IntegrationServer -w /home/aceuser/ace-server --start-msgflows false --test-project TeaRESTApplication_ComponentTest"
         if [ "$?" == "0" ]; then
             echo "Test run succeeded at " `date`
             echo "Deleting component test CR"
-            kubectl delete -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
+            kubectl delete -n cp4i IntegrationRuntime/${APP_NAME}-ct
             echo "Sending second 'kill -INT 1' to trigger pod exit (may fail if pod has already been deleted)"
             kubectl exec -n cp4i $podName -- kill -INT 1
             return 0
         else
             echo "Test run failed at " `date`
             echo "Deleting component test CR"
-            kubectl delete -n cp4i IntegrationRuntime/tea-tekton-cp4i-ct
+            kubectl delete -n cp4i IntegrationRuntime/${APP_NAME}-ct
             echo "Sending second 'kill -INT 1' to trigger pod exit (may fail if pod has already been deleted)"
             kubectl exec -n cp4i $podName -- kill -INT 1
             return 1
