@@ -22,8 +22,8 @@ created on-demand to make setup easier, the logging goes to the console instead 
 
 ## Recent changes
 
-- Minikube added as the default "plain Kubernetes" option.
-- ACE-as-a-Service added as a deploy target (see below).
+- Upgraded to ACE 13.0.1
+- Uses [Crane](https://github.com/google/go-containerregistry/tree/main/cmd/crane) for faster container image builds.
 
 ## Technology and target options
 
