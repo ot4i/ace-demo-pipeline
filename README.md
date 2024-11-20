@@ -22,7 +22,7 @@ created on-demand to make setup easier, the logging goes to the console instead 
 
 ## Recent changes
 
-- Upgraded to ACE 13.0.1
+- Upgraded to [ACE 13.0.1](https://community.ibm.com/community/user/integration/blogs/ben-thompson1/2024/09/27/ace-13-0-1-0)
 - Uses [Crane](https://github.com/google/go-containerregistry/tree/main/cmd/crane) for faster container image builds.
 
 ## Technology and target options
