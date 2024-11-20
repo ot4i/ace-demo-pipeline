@@ -49,29 +49,28 @@ and this may require the provision of credentials for the service accounts to us
 
 - Minikube container registry does not have authentication enabled by default, and so dummy
 credentials can be used for the `regcred` secret:
-```
-kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
-kubectl apply -f tekton/service-account.yaml
-```
+  ```
+  kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
+  kubectl apply -f tekton/service-account.yaml
+  ```
 - OpenShift container registry does have authentication enabled, but this is integrated and requires
 only that the service accounts have the `system:image-builder` role and dummy credentials can be used:
-```
-kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
-kubectl apply -f tekton/service-account.yaml
-```
-It is also possible to use the logged-in user's token, which may be necessary in some cases:
-```
-kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
-```
-See the "Openshift" section below for more details.
+  ```
+  kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
+  kubectl apply -f tekton/service-account.yaml
+  ```
+  It is also possible to use the logged-in user's token, which may be necessary in some cases:
+  ```
+  kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
+  ```
+  See the "Openshift" section below for more details.
 - External registries normally require authentication, and in that case the default runtime 
 service account needs to be given the credentials:
-```
-kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=<user> --docker-password=<password>
-kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "regcred"}]}'
-kubectl apply -f tekton/service-account.yaml
-```
-
+  ```
+  kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=<user> --docker-password=<password>
+  kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "regcred"}]}'
+  kubectl apply -f tekton/service-account.yaml
+  ```
 The service account also has the ability to create services, deployments, etc, which are necessary for running the service. 
 Note that on Windows, kubectl sometimes complains about not being able to validate files (using --validate=false appears to 
 eliminate the issue without causing problems) and seems to need the `--docker-email` parameter also, but the value can be anything.

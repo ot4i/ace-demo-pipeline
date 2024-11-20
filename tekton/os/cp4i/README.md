@@ -58,8 +58,6 @@ kubectl --namespace openshift-image-registry port-forward --address 0.0.0.0 svc/
 ```
 at which point the OpenShift registry will be accessible from localhost:5000.
 
-FIX THIS! The image tags and SHA hashes are wrong . . . 
-
 As an example, the following sequence would tage the 13.0.1.0-r2 image and upload to the registry:
 ```
 docker pull cp.icr.io/cp/appc/ace-server-prod:13.0.1.0-r2@sha256:d52aae2d2c649c1d2ddc53b0157eaa435fcab833b036e52516d5cd508f018289

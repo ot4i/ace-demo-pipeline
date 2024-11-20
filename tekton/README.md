@@ -17,14 +17,14 @@ The tasks rely on several different containers for all use cases:
 
 For container deployments, more containers are used:
 
-- Crane for building the application runtime images.
+- [Crane](https://github.com/google/go-containerregistry/tree/main/cmd/crane) for building the application runtime images.
 - lachlanevenson/k8s-kubectl for managing Kubernetes artifacts
 - A runtime base image:
   - The `ace-minimal` image, which is the smallest image and therefore results in quicker builds in some cases.
     See [minimal image build instructions](minimal-image-build/README.md) for details on building the image.
   - The `ace` image, which should be shadowed to the local registry to avoid pulling from cp.icr.io too often.
   - For CP4i use cases, the `ace-server-prod` image (see [os/cp4i/README.md](os/cp4i/README.md) for CP4i details)
-    which should also be shadowed to the local registry.
+    which should also be shadowed to the local registry. The main instructions are contained in that README.
 
 For ACEaaS, the target does not present as a container system (though it runs containers in the cloud):
 
@@ -64,28 +64,28 @@ and this may require the provision of credentials for the service accounts to us
 - Minikube container registry does not have authentication enabled by default, and so dummy
 credentials can be used for the `regcred` secret. This is also true for ACEaaS as that does
 need a container registry at all:
-```
-kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
-kubectl apply -f tekton/service-account.yaml
-```
+  ```
+  kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
+  kubectl apply -f tekton/service-account.yaml
+  ```
 - OpenShift container registry does have authentication enabled, but this is integrated and requires
 only that the service accounts have the `system:image-builder` role and dummy credentials can be used:
-```
-kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
-kubectl apply -f tekton/service-account.yaml
-```
-It is also possible to use the logged-in user's token, which may be necessary in some cases:
-```
-kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
-```
-See the "Openshift" section below for more details.
+  ```
+  kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
+  kubectl apply -f tekton/service-account.yaml
+  ```
+  It is also possible to use the logged-in user's token, which may be necessary in some cases:
+  ```
+  kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
+  ```
+  See the "Openshift" section below for more details.
 - External registries normally require authentication, and in that case the default runtime 
 service account needs to be given the credentials:
-```
-kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=<user> --docker-password=<password>
-kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "regcred"}]}'
-kubectl apply -f tekton/service-account.yaml
-```
+  ```
+  kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=<user> --docker-password=<password>
+  kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "regcred"}]}'
+  kubectl apply -f tekton/service-account.yaml
+  ```
 The service account also has the ability to create services, deployments, etc, which are necessary for running the service.
 
 As well as the registry credentials, the pipeline needs JDBC credentials to run the component tests. 
