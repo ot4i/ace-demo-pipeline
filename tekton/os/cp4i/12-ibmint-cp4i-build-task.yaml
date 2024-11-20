@@ -145,6 +145,10 @@ spec:
       script: |
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
+        echo ========================================================================
+        echo Appending server contents tar file to create new image
+        echo ========================================================================
+        set -e # Fail on error
         set -x
         crane append -b $(params.runtimeBaseImage) -f /work/ibmint-output/crane-append-file.tar.gz \
           -t $(params.outputRegistry)/$APP_NAMESPACE/$APP_NAME:$TAG
@@ -162,7 +166,7 @@ spec:
       # to load credentials at startup.
       #
       # Leaves the resulting component test project in the work directory to be picked
-      # up by the second Kaniko build in the next step.
+      # up by the second Crane build in the next step.
       #
       script: |
         #!/bin/bash
@@ -243,6 +247,10 @@ spec:
       script: |
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
+        echo ========================================================================
+        echo Appending server test project contents tar file to create new image
+        echo ========================================================================
+        set -e # Fail on error
         set -x
         crane append -b $(params.outputRegistry)/$APP_NAMESPACE/$APP_NAME:$TAG -f /work/ibmint-output/crane-append-file-ct.tar.gz \
           -t $(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}-ct:$TAG
