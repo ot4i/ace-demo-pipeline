@@ -37,8 +37,6 @@ spec:
           value: $(params.dockerRegistry)
         - name: appName
           value: $(params.appName)
-        - name: appNamespace
-          value: $(params.appNamespace)
         - name: url
           value: $(params.url)
         - name: revision

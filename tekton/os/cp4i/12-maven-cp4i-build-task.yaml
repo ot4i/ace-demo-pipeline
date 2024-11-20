@@ -23,14 +23,10 @@ spec:
         value: "/tekton/home"
       - name: APP_NAME
         value: $(params.appName)
-      - name: APP_NAMESPACE
-        value: $(params.appNamespace)
   params:
     - name: outputRegistry
       type: string
     - name: appName
-      type: string
-    - name: appNamespace
       type: string
     - name: url
       type: string
@@ -123,10 +119,10 @@ spec:
         echo Using $TAG as image tag
         buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
           --build-arg BASE_IMAGE=$(params.runtimeBaseImage) \
-          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}:$TAG /work/maven-output
+          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/${APP_NAME}:$TAG /work/maven-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}:$TAG  "docker://$(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}:$TAG"
+          $(params.outputRegistry)/${APP_NAME}:$TAG  "docker://$(params.outputRegistry)/${APP_NAME}:$TAG"
         echo image digest:
         cat /tmp/image-digest && echo
         cat /tmp/image-digest >> $(results.sha.path)
@@ -206,11 +202,11 @@ spec:
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
         buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
-          --build-arg BASE_IMAGE=$(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}:$TAG \
-          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}-ct:$TAG /work/maven-output
+          --build-arg BASE_IMAGE=$(params.outputRegistry)/${APP_NAME}:$TAG \
+          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/${APP_NAME}-ct:$TAG /work/maven-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}-ct:$TAG  "docker://$(params.outputRegistry)/$APP_NAMESPACE/${APP_NAME}-ct:$TAG"
+          $(params.outputRegistry)/${APP_NAME}-ct:$TAG  "docker://$(params.outputRegistry)/${APP_NAME}-ct:$TAG"
         echo image digest:
         cat /tmp/image-digest && echo
         cat /tmp/image-digest >> $(results.ctsha.path)
@@ -229,6 +225,9 @@ spec:
     # 
     # Default buildah approach using emptyDir; takes about 2 minutes on a test SNO cluster
     # 
+    # Note that "medium: Memory" does not appear to work with buildah:
+    #     Unmounting /var/lib/containers/storage/overlay/36ecafc52379cb274be07f42e9da48895781369bb00b1bf35e8e37399557938b/merged: invalid argument
+    #
     - name: varlibcontainers
       emptyDir: {}
     # 
