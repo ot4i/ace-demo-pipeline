@@ -20,7 +20,7 @@
             "TEMPLATE_SERVERCONF",
             "TEMPLATE_SETDBPARMS"
         ],
-        "version": "12.0",
+        "version": "13.0",
         "replicas": 1
     }
 }

@@ -14,15 +14,19 @@ metadata:
   namespace: cp4i
 spec:
   # The security and environment settings are needed for OpenShift in a non-default
-  # namespace such as cp4i. Kaniko is expecting to be root in the container.
+  # namespace such as cp4i. Kaniko and buildah are expecting to be root in the container.
   stepTemplate:
     securityContext:
       runAsUser: 0
     env:
       - name: "HOME"
         value: "/tekton/home"
+      - name: APP_NAME
+        value: $(params.appName)
   params:
     - name: outputRegistry
+      type: string
+    - name: appName
       type: string
     - name: url
       type: string
@@ -68,8 +72,8 @@ spec:
       script: |
         #!/bin/bash
         export LICENSE=accept
-        . /opt/ibm/ace-12/server/bin/mqsiprofile
-        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+        . /opt/ibm/ace-13/server/bin/mqsiprofile
+        export PATH=/opt/ibm/ace-13/common/jdk/bin:$PATH
         which javac
         javac -version
         mkdir /work/maven-output
@@ -115,10 +119,10 @@ spec:
         echo Using $TAG as image tag
         buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
           --build-arg BASE_IMAGE=$(params.runtimeBaseImage) \
-          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i:$TAG /work/maven-output
+          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/${APP_NAME}:$TAG /work/maven-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.outputRegistry)/tea-tekton-cp4i:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i:$TAG"
+          $(params.outputRegistry)/${APP_NAME}:$TAG  "docker://$(params.outputRegistry)/${APP_NAME}:$TAG"
         echo image digest:
         cat /tmp/image-digest && echo
         cat /tmp/image-digest >> $(results.sha.path)
@@ -141,8 +145,8 @@ spec:
       script: |
         #!/bin/bash
         export LICENSE=accept
-        . /opt/ibm/ace-12/server/bin/mqsiprofile
-        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+        . /opt/ibm/ace-13/server/bin/mqsiprofile
+        export PATH=/opt/ibm/ace-13/common/jdk/bin:$PATH
         # Slightly hacky, but quicker than building everything again!
         (cd /work/maven-output/ace-server/run && tar -cf - * ) | (cd /home/aceuser/ace-server/run && tar -xf - )
         ls -l /home/aceuser/ace-server
@@ -198,11 +202,11 @@ spec:
         export TAG=`cat $(results.tag.path)`
         echo Using $TAG as image tag
         buildah --storage-driver=overlay bud --format=oci --tls-verify=false --no-cache \
-          --build-arg BASE_IMAGE=$(params.outputRegistry)/tea-tekton-cp4i:$TAG \
-          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG /work/maven-output
+          --build-arg BASE_IMAGE=$(params.outputRegistry)/${APP_NAME}:$TAG \
+          -f /work/maven-output/Dockerfile -t $(params.outputRegistry)/${APP_NAME}-ct:$TAG /work/maven-output
         date
         buildah  --storage-driver=overlay push --tls-verify=false --digestfile /tmp/image-digest \
-          $(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG  "docker://$(params.outputRegistry)/tea-tekton-cp4i-ct:$TAG"
+          $(params.outputRegistry)/${APP_NAME}-ct:$TAG  "docker://$(params.outputRegistry)/${APP_NAME}-ct:$TAG"
         echo image digest:
         cat /tmp/image-digest && echo
         cat /tmp/image-digest >> $(results.ctsha.path)
@@ -221,6 +225,9 @@ spec:
     # 
     # Default buildah approach using emptyDir; takes about 2 minutes on a test SNO cluster
     # 
+    # Note that "medium: Memory" does not appear to work with buildah:
+    #     Unmounting /var/lib/containers/storage/overlay/36ecafc52379cb274be07f42e9da48895781369bb00b1bf35e8e37399557938b/merged: invalid argument
+    #
     - name: varlibcontainers
       emptyDir: {}
     # 

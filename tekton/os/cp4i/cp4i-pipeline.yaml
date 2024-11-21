@@ -7,7 +7,13 @@ spec:
   params:
     - name: dockerRegistry
       type: string
-      default: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
+      default: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i"
+    - name: appName
+      type: string
+      default: "tea-tekton-cp4i"
+    - name: appNamespace
+      type: string
+      default: "cp4i"
     - name: url
       type: string
       default: "https://github.com/ot4i/ace-demo-pipeline"
@@ -16,12 +22,12 @@ spec:
       default: "main"
     - name: buildImage
       type: string
-      default: "cp.icr.io/cp/appc/ace:12.0.11.0-r1"
-      #default: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal-build:12.0.11.0-alpine"
+      default: "cp.icr.io/cp/appc/ace:13.0.1.0-r1"
+      #default: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-minimal-build:13.0.1.0-alpine"
     - name: runtimeBaseImage
       type: string
-      default: "cp.icr.io/cp/appc/ace-server-prod:12.0.11.1-r1-20240125-170703"
-      #default: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.11.1-r1-20240125-170703"
+      default: "cp.icr.io/cp/appc/ace-server-prod:13.0.1.1-r1-20240125-170703"
+      #default: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.1.1-r1-20240125-170703"
   tasks:
     - name: build-from-source
       taskRef:
@@ -29,6 +35,8 @@ spec:
       params:
         - name: outputRegistry
           value: $(params.dockerRegistry)
+        - name: appName
+          value: $(params.appName)
         - name: url
           value: $(params.url)
         - name: revision
@@ -43,6 +51,10 @@ spec:
       params:
         - name: dockerRegistry
           value: $(params.dockerRegistry)
+        - name: appName
+          value: $(params.appName)
+        - name: appNamespace
+          value: $(params.appNamespace)
         - name: url
           value: $(params.url)
         - name: revision
@@ -59,6 +71,10 @@ spec:
       params:
         - name: dockerRegistry
           value: $(params.dockerRegistry)
+        - name: appName
+          value: $(params.appName)
+        - name: appNamespace
+          value: $(params.appNamespace)
         - name: url
           value: $(params.url)
         - name: revision

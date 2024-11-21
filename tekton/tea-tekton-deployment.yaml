@@ -20,8 +20,10 @@ spec:
       - name: secret-volume-2
         secret:
           secretName: jdbc-secret
-      imagePullSecrets:
-      - name: regcred
+      # This is now handled via the "default" service account
+      # kubectl patch serviceaccount default --type=json -p='[{"op": "add", "path": "/imagePullSecrets/-", "value": {"name": "regcred"}}]'
+      #imagePullSecrets:
+      #- name: regcred
       containers:
       - name: tea-tekton
         image: DOCKER_REGISTRY/tea-tekton:IMAGE_TAG

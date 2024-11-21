@@ -1,0 +1,130 @@
+name: CP4i Image Build using Crane
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: cp.icr.io/cp/appc/ace:13.0.1.0-r1
+      credentials:
+        username: ${{ secrets.CP_USERNAME }}
+        password: ${{ secrets.CP_PASSWORD }}
+      env:
+        LICENSE: accept
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+      options: -u 0
+    steps:
+      - name: Install git
+        shell: bash
+        run: |
+          microdnf install git -y
+
+      - name: Install crane
+        shell: bash
+        run: |
+          set -e
+          set -x
+          echo ========================================================================
+          echo Installing crane
+          echo ========================================================================
+          mkdir -p /usr/local/bin || /bin/true
+          cd /usr/local/bin
+          curl --location -fs https://github.com/google/go-containerregistry/releases/download/v0.20.1/go-containerregistry_Linux_x86_64.tar.gz | tar -xzvf -
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Build the application and test it
+        shell: bash
+        run: |
+          echo "Loading ACE profile"
+          export LICENSE=accept
+          set +e # Don't fail on error if the profile has already been loaded
+          . /opt/ibm/ace-12/server/bin/mqsiprofile
+          set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+
+          echo ========================================================================
+          echo Building application
+          echo ========================================================================
+          # Using --compile-maps-and-schemas for 12.0.11 and later . . . 
+          ibmint package --input-path . --output-bar-file $PWD/tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
+
+          echo ========================================================================
+          echo Building unit tests
+          echo ========================================================================
+          # Create the unit test work directory
+          mqsicreateworkdir /tmp/test-work-dir
+          mqsibar -w /tmp/test-work-dir -a $PWD/tea-application-combined.bar 
+          # Build just the unit tests
+          ibmint deploy --input-path . --output-work-directory /tmp/test-work-dir --project TeaRESTApplication_UnitTest
+
+          echo ========================================================================
+          echo Running unit tests
+          echo ========================================================================
+          IntegrationServer -w /tmp/test-work-dir --no-nodejs --start-msgflows false --test-project TeaRESTApplication_UnitTest --test-junit-options --reports-dir=junit-reports
+          
+      - name: Create the container structure
+        run: |
+          echo "Loading ACE profile"
+          export LICENSE=accept
+          set +e # Don't fail on error if the profile has already been loaded
+          . /opt/ibm/ace-12/server/bin/mqsiprofile
+          set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+          rm -rf /tmp/build
+          mkdir -p /tmp/build
+          echo ========================================================================
+          echo Creating work directory structure
+          echo ========================================================================
+          mqsicreateworkdir /tmp/build/ace-server
+          mqsibar -w /tmp/build/ace-server -a $PWD/tea-application-combined.bar
+          ibmint optimize server --work-dir /tmp/build/ace-server
+
+      - name: Create server contents
+        run: |
+          # checkout v4 does this and the removes it
+          git config --global --add safe.directory $PWD
+
+          set -e # Fail on error
+          
+          export DATE=$(date '+%Y%m%d%H%M%S')
+          export COMMIT=$(git log -1 --pretty=%h)
+          export TAG="$DATE"-"$COMMIT"
+          echo Setting container tag to "$TAG"
+          echo "$TAG" > /tmp/build/image-tag.txt
+          
+          cd /tmp/build
+          
+          mkdir -p home/aceuser/ace-server
+          mv ace-server/run home/aceuser/ace-server/
+          mv ace-server/server.components.yaml home/aceuser/ace-server/
+          chmod -R 777 .
+          echo ========================================================================
+          echo Create tar file of server contents
+          echo ========================================================================
+          # Must have the full directory tree from / in the tar file
+          tar -cvzf /tmp/build/crane-append-file.tar.gz home
+
+      - name: Create container image
+        shell: bash
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          CP_USERNAME: ${{ secrets.CP_USERNAME }}
+          CP_PASSWORD: ${{ secrets.CP_PASSWORD }}
+        run: |
+          cd /tmp/build
+          set -e
+          set -x
+          echo ========================================================================
+          echo Logging in 
+          echo ========================================================================
+          echo "${DOCKER_PASSWORD}" | crane auth login docker.io --username ${DOCKER_USERNAME} --password-stdin
+          echo "${CP_PASSWORD}" | crane auth login cp.icr.io --username ${CP_USERNAME} --password-stdin
+          echo ========================================================================
+          echo Appending server contents tar file to create new image
+          echo ========================================================================
+          crane append -b cp.icr.io/cp/appc/ace-server-prod:13.0.1.0-r2-20241024-142903 -f /tmp/build/crane-append-file.tar.gz -t tdolby/experimental:tea-github-action-crane-`cat /tmp/build/image-tag.txt`

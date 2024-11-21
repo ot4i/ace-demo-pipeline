@@ -4,7 +4,7 @@ metadata:
   name: ace-build
 spec:
   # The security and environment settings are needed for OpenShift in a non-default
-  # namespace such as cp4i. Kaniko is expecting to be root in the container.
+  # namespace such as cp4i. Buildah is expecting to be root in the container.
   stepTemplate:
     securityContext:
       runAsUser: 0
@@ -53,8 +53,8 @@ spec:
       script: |
         #!/bin/bash
         export LICENSE=accept
-        . /opt/ibm/ace-12/server/bin/mqsiprofile
-        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+        . /opt/ibm/ace-13/server/bin/mqsiprofile
+        export PATH=/opt/ibm/ace-13/common/jdk/bin:$PATH
         which javac
         javac -version
         mkdir /work/maven-output
@@ -69,8 +69,8 @@ spec:
       script: |
         #!/bin/bash
         export LICENSE=accept
-        . /opt/ibm/ace-12/server/bin/mqsiprofile
-        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+        . /opt/ibm/ace-13/server/bin/mqsiprofile
+        export PATH=/opt/ibm/ace-13/common/jdk/bin:$PATH
         # Slightly hacky, but quicker than building everything again!
         (cd /work/maven-output/ace-server/run && tar -cf - * ) | (cd /home/aceuser/ace-server/run && tar -xf - )
         # Set up credentials for the component tests; init-creds.sh looks in /tmp for policy

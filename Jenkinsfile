@@ -1,7 +1,7 @@
 pipeline {
   agent { docker { 
-    image 'cp.icr.io/cp/appc/ace:12.0.11.0-r1'
-    /* image 'ace-minimal:12.0.11.0-alpine' */
+    image 'cp.icr.io/cp/appc/ace:13.0.1.0-r1'
+    /* image 'ace-minimal:13.0.1.0-alpine' */
     args '-e LICENSE=accept --entrypoint ""'
   } }
   parameters {
@@ -23,7 +23,7 @@ pipeline {
             export HOME=/tmp
 
             export LICENSE=accept
-            . /opt/ibm/ace-12/server/bin/mqsiprofile
+            . /opt/ibm/ace-13/server/bin/mqsiprofile
         
             set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
@@ -34,7 +34,7 @@ pipeline {
             echo ========================================================================
             echo Building application
             echo ========================================================================
-            # Using --compile-maps-and-schemas for 12.0.11 and later . . . 
+            # Using --compile-maps-and-schemas for 13.0.1 and later . . . 
             ibmint package --input-path . --output-bar-file $PWD/tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
 
             echo ========================================================================
@@ -73,7 +73,7 @@ pipeline {
             export HOME=/tmp
 
             export LICENSE=accept
-            . /opt/ibm/ace-12/server/bin/mqsiprofile
+            . /opt/ibm/ace-13/server/bin/mqsiprofile
         
             set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
 
@@ -109,7 +109,7 @@ pipeline {
 
     stage('Next stage deploy') {
       steps {
-        sh "bash -c \"export LICENSE=accept ; . /opt/ibm/ace-12/server/bin/mqsiprofile ; mqsideploy -i ${params.integrationNodeHost} -p ${params.integrationNodePort} -e ${params.integrationServerName} -a tea-application-combined.bar\""
+        sh "bash -c \"export LICENSE=accept ; . /opt/ibm/ace-13/server/bin/mqsiprofile ; mqsideploy -i ${params.integrationNodeHost} -p ${params.integrationNodePort} -e ${params.integrationServerName} -a tea-application-combined.bar\""
       }
     }
 

@@ -3,30 +3,32 @@ kind: IntegrationRuntime
 metadata:
   annotations:
     appconnect.ibm.com/hibernate: 'false'
-  name: tea-tekton-cp4i
-  namespace: cp4i
+  name: APP_NAME
+  namespace: APP_NAMESPACE
 spec:
   flowType:
     toolkitFlow: true
   license:
     accept: true
-    license: L-QECF-MBXVLU
+    license: L-KPRV-AUG9NC
     use: AppConnectEnterpriseNonProductionFREE
   template:
     spec:
       containers:
         - image: >-
-            DOCKER_REGISTRY/tea-tekton-cp4i:IMAGE_TAG
-          imagePullPolicy: Always
+            IR_IMAGE_PLACEHOLDER
+          imagePullPolicy: IfNotPresent
           name: runtime
           resources:
             requests:
               cpu: 300m
               memory: 368Mi
-      imagePullSecrets:
-        - name: regcred
+      # This is now handled via the "default" service account
+      # kubectl patch serviceaccount default --type=json -p='[{"op": "add", "path": "/imagePullSecrets/-", "value": {"name": "regcred"}}]'
+      #imagePullSecrets:
+      #- name: regcred
   configurations:
     - teajdbc-policy
     - default-policy
     - teajdbc
-  version: 12.0.12.0-r2
+  version: 13.0.1.0-r2

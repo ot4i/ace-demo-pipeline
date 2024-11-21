@@ -21,8 +21,8 @@ spec:
       script: |
         #!/bin/bash
         export LICENSE=accept
-        . /opt/ibm/ace-12/server/bin/mqsiprofile
-        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+        . /opt/ibm/ace-13/server/bin/mqsiprofile
+        export PATH=/opt/ibm/ace-13/common/jdk/bin:$PATH
         export JAVA_HOME=/opt/ibm-java-s390x-80
         export PATH=/opt/ibm-java-s390x-80/bin:$PATH
         mkdir /work/maven-output
@@ -36,8 +36,8 @@ spec:
       script: |
         #!/bin/bash
         export LICENSE=accept
-        . /opt/ibm/ace-12/server/bin/mqsiprofile
-        export PATH=/opt/ibm/ace-12/common/jdk/bin:$PATH
+        . /opt/ibm/ace-13/server/bin/mqsiprofile
+        export PATH=/opt/ibm/ace-13/common/jdk/bin:$PATH
         export JAVA_HOME=/opt/ibm-java-s390x-80
         export PATH=/opt/ibm-java-s390x-80/bin:$PATH
         # Slightly hacky, but quicker than building everything again!

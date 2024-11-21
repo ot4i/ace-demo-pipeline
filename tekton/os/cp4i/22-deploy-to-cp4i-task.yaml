@@ -4,8 +4,22 @@ metadata:
   name: deploy-to-cp4i
   namespace: cp4i
 spec:
+  stepTemplate:
+    securityContext:
+      runAsUser: 0
+    env:
+      - name: DOCKER_REGISTRY
+        value: $(params.dockerRegistry)
+      - name: APP_NAME
+        value: $(params.appName)
+      - name: APP_NAMESPACE
+        value: $(params.appNamespace)
   params:
     - name: dockerRegistry
+      type: string
+    - name: appName
+      type: string
+    - name: appNamespace
       type: string
     - name: url
       type: string
@@ -23,13 +37,15 @@ spec:
         set -x
         cd /work
         git clone -b $(params.revision) $(params.url)
-        export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
-        echo $REG_WITH_ESCAPED_SLASH
-        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+        
         export SHA=$(params.sha)
         export TAG=$(params.tag)
-        echo Using $TAG@$SHA as image tag
-        sed -i "s/IMAGE_TAG/$TAG@$SHA/g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+        export TARGET_IMAGE=$DOCKER_REGISTRY/$APP_NAME:$TAG@$SHA
+        echo "Using $TARGET_IMAGE as image placeholder"
+
+        sed -i "s|IR_IMAGE_PLACEHOLDER|$TARGET_IMAGE|g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+        sed -i "s|APP_NAMESPACE|$APP_NAMESPACE|g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
+        sed -i "s|APP_NAME|$APP_NAME|g" /work/ace-demo-pipeline/tekton/os/cp4i/*.yaml
       volumeMounts:
         - mountPath: /work
           name: work

@@ -12,19 +12,19 @@ The tasks rely on several different containers for all use cases:
   - The `ace-minimal` image (see [minimal image build instructions](minimal-image-build/README.md) for details).
     This image can be built from the ACE developer edition package (no purchase necessary) and is much
     smaller than most other ACE images.
-  - The `ace` image from cp.icr.io (see [Obtaining an IBM App Connect Enterprise server image](https://www.ibm.com/docs/en/app-connect/12.0?topic=cacerid-building-sample-app-connect-enterprise-image-using-docker#aceimages__title__1) for versions and necessary credentials).
+  - The `ace` image from cp.icr.io (see [Obtaining an IBM App Connect Enterprise server image](https://www.ibm.com/docs/en/app-connect/13.0?topic=cacerid-building-sample-app-connect-enterprise-image-using-docker#aceimages__title__1) for versions and necessary credentials).
     This image is created by IBM and requires an IBM Entitlement Key for access.
 
 For container deployments, more containers are used:
 
-- Buildah for building the application runtime images.
+- [Crane](https://github.com/google/go-containerregistry/tree/main/cmd/crane) for building the application runtime images.
 - lachlanevenson/k8s-kubectl for managing Kubernetes artifacts
 - A runtime base image:
   - The `ace-minimal` image, which is the smallest image and therefore results in quicker builds in some cases.
     See [minimal image build instructions](minimal-image-build/README.md) for details on building the image.
   - The `ace` image, which should be shadowed to the local registry to avoid pulling from cp.icr.io too often.
   - For CP4i use cases, the `ace-server-prod` image (see [os/cp4i/README.md](os/cp4i/README.md) for CP4i details)
-    which should also be shadowed to the local registry.
+    which should also be shadowed to the local registry. The main instructions are contained in that README.
 
 For ACEaaS, the target does not present as a container system (though it runs containers in the cloud):
 
@@ -50,26 +50,42 @@ comments, with [ace-pipeline-run.yaml](ace-pipeline-run.yaml) being one example:
 ```
     - name: buildImage
       # Requires an IBM Entitlement Key
-      #value: "cp.icr.io/cp/appc/ace:12.0.11.0-r1"
+      #value: "cp.icr.io/cp/appc/ace:13.0.1.0-r1"
       # ace-minimal can be built from the ACE package without needing a key
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal:12.0.11.0-alpine"
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace/ace-minimal:13.0.1.0-alpine"
       # Need to use the -build image for Maven
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal-build:12.0.11.0-alpine"
-      value: "192.168.49.2:5000/default/ace-minimal-build:12.0.11.0-alpine"
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace/ace-minimal-build:13.0.1.0-alpine"
+      value: "192.168.49.2:5000/default/ace-minimal-build:13.0.1.0-alpine"
 ```
 
-The Tekton pipeline expects docker credentials to be provided for Buildah to use when pushing the built image, and 
-these credentials must be associated with the service account for the pipeline. If this has not already been done 
-elsewhere, then create them with the following format for OpenShift
-```
-kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
-kubectl apply -f tekton/service-account.yaml
-```
-or a dummy variant for Minikube or ACEaaS without registry authentication enabled:
-```
-kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=dummy --docker-password=dummy
-kubectl apply -f tekton/service-account.yaml
-```
+The Tekton pipeline and ACE runtime rely on having permission to access the container registry,
+and this may require the provision of credentials for the service accounts to use:
+
+- Minikube container registry does not have authentication enabled by default, and so dummy
+credentials can be used for the `regcred` secret. This is also true for ACEaaS as that does
+need a container registry at all:
+  ```
+  kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
+  kubectl apply -f tekton/service-account.yaml
+  ```
+- OpenShift container registry does have authentication enabled, but this is integrated and requires
+only that the service accounts have the `system:image-builder` role and dummy credentials can be used:
+  ```
+  kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
+  kubectl apply -f tekton/service-account.yaml
+  ```
+  It is also possible to use the logged-in user's token, which may be necessary in some cases:
+  ```
+  kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
+  ```
+  See the "Openshift" section below for more details.
+- External registries normally require authentication, and in that case the default runtime 
+service account needs to be given the credentials:
+  ```
+  kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=<user> --docker-password=<password>
+  kubectl patch serviceaccount default --type=json -p='[{"op": "add", "path": "/imagePullSecrets/-", "value": {"name": "regcred"}}]'
+  kubectl apply -f tekton/service-account.yaml
+  ```
 The service account also has the ability to create services, deployments, etc, which are necessary for running the service.
 
 As well as the registry credentials, the pipeline needs JDBC credentials to run the component tests. 
@@ -204,9 +220,7 @@ shown as a separate task that only runs when requested:
 ![Pipeline overview](/demo-infrastructure/images/tekton-aceaas-pipeline.png)
 
 As there is no runtime container, this pipeline can run using the `ace` image as the 
-build image without any performance concerns because there are no buildah or Kaniko steps
-that would need to unpack the image; this requires an IBM Entitlement Key and the 
-appropriate credentials:
+build image; this requires an IBM Entitlement Key and the appropriate credentials:
 ```
 kubectl create secret docker-registry ibm-entitlement-key --docker-username=cp --docker-password=myEntitlementKey --docker-server=cp.icr.io
 ```

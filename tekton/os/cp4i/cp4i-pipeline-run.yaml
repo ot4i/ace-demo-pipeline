@@ -9,16 +9,20 @@ spec:
     name: cp4i-pipeline
   params:
     - name: dockerRegistry
-      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default"
+      value: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i"
       # Minikube
       #value: "192.168.49.2:5000/default"
+    - name: appName
+      value: "tea-tekton-cp4i"
     - name: url
       value: "https://github.com/ot4i/ace-demo-pipeline"
     - name: revision
       value: "main"
     - name: buildImage
-      value: "cp.icr.io/cp/appc/ace:12.0.12.0-r1"
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-minimal-build:12.0.1w.0-alpine"
+      value: "cp.icr.io/cp/appc/ace:13.0.1.0-r1"
+      # For Maven builds - build ace-minimal-build first
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-minimal-build:13.0.1.0-alpine"
     - name: runtimeBaseImage
-      value: "cp.icr.io/cp/appc/ace-server-prod:12.0.12.0-r1-20240417-022324"
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/default/ace-server-prod:12.0.12.0-r1-20240417-022324"
+      value: "cp.icr.io/cp/appc/ace-server-prod:13.0.1.0-r2-20241024-142903"
+      # If shadowed locally
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.1.0-r2-20241024-142903"
