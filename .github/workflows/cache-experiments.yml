@@ -3,15 +3,26 @@ name: ACE application build with caching
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ action-cache ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
       - name: Install aria2
         shell: bash
         run: |
-          sudo apt-get install -y aria2
-
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+          set -e
+          mkdir ~/ace
+          cd ~/ace
+          aria2c -s 10 -j 10 -x 10 'https://iwm.dhe.ibm.com/sdfdl/v2/regs2/mbford/Xa.2/Xb.WJL1CuPI9omYr9m0JwkNEwkVKpCk0KZzNl1URjh7C2M/Xc.13.0.1.0-ACE-LINUX64-EVALUATION.tar.gz/Xd./Xf.lPr.D1vk/Xg.13095106/Xi.swg-wmbfd/XY.regsrvs/XZ.f3uHlM8ljKhMYVohmvNqUhU70Dac-6Mv/13.0.1.0-ACE-LINUX64-EVALUATION.tar.gz'
+          tar --exclude 'ace-13.0.*.*/tools' -xf 13.0.1.0-ACE-LINUX64-EVALUATION.tar.gz
+          rm 13.0.1.0-ACE-LINUX64-EVALUATION.tar.gz
+          ~/ace/ace-13.0.1.0/ace accept license silently
+          . ~/ace/ace-13.0.1.0/server/bin/mqsiprofile
+          mqsilist
