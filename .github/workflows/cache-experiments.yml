@@ -118,7 +118,7 @@ jobs:
           cd /tmp/build
           set -e
           set -x
-          /bin/false
+
           echo ========================================================================
           echo Logging in 
           echo ========================================================================
@@ -127,4 +127,4 @@ jobs:
           echo ========================================================================
           echo Appending server contents tar file to create new image
           echo ========================================================================
-          crane append -b cp.icr.io/cp/appc/ace-server-prod:13.0.1.0-r2-20241024-142903 -f /tmp/build/crane-append-file.tar.gz -t tdolby/experimental:tea-github-action-crane-`cat /tmp/build/image-tag.txt`
+          crane append -b tdolby/experimental:ace-minimal-13.0.1.0-ubuntu -f /tmp/build/crane-append-file.tar.gz -t tdolby/experimental:tea-github-action-crane-`cat /tmp/build/image-tag.txt`
