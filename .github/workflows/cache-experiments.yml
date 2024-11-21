@@ -14,15 +14,37 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: Install aria2
+      - name: Cache ACE install
+        id: cache-ace
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-ace-install
+        with:
+          # ACE files are stored in `~/ace` and `~/aceconfig`
+          path: |
+            ~/ace
+            ~/aceconfig
+          key: ace-13.0.1
+
+      - name: Install ACE
+        if: ${{ steps.cache-ace.outputs.cache-hit != 'true' }}
         shell: bash
         run: |
           set -e
+          set -x
           mkdir ~/ace
           cd ~/ace
           aria2c -s 10 -j 10 -x 10 'https://iwm.dhe.ibm.com/sdfdl/v2/regs2/mbford/Xa.2/Xb.WJL1CuPI9omYr9m0JwkNEwkVKpCk0KZzNl1URjh7C2M/Xc.13.0.1.0-ACE-LINUX64-EVALUATION.tar.gz/Xd./Xf.lPr.D1vk/Xg.13095106/Xi.swg-wmbfd/XY.regsrvs/XZ.f3uHlM8ljKhMYVohmvNqUhU70Dac-6Mv/13.0.1.0-ACE-LINUX64-EVALUATION.tar.gz'
           tar --exclude 'ace-13.0.*.*/tools' -xf 13.0.1.0-ACE-LINUX64-EVALUATION.tar.gz
           rm 13.0.1.0-ACE-LINUX64-EVALUATION.tar.gz
+          set +x
           ~/ace/ace-13.0.1.0/ace accept license silently
+          . ~/ace/ace-13.0.1.0/server/bin/mqsiprofile
+          mqsilist
+
+      - name: Run ACE commands
+        shell: bash
+        run: |
+          set -e
           . ~/ace/ace-13.0.1.0/server/bin/mqsiprofile
           mqsilist
