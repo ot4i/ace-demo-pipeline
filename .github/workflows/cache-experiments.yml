@@ -1,0 +1,105 @@
+name: ACE application build with caching
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Cache ACE install
+        id: cache-ace
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-ace-install
+        with:
+          # ACE files are stored in `~/ace` and `~/aceconfig`
+          path: |
+            ~/ace
+            ~/aceconfig
+          key: ace-13.0.4.0
+
+      - name: Run ACE commands
+        shell: bash
+        run: |
+          echo "Loading ACE profile"
+          export LICENSE=accept
+          . ~/ace/ace-13.0.*.*/server/bin/mqsiprofile
+          set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+
+          echo ========================================================================
+          echo Building application
+          echo ========================================================================
+          # Using --compile-maps-and-schemas for 12.0.11 and later . . . 
+          ibmint package --input-path . --output-bar-file $PWD/tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
+
+          echo ========================================================================
+          echo Building unit tests
+          echo ========================================================================
+          # Create the unit test work directory
+          mqsicreateworkdir /tmp/test-work-dir
+          mqsibar -w /tmp/test-work-dir -a $PWD/tea-application-combined.bar 
+          # Build just the unit tests
+          ibmint deploy --input-path . --output-work-directory /tmp/test-work-dir --project TeaRESTApplication_UnitTest
+
+          echo ========================================================================
+          echo Running unit tests
+          echo ========================================================================
+          IntegrationServer -w /tmp/test-work-dir --no-nodejs --start-msgflows false --test-project TeaRESTApplication_UnitTest --test-junit-options --reports-dir=junit-reports
+          
+      - name: Create the container structure
+        run: |
+          echo "Loading ACE profile"
+          export LICENSE=accept
+          . ~/ace/ace-13.0.*.*/server/bin/mqsiprofile
+          set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+
+          rm -rf /tmp/build
+          mkdir -p /tmp/build/home/aceuser/
+          echo ========================================================================
+          echo Creating work directory structure
+          echo ========================================================================
+          mqsicreateworkdir /tmp/build/home/aceuser/ace-server
+          mqsibar -w /tmp/build/home/aceuser/ace-server -a $PWD/tea-application-combined.bar
+          ibmint optimize server --work-dir /tmp/build/home/aceuser/ace-server
+
+          export DATE=$(date '+%Y%m%d%H%M%S')
+          export COMMIT=$(git log -1 --pretty=%h)
+          export TAG="$DATE"-"$COMMIT"
+          echo Setting container tag to "$TAG"
+          echo "$TAG" > /tmp/build/image-tag.txt
+          
+          cd /tmp/build
+          
+          chmod -R 777 .
+          echo ========================================================================
+          echo Create tar file of server contents
+          echo ========================================================================
+          # Must have the full directory tree from / in the tar file
+          tar -cvzf /tmp/build/crane-append-file.tar.gz home
+
+      - name: Create container image
+        shell: bash
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          CP_USERNAME: ${{ secrets.CP_USERNAME }}
+          CP_PASSWORD: ${{ secrets.CP_PASSWORD }}
+        run: |
+          cd /tmp/build
+          set -e
+          set -x
+
+          echo ========================================================================
+          echo Logging in 
+          echo ========================================================================
+          echo "${DOCKER_PASSWORD}" | ~/ace/crane auth login docker.io --username ${DOCKER_USERNAME} --password-stdin
+          echo "${CP_PASSWORD}" | ~/ace/crane auth login cp.icr.io --username ${CP_USERNAME} --password-stdin
+          echo ========================================================================
+          echo Appending server contents tar file to create new image
+          echo ========================================================================
+          #~/ace/crane append -b tdolby/experimental:ace-minimal-13.0.1.0-ubuntu -f /tmp/build/crane-append-file.tar.gz -t tdolby/experimental:tea-github-action-crane-`cat /tmp/build/image-tag.txt`
