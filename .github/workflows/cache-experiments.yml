@@ -8,6 +8,9 @@ on:
     branches: [ action-cache ]
 
 jobs:
+  ace-cache:
+    uses: ./.github/workflows/cache-ace-13.0.4-common.yml
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -25,28 +28,6 @@ jobs:
             ~/ace
             ~/aceconfig
           key: ace-13.0.4.0
-
-      - name: Install ACE
-        if: ${{ steps.cache-ace.outputs.cache-hit != 'true' }}
-        shell: bash
-        run: |
-          set -e
-          set -x
-          mkdir ~/ace
-          cd ~/ace
-          aria2c -s 10 -j 10 -x 10 'https://iwm.dhe.ibm.com/sdfdl/v2/regs2/mbford/Xa.2/Xb.WJL1CuPI9hrjbl5VK-0AgKPz0gSRFL7zISIj9CH0ITw/Xc.13.0.4.0-ACE-LINUX64-EVALUATION.tar.gz/Xd./Xf.lPr.D1vk/Xg.13433147/Xi.swg-wmbfd/XY.regsrvs/XZ.LsWwRH_QexOKp-RulUB2Ihg9u25lKD6J/13.0.4.0-ACE-LINUX64-EVALUATION.tar.gz'
-          tar --exclude 'ace-13.0.4.0/tools' --exclude 'ace-13.0.4.0/server/nodejs*' -xf 13.0.4.0-ACE-LINUX64-EVALUATION.tar.gz
-          rm 13.0.4.0-ACE-LINUX64-EVALUATION.tar.gz
-          set +x
-          ~/ace/ace-13.0.4.0/ace accept license silently
-          . ~/ace/ace-13.0.4.0/server/bin/mqsiprofile
-          mqsilist
-          
-          # This is a hack: we're putting crane into the ace cache . . . 
-          echo ========================================================================
-          echo Installing crane
-          echo ========================================================================
-          curl --location -fs https://github.com/google/go-containerregistry/releases/download/v0.20.1/go-containerregistry_Linux_x86_64.tar.gz | tar -xzvf -
 
       - name: Run ACE commands
         shell: bash
