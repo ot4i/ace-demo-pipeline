@@ -12,6 +12,7 @@ jobs:
     uses: ./.github/workflows/cache-ace-13.0.4-common.yml
 
   build:
+    needs: ace-cache
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
