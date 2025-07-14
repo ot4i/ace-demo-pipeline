@@ -3,16 +3,9 @@ name: ACE application build with caching
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches: [ action-cache ]
 
 jobs:
-  ace-cache:
-    uses: ./.github/workflows/cache-ace-13.0.4-common.yml
-
   build:
-    needs: ace-cache
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it

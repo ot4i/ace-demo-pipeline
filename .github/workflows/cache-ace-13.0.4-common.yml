@@ -1,12 +1,15 @@
 name: ACE caching for 13.0.4
-
+#
+# This job should keep the cache from expiring, and will download 
+# ACE 13.0.4 if the URL in the "Install ACE" step is valid.
+#
 on:
   workflow_call:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
   schedule:
     - cron: "15 5 * * 1,4"
-    
+
 jobs:
   build:
     runs-on: ubuntu-latest
