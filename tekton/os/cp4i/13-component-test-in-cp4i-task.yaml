@@ -45,7 +45,7 @@ spec:
       type: string
   steps:
     - name: clone
-      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      image: alpine/git:v2.49.1
       #
       # The script clones the repo and fixes up the registry name.
       # 

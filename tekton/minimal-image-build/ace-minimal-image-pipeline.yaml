@@ -10,7 +10,7 @@ spec:
       type: string
     - name: runtimeImage
       type: string
-      default: "ace-minimal:13.0.1.0-alpine"
+      default: "ace-minimal:13.0.4.0-alpine"
     - name: aceDockerFile
       type: string
       default: "experimental/ace-minimal/Dockerfile.alpine"

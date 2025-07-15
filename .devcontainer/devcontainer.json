@@ -1,6 +1,6 @@
 {
     "name": "ace-demo-pipeline-devcontainer",
-    "image": "tdolby/experimental:ace-minimal-devcontainer-13.0.1.0",
+    "image": "tdolby/experimental:ace-minimal-devcontainer-13.0.4.0",
     "containerEnv": {
         "LICENSE": "accept"
     },

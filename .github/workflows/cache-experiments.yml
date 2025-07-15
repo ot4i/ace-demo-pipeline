@@ -102,4 +102,4 @@ jobs:
           echo ========================================================================
           echo Appending server contents tar file to create new image
           echo ========================================================================
-          #~/ace/crane append -b tdolby/experimental:ace-minimal-13.0.1.0-ubuntu -f /tmp/build/crane-append-file.tar.gz -t tdolby/experimental:tea-github-action-crane-`cat /tmp/build/image-tag.txt`
+          #~/ace/crane append -b tdolby/experimental:ace-minimal-13.0.4.0-ubuntu -f /tmp/build/crane-append-file.tar.gz -t tdolby/experimental:tea-github-action-crane-`cat /tmp/build/image-tag.txt`

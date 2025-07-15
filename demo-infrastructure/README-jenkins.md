@@ -28,7 +28,7 @@ so that the component tests can run successfully. This is required regardless of
 deploy target (integration node or ACEaaS).
 
 For Windows, the ACE_COMMAND environment variable may need to be changed to match a locally-installed
-version of ACE (currently set to 13.0.1). Container support is not required.
+version of ACE (currently set to 13.0.4). Container support is not required.
 
 For Linux, the pipeline will use containers for the actual build steps, and this requires either 
 the `ace` container image from cp.icr.io or the `ace-minimal-build` container image to be created 
@@ -106,8 +106,8 @@ and the policy should look like
     <connectionUrlFormatAttr3></connectionUrlFormatAttr3>
     <connectionUrlFormatAttr4></connectionUrlFormatAttr4>
     <connectionUrlFormatAttr5></connectionUrlFormatAttr5>
-    <serverName>19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud</serverName>
-    <portNumber>30699</portNumber>
+    <serverName>9938aec0-8105-433e-8bf9-0fbb7e483086.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud</serverName>
+    <portNumber>32459</portNumber>
     <jarsURL></jarsURL>
     <databaseSchemaNames>useProvidedSchemaNames</databaseSchemaNames>
     <description></description>

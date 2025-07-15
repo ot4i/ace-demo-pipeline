@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     # Set the cp.icr.io ace container as runtime.
     container: 
-      image: cp.icr.io/cp/appc/ace:13.0.1.0-r1
+      image: cp.icr.io/cp/appc/ace:13.0.4.0-r1
       credentials:
         username: ${{ secrets.CP_USERNAME }}
         password: ${{ secrets.CP_PASSWORD }}
