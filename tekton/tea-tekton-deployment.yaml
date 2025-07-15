@@ -39,4 +39,3 @@ spec:
       - name: switchclient-secret
         secret:
           secretName: cloud-switchclient-json
-          defaultMode: 664
