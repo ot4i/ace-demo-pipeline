@@ -30,7 +30,7 @@ spec:
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
         - name: switchclient-secret
-          mountPath: /home/aceuser/ace-server/config/switchclient.json
+          mountPath: /home/aceuser/ace-server/config/switch/switchclient.json
           subPath: switchclient.json
       volumes:
       - name: secret-volume-2

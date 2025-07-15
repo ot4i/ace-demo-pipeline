@@ -60,7 +60,8 @@ spec:
         mqsicreateworkdir /work/ibmint-output/ace-server
         # Using --compile-maps-and-schemas for 13.0.1 and later . . . 
         ibmint deploy --input-path . --output-work-directory /work/ibmint-output/ace-server --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --project TeaCallableApplicationV2 --compile-maps-and-schemas 
-        ibmint optimize server --work-dir /work/ibmint-output/ace-server --disable NodeJS
+        # ibmint optimize server --work-dir /work/ibmint-output/ace-server --disable NodeJS
+        ibmint optimize server --work-dir /work/ibmint-output/ace-server
 
         # Copy the contents of the work directory into a new unit-test-specific work directory
         # This avoids the risk of unit tests files being deployed in the real containers, and
