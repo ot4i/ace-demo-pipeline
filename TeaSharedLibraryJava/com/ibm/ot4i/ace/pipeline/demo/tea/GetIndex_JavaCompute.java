@@ -33,7 +33,7 @@ public class GetIndex_JavaCompute extends MbJavaComputeNode {
     MbMessageAssembly outAssembly = null;
     try {
       // create new message as a copy of the input
-      MbMessage outMessage = new MbMessage(inMessage);
+      MbMessage outMessage = new MbMessage();
       outAssembly = new MbMessageAssembly(inAssembly, outMessage);
       // ----------------------------------------------------------
       // Add user code below
@@ -79,7 +79,7 @@ public class GetIndex_JavaCompute extends MbJavaComputeNode {
       MbElement jsonData = rootElem.createElementAsLastChild("JSON").
         createElementAsFirstChild(MbElement.TYPE_NAME);
       jsonData.setName("Data");
-      jsonData.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "id", teaIndex);
+      //jsonData.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "id", teaIndex);
       jsonData.createElementAsLastChild(MbElement.TYPE_NAME_VALUE, "name", teaName);
       jsonData.createElementAsLastChild(MbElement.TYPE_NAME_VALUE, "strength", 2);
 	        
