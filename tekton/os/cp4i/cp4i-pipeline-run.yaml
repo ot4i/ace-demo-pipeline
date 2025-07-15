@@ -15,14 +15,14 @@ spec:
     - name: appName
       value: "tea-tekton-cp4i"
     - name: url
-      value: "https://github.com/ot4i/ace-demo-pipeline"
+      value: "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
     - name: revision
       value: "main"
     - name: buildImage
-      value: "cp.icr.io/cp/appc/ace:13.0.1.0-r1"
+      value: "cp.icr.io/cp/appc/ace:13.0.4.0-r1"
       # For Maven builds - build ace-minimal-build first
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-minimal-build:13.0.1.0-alpine"
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-minimal-build:13.0.4.0-alpine"
     - name: runtimeBaseImage
-      value: "cp.icr.io/cp/appc/ace-server-prod:13.0.1.0-r2-20241024-142903"
+      value: "cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331"
       # If shadowed locally
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.1.0-r2-20241024-142903"
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331"

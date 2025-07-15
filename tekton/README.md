@@ -180,7 +180,7 @@ in the policyxml should eliminate this error.
 ### OpenShift
 
 The majority of steps are the same, but the registry authentication is a little different; assuming a session 
-logged in as kubeadmin, it would look as follows:
+logged in as kubeadmin with a project of `ace`, it would look as follows:
 ```
 kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
 ```

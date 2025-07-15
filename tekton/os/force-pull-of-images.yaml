@@ -6,12 +6,12 @@ spec:
   containers:
   - name: force-pull-base
     imagePullPolicy: Always
-    image: image-registry.openshift-image-registry.svc.cluster.local:5000/ace/ace-minimal:13.0.1.0-alpine
+    image: image-registry.openshift-image-registry.svc.cluster.local:5000/ace/ace-minimal:13.0.4.0-alpine
     command: ["sleep"]
     args: ["100"]
   - name: force-pull-build
     imagePullPolicy: Always
-    image: image-registry.openshift-image-registry.svc.cluster.local:5000/ace/ace-minimal-build:13.0.1.0-alpine
+    image: image-registry.openshift-image-registry.svc.cluster.local:5000/ace/ace-minimal-build:13.0.4.0-alpine
     command: ["sleep"]
     args: ["100"]
   restartPolicy: Never

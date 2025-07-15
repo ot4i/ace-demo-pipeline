@@ -40,4 +40,4 @@ spec:
       # kubectl patch serviceaccount default --type=json -p='[{"op": "add", "path": "/imagePullSecrets/-", "value": {"name": "regcred"}}]'
       #imagePullSecrets:
       #- name: regcred
-  version: 13.0.1.0-r2
+  version: 13.0.4.0-r1

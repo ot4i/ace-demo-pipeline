@@ -1,8 +1,10 @@
 #!/bin/bash
 
+# Assumes "oc login" with a current project of "ace"
+
 kubectl delete secret regcred
 kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
-kubectl apply -f tekton/service-account.yaml
+kubectl apply -f tekton/os/service-account.yaml
 
 kubectl apply -f tekton/minimal-image-build/01-ace-minimal-image-build-and-push-task.yaml
 kubectl apply -f tekton/minimal-image-build/ace-minimal-image-pipeline.yaml

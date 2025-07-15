@@ -16,18 +16,18 @@ spec:
       default: "cp4i"
     - name: url
       type: string
-      default: "https://github.com/ot4i/ace-demo-pipeline"
+      default: "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
     - name: revision
       type: string
       default: "main"
     - name: buildImage
       type: string
-      default: "cp.icr.io/cp/appc/ace:13.0.1.0-r1"
-      #default: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-minimal-build:13.0.1.0-alpine"
+      default: "cp.icr.io/cp/appc/ace:13.0.4.0-r1"
+      #default: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-minimal-build:13.0.4.0-alpine"
     - name: runtimeBaseImage
       type: string
-      default: "cp.icr.io/cp/appc/ace-server-prod:13.0.1.1-r1-20240125-170703"
-      #default: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.1.1-r1-20240125-170703"
+      default: "cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331"
+      #default: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331"
   tasks:
     - name: build-from-source
       taskRef:

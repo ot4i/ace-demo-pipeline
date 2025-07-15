@@ -58,19 +58,19 @@ kubectl --namespace openshift-image-registry port-forward --address 0.0.0.0 svc/
 ```
 at which point the OpenShift registry will be accessible from localhost:5000.
 
-As an example, the following sequence would tage the 13.0.1.0-r2 image and upload to the registry:
+As an example, the following sequence would tage the 13.0.4.0-r1 image and upload to the registry:
 ```
-docker pull cp.icr.io/cp/appc/ace-server-prod:13.0.1.0-r2@sha256:d52aae2d2c649c1d2ddc53b0157eaa435fcab833b036e52516d5cd508f018289
-docker tag cp.icr.io/cp/appc/ace-server-prod:13.0.1.0-r2@sha256:d52aae2d2c649c1d2ddc53b0157eaa435fcab833b036e52516d5cd508f018289
- image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.1.0-r2
-docker push image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.1.0-r2
+docker pull cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331@sha256:79bf0ef9e8d7cad8f70ea7dc22783670b4edbc54d81348b030af25d75033097e
+docker tag  cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331@sha256:79bf0ef9e8d7cad8f70ea7dc22783670b4edbc54d81348b030af25d75033097e
+ image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
+docker push image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
 ```
 
 Note that the ACE operator often uses the version-and-date form of the image tag when creating
 containers, which would also work; the following tags refer to the same image:
 ```
-cp.icr.io/cp/appc/ace-server-prod:13.0.1.0-r2-20241024-142903
-cp.icr.io/cp/appc/ace-server-prod@sha256:d52aae2d2c649c1d2ddc53b0157eaa435fcab833b036e52516d5cd508f018289
+cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331
+cp.icr.io/cp/appc/ace-server-prod@sha256:79bf0ef9e8d7cad8f70ea7dc22783670b4edbc54d81348b030af25d75033097e
 ```
 
 Configurations need to be created for the JDBC credentials (teajdbc-policy and teajdbc) and default policy project name

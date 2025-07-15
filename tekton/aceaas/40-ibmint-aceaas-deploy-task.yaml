@@ -37,7 +37,7 @@ spec:
           name: work
     - name: ibmint-build
       image: $(params.buildImage)
-      #image: cp.icr.io/cp/appc/ace:13.0.1.0-r1
+      #image: cp.icr.io/cp/appc/ace:13.0.4.0-r1
       #
       # Runs the build and unit test phases, leaving the application BAR file in the 
       # /work/ibmint-output directory for later steps to use.
@@ -76,7 +76,7 @@ spec:
           name: work
     - name: component-test
       image: $(params.buildImage)
-      #image: cp.icr.io/cp/appc/ace:13.0.1.0-r1
+      #image: cp.icr.io/cp/appc/ace:13.0.4.0-r1
       #
       # Builds and runs the component tests using the JDBC credentials provided from
       # the secret. Also uses the same init-creds.sh script used by the non-CP4i image
