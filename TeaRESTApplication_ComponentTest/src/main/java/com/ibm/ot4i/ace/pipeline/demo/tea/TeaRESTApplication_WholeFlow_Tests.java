@@ -31,7 +31,7 @@ public class TeaRESTApplication_WholeFlow_Tests {
                 TestSetup.restoreAllMocks();
         }
 
-        //@Test
+        @Test
         public void TeaRESTApplication_WholeFlow_Get_Test() throws TestException {
 
 

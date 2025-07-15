@@ -17,6 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TeaRESTApplication_GetFromDB_Tests {
 
@@ -46,7 +47,7 @@ public class TeaRESTApplication_GetFromDB_Tests {
             TestMessageAssembly inputMessageAssembly = new TestMessageAssembly();
 
             // Variables used for setting parameters in Local Environment
-            String id = "0";
+            String id = "1";
 
             // Add Local Environment to Message Assembly for HTTP
             inputMessageAssembly.localEnvironmentPath("HTTP.Input.Path.Segment[0]").setValue("tea");
@@ -71,6 +72,6 @@ public class TeaRESTApplication_GetFromDB_Tests {
 
             // We don't really care about the value here: if we get this far, and the JSON data
             // exists, then we've successfully connected to the database.
-            //assertEquals("0", actualMessageAssembly.messagePath("JSON.Data.id").getValueAsString());
+            assertNotNull(actualMessageAssembly.messagePath("JSON.Data.name").getValueAsString());
     }
 }
