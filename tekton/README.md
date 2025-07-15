@@ -91,7 +91,7 @@ The service account also has the ability to create services, deployments, etc, w
 As well as the registry credentials, the pipeline needs JDBC credentials to run the component tests. 
 See [cloud-resources.md](cloud-resources.md) for DB2 on Cloud instructions, with the credentials being created as follows
 ```
-kubectl create secret generic jdbc-secret --from-literal=USERID='blah' --from-literal=PASSWORD='blah' --from-literal=databaseName='BLUDB' --from-literal=serverName='19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='30699' 
+kubectl create secret generic jdbc-secret --from-literal=USERID='blah' --from-literal=PASSWORD='blah' --from-literal=databaseName='BLUDB' --from-literal=serverName='9938aec0-8105-433e-8bf9-0fbb7e483086.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='32459' 
 ```
 with the obvious replacements.
 

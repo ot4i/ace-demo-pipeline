@@ -33,7 +33,7 @@ kubectl apply -f tekton/minikube/minikube-registry-nodeport.yaml
 kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
 kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml
 kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
-kubectl create secret generic jdbc-secret --from-literal=USERID='BLAH' --from-literal=PASSWORD='BLAH' --from-literal=databaseName='BLUDB' --from-literal=serverName='19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='30699'
+kubectl create secret generic jdbc-secret --from-literal=USERID='BLAH' --from-literal=PASSWORD='BLAH' --from-literal=databaseName='BLUDB' --from-literal=serverName='9938aec0-8105-433e-8bf9-0fbb7e483086.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='32459'
 
 kubectl apply -f tekton/service-account.yaml
 ```
@@ -288,7 +288,7 @@ deployment.apps/tekton-dashboard created
 clusterrolebinding.rbac.authorization.k8s.io/tekton-dashboard-tenant created
 ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ kubectl create secret docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
 secret/regcred created
-ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ kubectl create secret generic jdbc-secret --from-literal=USERID='BLAH' --from-literal=PASSWORD='BLAH' --from-literal=databaseName='BLUDB' --from-literal=serverName='19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='30699'
+ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ kubectl create secret generic jdbc-secret --from-literal=USERID='BLAH' --from-literal=PASSWORD='BLAH' --from-literal=databaseName='BLUDB' --from-literal=serverName='9938aec0-8105-433e-8bf9-0fbb7e483086.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='32459'
 secret/jdbc-secret created
 ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ kubectl apply -f tekton/service-account.yaml
 serviceaccount/ace-tekton-service-account created

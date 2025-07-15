@@ -24,4 +24,5 @@ kubectl apply -f tekton/minimal-image-build/ace-minimal-build-image-pipeline.yam
 
 kubectl apply -f tekton/10-maven-ace-build-task.yaml
 kubectl apply -f tekton/20-deploy-to-cluster-task.yaml
+kubectl apply -f tekton/21-knative-deploy-task.yaml
 kubectl apply -f tekton/ace-pipeline.yaml

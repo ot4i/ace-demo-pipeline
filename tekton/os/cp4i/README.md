@@ -85,7 +85,7 @@ and that the ACE server in the certified container can connect to DB2.
 Create the `jdbc-secret`
 
 ```bash
-kubectl create secret generic jdbc-secret -n cp4i --from-literal=USERID='USERNAME' --from-literal=PASSWORD='PASSWORD' --from-literal=databaseName='BLUDB' --from-literal=serverName='19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='30699'
+kubectl create secret generic jdbc-secret -n cp4i --from-literal=USERID='USERNAME' --from-literal=PASSWORD='PASSWORD' --from-literal=databaseName='BLUDB' --from-literal=serverName='9938aec0-8105-433e-8bf9-0fbb7e483086.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='32459'
 ```
 
 The Tekton pipeline expects docker credentials to be provided for [Crane](https://github.com/google/go-containerregistry/tree/main/cmd/crane) to use when pushing the built image, and these credentials must be associated with the service account for the pipeline. If this has not already been done elsewhere, then create them with the following format for OpenShift

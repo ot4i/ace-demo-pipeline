@@ -106,8 +106,8 @@ and the policy should look like
     <connectionUrlFormatAttr3></connectionUrlFormatAttr3>
     <connectionUrlFormatAttr4></connectionUrlFormatAttr4>
     <connectionUrlFormatAttr5></connectionUrlFormatAttr5>
-    <serverName>19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud</serverName>
-    <portNumber>30699</portNumber>
+    <serverName>9938aec0-8105-433e-8bf9-0fbb7e483086.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud</serverName>
+    <portNumber>32459</portNumber>
     <jarsURL></jarsURL>
     <databaseSchemaNames>useProvidedSchemaNames</databaseSchemaNames>
     <description></description>
