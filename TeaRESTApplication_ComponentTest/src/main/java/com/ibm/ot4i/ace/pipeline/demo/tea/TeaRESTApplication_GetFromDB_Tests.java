@@ -36,7 +36,8 @@ public class TeaRESTApplication_GetFromDB_Tests {
 
             // Define the SpyObjectReference
             SpyObjectReference nodeReference = new SpyObjectReference().application("TeaRESTApplication")
-                            .messageFlow("gen.TeaRESTApplication").subflowNode("getIndex (Implementation)").subflowNode("GetFromDB").node("Get DB record");
+                            .messageFlow("gen.TeaRESTApplication").subflowNode("getIndex (Implementation)")
+                            .subflowNode("getIndexImpl").subflowNode("GetFromDB").node("Get DB record");
 
             // Initialise a NodeSpy
             NodeSpy nodeSpy = new NodeSpy(nodeReference);
