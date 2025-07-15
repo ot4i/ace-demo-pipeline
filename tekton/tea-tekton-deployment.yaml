@@ -16,13 +16,6 @@ spec:
         productID: eb5b5e73f62b4dcf8c434c6274a158a7
         productMetric: FREE
     spec:
-      volumes:
-      - name: secret-volume-2
-        secret:
-          secretName: jdbc-secret
-      - name: switchclient-secret
-        mountPath: /home/aceuser/ace-server/config/switchclient.json
-        subPath: switchclient.json
       # This is now handled via the "default" service account
       # kubectl patch serviceaccount default --type=json -p='[{"op": "add", "path": "/imagePullSecrets/-", "value": {"name": "regcred"}}]'
       #imagePullSecrets:
@@ -37,6 +30,13 @@ spec:
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
         - name: switchclient-secret
-          secret:
-            secretName: cloud-switchclient-json
-            defaultMode: 664
+          mountPath: /home/aceuser/ace-server/config/switchclient.json
+          subPath: switchclient.json
+      volumes:
+      - name: secret-volume-2
+        secret:
+          secretName: jdbc-secret
+      - name: switchclient-secret
+        secret:
+          secretName: cloud-switchclient-json
+          defaultMode: 664
