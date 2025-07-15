@@ -14,7 +14,7 @@ spec:
       type: string
   steps:
     - name: clone
-      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      image: alpine/git:v2.49.1
       script: |
         #!/bin/sh
         set -x

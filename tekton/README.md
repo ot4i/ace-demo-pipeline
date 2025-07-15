@@ -50,12 +50,12 @@ comments, with [ace-pipeline-run.yaml](ace-pipeline-run.yaml) being one example:
 ```
     - name: buildImage
       # Requires an IBM Entitlement Key
-      #value: "cp.icr.io/cp/appc/ace:13.0.1.0-r1"
+      #value: "cp.icr.io/cp/appc/ace:13.0.4.0-r1"
       # ace-minimal can be built from the ACE package without needing a key
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace/ace-minimal:13.0.1.0-alpine"
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace/ace-minimal:13.0.4.0-alpine"
       # Need to use the -build image for Maven
-      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace/ace-minimal-build:13.0.1.0-alpine"
-      value: "192.168.49.2:5000/default/ace-minimal-build:13.0.1.0-alpine"
+      #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace/ace-minimal-build:13.0.4.0-alpine"
+      value: "192.168.49.2:5000/default/ace-minimal-build:13.0.4.0-alpine"
 ```
 
 The Tekton pipeline and ACE runtime rely on having permission to access the container registry,
@@ -91,7 +91,7 @@ The service account also has the ability to create services, deployments, etc, w
 As well as the registry credentials, the pipeline needs JDBC credentials to run the component tests. 
 See [cloud-resources.md](cloud-resources.md) for DB2 on Cloud instructions, with the credentials being created as follows
 ```
-kubectl create secret generic jdbc-secret --from-literal=USERID='blah' --from-literal=PASSWORD='blah' --from-literal=databaseName='BLUDB' --from-literal=serverName='19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='30699' 
+kubectl create secret generic jdbc-secret --from-literal=USERID='blah' --from-literal=PASSWORD='blah' --from-literal=databaseName='BLUDB' --from-literal=serverName='9938aec0-8105-433e-8bf9-0fbb7e483086.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='32459' 
 ```
 with the obvious replacements.
 
@@ -180,7 +180,7 @@ in the policyxml should eliminate this error.
 ### OpenShift
 
 The majority of steps are the same, but the registry authentication is a little different; assuming a session 
-logged in as kubeadmin, it would look as follows:
+logged in as kubeadmin with a project of `ace`, it would look as follows:
 ```
 kubectl create secret docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
 ```

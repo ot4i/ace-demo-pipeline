@@ -1,6 +1,6 @@
 # Copyright (c) 2022 Open Technologies for Integration
 # Licensed under the MIT license (see LICENSE for details)
-ARG BASE_IMAGE=cp.icr.io/cp/appc/ace:13.0.1.0-r1
+ARG BASE_IMAGE=cp.icr.io/cp/appc/ace:13.0.4.0-r1
 FROM $BASE_IMAGE
 
 #

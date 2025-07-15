@@ -47,7 +47,7 @@ kubectl apply -f tekton/os/cp4i/minikube/minikube-install-subscription.yaml
 kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
 kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml
 kubectl create secret -n cp4i docker-registry regcred --docker-server=us.icr.io --docker-username=notused --docker-password=notused
-kubectl create secret -n cp4i generic jdbc-secret --from-literal=USERID='BLAH' --from-literal=PASSWORD='BLAH' --from-literal=databaseName='BLUDB' --from-literal=serverName='19af6446-6171-4641-8aba-9dcff8e1b6ff.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='30699'
+kubectl create secret -n cp4i generic jdbc-secret --from-literal=USERID='BLAH' --from-literal=PASSWORD='BLAH' --from-literal=databaseName='BLUDB' --from-literal=serverName='9938aec0-8105-433e-8bf9-0fbb7e483086.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='32459'
 
 kubectl apply -f tekton/os/cp4i/service-account-cp4i.yaml
 

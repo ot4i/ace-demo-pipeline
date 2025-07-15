@@ -31,4 +31,4 @@ spec:
     - teajdbc-policy
     - default-policy
     - teajdbc
-  version: 13.0.1.0-r2
+  version: 13.0.4.0-r1
