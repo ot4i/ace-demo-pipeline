@@ -51,7 +51,7 @@ jobs:
           echo Building application
           echo ========================================================================
           # Using --compile-maps-and-schemas for 12.0.11 and later . . . 
-          ibmint package --input-path . --output-bar-file $PWD/tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
+          ibmint package --input-path . --output-bar-file $PWD/tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --project TeaCallableApplicationV2 --compile-maps-and-schemas 
 
           echo ========================================================================
           echo Building unit tests
