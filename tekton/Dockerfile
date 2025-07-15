@@ -25,7 +25,7 @@ WORKDIR /tmp/maven-output
 
 COPY ace-server /tmp/maven-output/ace-server/
 # Buildah can fail with various issues in /tmp
-RUN ( chown -R aceuser:mqbrkrs /tmp/* || /bin/true) && \
+RUN chown -R aceuser:mqbrkrs /tmp/maven-output && \
     (cd /tmp/maven-output/ace-server && tar -cf - * ) | ( cd /home/aceuser/ace-server && tar -xf - ) && \
     chmod 775 /home/aceuser/ace-server/ace-startup-script.sh && \
     chmod 775 /home/aceuser/ace-server/read-xml-creds.sh && \
