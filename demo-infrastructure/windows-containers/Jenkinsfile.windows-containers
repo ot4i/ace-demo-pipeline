@@ -1,5 +1,5 @@
 pipeline {
-  agent { docker { image 'ace-jenkins:13.0.1.0-windows' } }
+  agent { docker { image 'ace-jenkins:13.0.4.0-windows' } }
   parameters {
     /* These values would be better moved to a configuration file and provided by */
     /* the Config File Provider plugin (or equivalent), but this is good enough   */

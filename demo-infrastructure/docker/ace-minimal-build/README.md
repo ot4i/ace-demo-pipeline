@@ -2,13 +2,13 @@
 
 Used by the pipeline in this repo to run the ACE commands within a CI or other pipeline build.
 
-Built on top of ace-minimal:13.0.1.0-alpine (in a registry of your choice and built from 
+Built on top of ace-minimal:13.0.4.0-alpine (in a registry of your choice and built from 
 https://github.com/ot4i/ace-docker/tree/master/experimental/ace-minimal)
 but will be pushed to the same registry via the Tekton pipelines in tekton/minimal-image-build
 in this repo if using Tekton.
 
 For Jenkins build purposes, this image is needed locally and should be built with
 ```
-docker build -t ace-minimal-build:13.0.1.0-alpine .
+docker build -t ace-minimal-build:13.0.4.0-alpine .
 ```
-after building ace-minimal:13.0.1.0-alpine from the ace-docker repo (linked above).
+after building ace-minimal:13.0.4.0-alpine from the ace-docker repo (linked above).

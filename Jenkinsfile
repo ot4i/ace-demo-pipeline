@@ -1,7 +1,7 @@
 pipeline {
   agent { docker { 
-    image 'cp.icr.io/cp/appc/ace:13.0.1.0-r1'
-    /* image 'ace-minimal:13.0.1.0-alpine' */
+    image 'cp.icr.io/cp/appc/ace:13.0.4.0-r1'
+    /* image 'ace-minimal:13.0.4.0-alpine' */
     args '-e LICENSE=accept --entrypoint ""'
   } }
   parameters {

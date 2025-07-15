@@ -43,9 +43,9 @@ For the `ace` image (following https://www.ibm.com/docs/en/app-connect/container
 kubectl create secret docker-registry ibm-entitlement-key --docker-username=cp --docker-password=myEntitlementKey --docker-server=cp.icr.io
 minikube ssh
 docker login cp.icr.io -u cp -p ibmEntitlementKey
-docker pull cp.icr.io/cp/appc/ace:13.0.1.0-r1
-docker tag cp.icr.io/cp/appc/ace:13.0.1.0-r1 192.168.49.2:5000/default/ace:13.0.1.0-r1
-docker push 192.168.49.2:5000/default/ace:13.0.1.0-r1
+docker pull cp.icr.io/cp/appc/ace:13.0.4.0-r1
+docker tag cp.icr.io/cp/appc/ace:13.0.4.0-r1 192.168.49.2:5000/default/ace:13.0.4.0-r1
+docker push 192.168.49.2:5000/default/ace:13.0.4.0-r1
 ```
 
 For `ace-minimal` and `ace-minimal-build`, update the `aceDownloadUrl` parameter in
