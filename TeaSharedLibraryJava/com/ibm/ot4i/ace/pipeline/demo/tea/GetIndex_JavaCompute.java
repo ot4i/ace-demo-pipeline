@@ -52,8 +52,15 @@ public class GetIndex_JavaCompute extends MbJavaComputeNode {
       }
 	        
       String teaName = null;
-      MbElement inputLE = outAssembly.getLocalEnvironment().getRootElement();
-      String teaIndex = (String)(inputLE.getFirstElementByPath("HTTP/Input/Path").getLastChild().getValue());
+      String teaIndex = null;
+      try
+      {
+    	  MbElement inputLE = outAssembly.getLocalEnvironment().getRootElement();
+    	  teaIndex = (String)(inputLE.getFirstElementByPath("HTTP/Input/Path").getLastChild().getValue());
+      } catch ( java.lang.Throwable jlt ) {
+    	  MbElement inputRoot = outAssembly.getMessage().getRootElement();
+    	  teaIndex = (String)(inputRoot.getFirstElementByPath("JSON/Data/id").getValueAsString());
+      }
 	        
       stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
                                   ResultSet.CONCUR_READ_ONLY);
