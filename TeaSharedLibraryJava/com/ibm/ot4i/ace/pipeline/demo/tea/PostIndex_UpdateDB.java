@@ -77,7 +77,7 @@ public class PostIndex_UpdateDB extends MbJavaComputeNode {
       }
       stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
                                   ResultSet.CONCUR_READ_ONLY);
-      stmt.executeUpdate("INSERT INTO Tea (id, name) VALUES ("+newIndex+", '"+teaName+"')");
+      stmt.executeUpdate("INSERT INTO Tea (id, name, strength) VALUES ("+newIndex+", '\"+teaName+\"'), '\"+teaStrength+\"')");
 
       MbElement rootElem = outAssembly.getMessage().getRootElement();
       MbElement jsonData = rootElem.getFirstElementByPath("JSON");
