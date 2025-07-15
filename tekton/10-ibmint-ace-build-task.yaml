@@ -23,7 +23,7 @@ spec:
       description: image tag of the form 20240220135127-6fe9106
   steps:
     - name: clone
-      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      image: alpine/git:v2.49.1
       script: |
         #!/bin/sh
         set -e # Fail on error

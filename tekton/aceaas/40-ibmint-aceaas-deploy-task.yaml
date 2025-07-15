@@ -23,7 +23,7 @@ spec:
       description: BAR URL on ACEaaS of the form https://dataplane-api-dash.appconnect:3443/v1/ac2vkpa0udw/directories/tdolby-tea-tekton?
   steps:
     - name: clone
-      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.18.1
+      image: alpine/git:v2.49.1
       script: |
         #!/bin/sh
         set -e # Fail on error
