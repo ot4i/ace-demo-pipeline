@@ -4,7 +4,7 @@
   "description": "Input for the Tea get index operation",
   "type" : "object",
       "properties" : {
-        "index" : {
+        "id" : {
           "type" : "integer"
         }
       }
