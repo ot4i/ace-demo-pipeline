@@ -15,7 +15,7 @@ spec:
     - name: appName
       value: "tea-tekton-cp4i"
     - name: url
-      value: "https://github.com/ot4i/ace-demo-pipeline"
+      value: "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
     - name: revision
       value: "main"
     - name: buildImage

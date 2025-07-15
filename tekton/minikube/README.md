@@ -528,7 +528,7 @@ pipelinerun.tekton.dev/ace-pipeline-run-1 created
 [build-from-source : docker-build-and-push] Mon Apr  8 18:51:46 UTC 2024
 
 [deploy-knative-to-cluster : clone] + cd /work
-[deploy-knative-to-cluster : clone] + git clone -b aceaas-and-minikube https://github.com/ot4i/ace-demo-pipeline
+[deploy-knative-to-cluster : clone] + git clone -b aceaas-and-minikube https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline
 [deploy-knative-to-cluster : clone] Cloning into 'ace-demo-pipeline'...
 [deploy-knative-to-cluster : clone] + echo 192.168.49.2:5000/default
 [deploy-knative-to-cluster : clone] + sed 's/\//\\\//g'
