@@ -160,7 +160,7 @@ spec:
         set -e # Fail on error
         set -x
         crane append -b $(params.runtimeBaseImage) -f /work/crane-append-file.tar.gz -t $(params.outputRegistry)/tea-tekton:$TAG
-        crane mutate --env "LICENSE=accept" --entrypoint='bash,-c,". /opt/ibm/ace-13/server/bin/mqsiprofile && /home/aceuser/ace-server/ace-startup-script.sh && ibmint apply overrides /home/aceuser/ace-server/application-overrides.txt --work-directory /home/aceuser/ace-server && IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 --no-nodejs && IntegrationServer -w /home/aceuser/ace-server"' $(params.outputRegistry)/tea-tekton:$TAG
+        crane mutate --env "LICENSE=accept" --entrypoint='bash,-c,". /opt/ibm/ace-13/server/bin/mqsiprofile ; /home/aceuser/ace-server/ace-startup-script.sh && ibmint apply overrides /home/aceuser/ace-server/application-overrides.txt --work-directory /home/aceuser/ace-server && IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 --no-nodejs && IntegrationServer -w /home/aceuser/ace-server"' $(params.outputRegistry)/tea-tekton:$TAG
         date
       volumeMounts:
         - mountPath: /work
