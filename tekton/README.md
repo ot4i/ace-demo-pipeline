@@ -271,5 +271,5 @@ The endpoint should be of the form `https://tdolby-tea-tekton-ir-https-ac2vkpa0u
 and (similar to the integration node example above) curl can be used to retrieve or add data.
 ```
 C:\>curl https://tdolby-tea-tekton-ir-https-ac2vkpa0udw.p-vir-d1.appconnect.ibmappdomain.cloud/tea/index/1
-{"name":"Assam","id":"1"}
+{"name":"Assam","strength":5}
 ```

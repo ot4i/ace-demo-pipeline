@@ -144,7 +144,7 @@ node without MQ on the default HTTP per-server listener port), which is likely t
 values unless there is data in the database already:
 ```
 C:\>curl http://localhost:7800/tea/index/1
-{"name":null,"id":"1"}
+{"name":null,"strength":"0"}
 ```
 
 To add tea to the index, curl can be used:
@@ -205,7 +205,7 @@ The endpoint should be of the form `https://tdolby-tea-jenkins-ir-https-ac2vkpa0
 and (similar to the integration node example above) curl can be used to retrieve or add data.
 ```
 C:\>curl https://tdolby-tea-jenkins-ir-https-ac2vkpa0udw.p-vir-d1.appconnect.ibmappdomain.cloud/tea/index/1
-{"name":"Assam","id":"1"}
+{"name":"Assam","strength":5}
 ```
 
 ## Common errors

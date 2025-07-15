@@ -367,7 +367,7 @@ ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ Forwarding from 0.0.0.0
 
 ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ curl http://localhost:7800/tea/index/1
 Handling connection for 7800
-{"name":"Assam","id":"1"}
+{"name":"Assam","strength":5}
 
 
 ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.1/serving-crds.yaml
@@ -573,5 +573,5 @@ ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ kn services list
 NAME                 URL                                                     LATEST                     AGE    CONDITIONS   READY   REASON
 tea-tekton-knative   http://tea-tekton-knative.default.192.168.49.2.nip.io   tea-tekton-knative-00003   9m5s   3 OK / 3     True
 ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ curl http://tea-tekton-knative.default.192.168.49.2.nip.io/tea/index/1
-{"name":"Assam","id":"1"}
+{"name":"Assam","strength":5}
 ```
