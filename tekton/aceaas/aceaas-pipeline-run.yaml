@@ -15,7 +15,7 @@ spec:
       # ace-minimal does not have curl, so we need to use the -build image for curl
       #value: "image-registry.openshift-image-registry.svc.cluster.local:5000/ace/ace-minimal-build:13.0.4.0-alpine"
     - name: url
-      value: "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
+      value: "https://github.com/ot4i/ace-demo-pipeline"
     - name: revision
       value: "main"
     - name: deployPrefix
