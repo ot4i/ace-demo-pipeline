@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:ComIbmMSLMapping.msgnode="ComIbmMSLMapping.msgnode" xmlns:TeaSharedLibrary_LogAuditData.subflow="TeaSharedLibrary/LogAuditData.subflow" xmlns:TeaSharedLibrary_UpdateDB.subflow="TeaSharedLibrary/UpdateDB.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="postIndex.subflow" nsPrefix="postIndex.subflow">
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmFilter.msgnode="ComIbmFilter.msgnode" xmlns:ComIbmMSLMapping.msgnode="ComIbmMSLMapping.msgnode" xmlns:TeaSharedLibrary_postIndexImpl.subflow="TeaSharedLibrary/postIndexImpl.subflow" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="postIndex.subflow" nsPrefix="postIndex.subflow">
   <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1">
     <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
     <translation xmi:type="utility:TranslatableString" key="postIndex" bundleName="postIndex" pluginId="TeaRESTApplication"/>
@@ -9,28 +9,24 @@
       <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input_1" location="25,25">
         <translation xmi:type="utility:TranslatableString" key="Input" bundleName="postIndex" pluginId="TeaRESTApplication"/>
       </nodes>
-      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output_1" location="688,29">
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output_1" location="626,29">
         <translation xmi:type="utility:TranslatableString" key="Output" bundleName="postIndex" pluginId="TeaRESTApplication"/>
       </nodes>
       <nodes xmi:type="ComIbmMSLMapping.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="207,82" mappingExpression="msl://{default}#oldToNew_Mapping">
         <translation xmi:type="utility:ConstantString" string="MapToNewFormat"/>
       </nodes>
-      <nodes xmi:type="TeaSharedLibrary_LogAuditData.subflow:FCMComposite_1" xmi:id="FCMComposite_1_3" location="543,29">
-        <translation xmi:type="utility:ConstantString" string="LogAuditData"/>
-      </nodes>
       <nodes xmi:type="ComIbmFilter.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_5" location="110,25" filterExpression="esql://routine/#postIndex_Filter.Main">
         <translation xmi:type="utility:ConstantString" string="Filter"/>
       </nodes>
-      <nodes xmi:type="TeaSharedLibrary_UpdateDB.subflow:FCMComposite_1" xmi:id="FCMComposite_1_2" location="371,29">
-        <translation xmi:type="utility:ConstantString" string="UpdateDB"/>
+      <nodes xmi:type="TeaSharedLibrary_postIndexImpl.subflow:FCMComposite_1" xmi:id="FCMComposite_1_4" location="426,30">
+        <translation xmi:type="utility:ConstantString" string="postIndexImpl"/>
       </nodes>
       <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_5" sourceNode="InTerminal.Input_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
-      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_2" targetNode="OutTerminal.Output_1" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.in"/>
-      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.unknown" targetTerminalName="InTerminal.Input"/>
-      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_4" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.Input"/>
       <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_5" targetNode="FCMComposite_1_1" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.true" targetTerminalName="InTerminal.in"/>
-      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input"/>
-      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.Output" targetTerminalName="InTerminal.Input"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_8" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.unknown" targetTerminalName="InTerminal.Input_1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_9" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.Input_1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_10" targetNode="FCMComposite_1_4" sourceNode="FCMComposite_1_5" sourceTerminalName="OutTerminal.false" targetTerminalName="InTerminal.Input_1"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_11" targetNode="OutTerminal.Output_1" sourceNode="FCMComposite_1_4" sourceTerminalName="OutTerminal.Output_1" targetTerminalName="InTerminal.in"/>
     </composition>
     <propertyOrganizer/>
     <stickyBoard/>

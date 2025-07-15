@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-public class TeaRESTApplication_LogAuditData_Tests {
+public class TeaCallableApplicationV2_LogAuditData_Tests {
 
 	/*
 	 * TeaRESTApplication_getIndex_subflow_0001_Test
@@ -33,12 +33,11 @@ public class TeaRESTApplication_LogAuditData_Tests {
 	}
 
 	@Test
-    public void TeaRESTApplication_LogAuditData_CreateXML_Test() throws TestException {
+    public void TeaCallableApplicationV2_LogAuditData_CreateXML_Test() throws TestException {
 
             // Define the SpyObjectReference
-            SpyObjectReference nodeReference = new SpyObjectReference().application("TeaRESTApplication")
-                            .messageFlow("gen.TeaRESTApplication").subflowNode("getIndex (Implementation)")
-                            .subflowNode("getIndexImpl").subflowNode("LogAuditData").node("Create XML from JSON");
+            SpyObjectReference nodeReference = new SpyObjectReference().application("TeaCallableApplicationV2")
+                            .messageFlow("getIndex").subflowNode("getIndexImpl").subflowNode("LogAuditData").node("Create XML from JSON");
 
             // Initialise a NodeSpy
             NodeSpy nodeSpy = new NodeSpy(nodeReference);
@@ -61,12 +60,11 @@ public class TeaRESTApplication_LogAuditData_Tests {
             assertEquals("Earl Grey", actualMessageAssembly.messagePath("XMLNSC.logData.info.name").getStringValue());
     }
 	@Test
-    public void TeaRESTApplication_LogAuditData_RemoveXML_Test() throws TestException {
+    public void TeaCallableApplicationV2_LogAuditData_RemoveXML_Test() throws TestException {
 
             // Define the SpyObjectReference
-            SpyObjectReference nodeReference = new SpyObjectReference().application("TeaRESTApplication")
-                            .messageFlow("gen.TeaRESTApplication").subflowNode("getIndex (Implementation)")
-                            .subflowNode("getIndexImpl").subflowNode("LogAuditData").node("Remove XML");
+            SpyObjectReference nodeReference = new SpyObjectReference().application("TeaCallableApplicationV2")
+                            .messageFlow("getIndex").subflowNode("getIndexImpl").subflowNode("LogAuditData").node("Remove XML");
 
             // Initialise a NodeSpy
             NodeSpy nodeSpy = new NodeSpy(nodeReference);
