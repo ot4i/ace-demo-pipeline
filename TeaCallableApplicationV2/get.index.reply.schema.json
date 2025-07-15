@@ -4,11 +4,11 @@
 	"description": "Reply for the Tea get index operation",
 	"type": "object",
 	"properties": {
-		"id": {
-			"type": "string"
-		},
 		"name": {
 			"type": "string"
+		},
+		"strength": {
+			"type": "integer"
 		}
 	}
 }
