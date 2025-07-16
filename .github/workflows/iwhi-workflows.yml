@@ -25,9 +25,9 @@ jobs:
       - name: Deploy TeaGetIndex and TeaPostIndex
         shell: bash
         env:
-          X_INSTANCE_API_KEY: ${{ secrets.IWHI_X_INSTANCE_API_KEY }}
-          IWHI_WM_HOSTNAME: ${{ env.IWHI_WM_HOSTNAME }}
-          IWHI_WORKFLOW_PROJECT: ${{ env.IWHI_WORKFLOW_PROJECT }}
+          X_INSTANCE_API_KEY:    ${{ secrets.IWHI_X_INSTANCE_API_KEY }}
+          IWHI_WM_HOSTNAME:      ${{ vars.IWHI_WM_HOSTNAME }}
+          IWHI_WORKFLOW_PROJECT: ${{ vars.IWHI_WORKFLOW_PROJECT }}
         run: |
           echo "Deploying TeaGetIndex"
           curl -sq -X POST -F overwrite=true -F "recipe=@extensions/iwhi/TeaGetIndex-export-fl086f660fe7d1c002dcfb34-1752685574583.zip"  -H "X-INSTANCE-API-KEY: ${X_INSTANCE_API_KEY}" https://${IWHI_WM_HOSTNAME}/apis/v1/rest/projects/${IWHI_WORKFLOW_PROJECT}/workflow-import
