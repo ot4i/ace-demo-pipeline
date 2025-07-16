@@ -28,9 +28,12 @@ jobs:
           X_INSTANCE_API_KEY: ${{ secrets.IWHI_X_INSTANCE_API_KEY }}
         run: |
           echo "Deploying TeaGetIndex"
-          echo "X_INSTANCE_API_KEY == ${X_INSTANCE_API_KEY} =="
+          curl -sq -X POST -F overwrite=true -F "recipe=@extensions/iwhi/TeaGetIndex-export-fl086f660fe7d1c002dcfb34-1752685574583.zip"  -H "X-INSTANCE-API-KEY: ${X_INSTANCE_API_KEY}" https://dev2299223.a-vir-r1.int.ipaas.automation.ibm.com/apis/v1/rest/projects/TDolbyThirdProject/workflow-import
 
       - name: Deploy TeaPostIndex
         shell: bash
+        env:
+          X_INSTANCE_API_KEY: ${{ secrets.IWHI_X_INSTANCE_API_KEY }}
         run: |
           echo "Deploying TeaPostIndex"
+          curl -sq -X POST -F overwrite=true -F "recipe=@extensions/iwhi/TeaPostIndex-export-fl13f50749ef0d169523347c-1752697724187.zip"  -H "X-INSTANCE-API-KEY: ${X_INSTANCE_API_KEY}" https://dev2299223.a-vir-r1.int.ipaas.automation.ibm.com/apis/v1/rest/projects/TDolbyThirdProject/workflow-import
