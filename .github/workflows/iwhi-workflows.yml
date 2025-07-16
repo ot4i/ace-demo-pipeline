@@ -24,7 +24,7 @@ jobs:
 
       - name: Deploy TeaGetIndex
         shell: bash
-        with:
+        env:
           X-INSTANCE-API-KEY: ${{ secrets.IWHI-X-INSTANCE-API-KEY }}
         run: |
           echo "Deploying TeaGetIndex"
