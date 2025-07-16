@@ -1,0 +1,36 @@
+# Deploy IWHI workflows
+
+name: IWHI workflow deploy
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main, minikube-cp4i ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Deploy TeaGetIndex
+        shell: bash
+        with:
+          X-INSTANCE-API-KEY: ${{ secrets.IWHI-X-INSTANCE-API-KEY }}
+        run: |
+          echo "Deploying TeaGetIndex"
+          echo "X-INSTANCE-API-KEY == ${X-INSTANCE-API-KEY} =="
+
+      - name: Deploy TeaPostIndex
+        shell: bash
+        run: |
+          echo "Deploying TeaPostIndex"
