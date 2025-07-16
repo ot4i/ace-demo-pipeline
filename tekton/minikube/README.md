@@ -114,7 +114,7 @@ EOF
 export ksvc_domain="\"data\":{\""$(minikube ip)".nip.io\": \"\"}"
 kubectl patch configmap/config-domain -n knative-serving --type merge  -p "{$ksvc_domain}"
 
-cat serverless/tea-tekton-knative-service.yaml | sed 's/DOCKER_REGISTRY/192.168.49.2:5000\/default/g' | sed 's/IMAGE_TAG/20240408183942-f07980e/g' |  kubectl apply -f -
+cat extensions/serverless/tea-tekton-knative-service.yaml | sed 's/DOCKER_REGISTRY/192.168.49.2:5000\/default/g' | sed 's/IMAGE_TAG/20240408183942-f07980e/g' |  kubectl apply -f -
 
 curl -LO https://github.com/knative/client/releases/download/knative-v1.11.2/kn-linux-amd64
 ```
@@ -534,13 +534,13 @@ pipelinerun.tekton.dev/ace-pipeline-run-1 created
 [deploy-knative-to-cluster : clone] + sed 's/\//\\\//g'
 [deploy-knative-to-cluster : clone] + export 'REG_WITH_ESCAPED_SLASH=192.168.49.2:5000\/default'
 [deploy-knative-to-cluster : clone] + echo '192.168.49.2:5000\/default'
-[deploy-knative-to-cluster : clone] + sed -i 's/DOCKER_REGISTRY/192.168.49.2:5000\/default/g' /work/ace-demo-pipeline/serverless/tea-tekton-knative-service.yaml
+[deploy-knative-to-cluster : clone] + sed -i 's/DOCKER_REGISTRY/192.168.49.2:5000\/default/g' /work/ace-demo-pipeline/extensions/serverless/tea-tekton-knative-service.yaml
 [deploy-knative-to-cluster : clone] 192.168.49.2:5000\/default
 [deploy-knative-to-cluster : clone] + export 'TAG=20240408185001-f07980e'
 [deploy-knative-to-cluster : clone] + echo Using 20240408185001-f07980e as image tag
 [deploy-knative-to-cluster : clone] Using 20240408185001-f07980e as image tag
-[deploy-knative-to-cluster : clone] + sed -i s/IMAGE_TAG/20240408185001-f07980e/g /work/ace-demo-pipeline/serverless/knative-service-account.yaml /work/ace-demo-pipeline/serverless/tea-tekton-knative-service.yaml
-[deploy-knative-to-cluster : clone] + cat /work/ace-demo-pipeline/serverless/tea-tekton-knative-service.yaml
+[deploy-knative-to-cluster : clone] + sed -i s/IMAGE_TAG/20240408185001-f07980e/g /work/ace-demo-pipeline/extensions/serverless/knative-service-account.yaml /work/ace-demo-pipeline/extensions/serverless/tea-tekton-knative-service.yaml
+[deploy-knative-to-cluster : clone] + cat /work/ace-demo-pipeline/extensions/serverless/tea-tekton-knative-service.yaml
 [deploy-knative-to-cluster : clone] apiVersion: serving.knative.dev/v1
 [deploy-knative-to-cluster : clone] kind: Service
 [deploy-knative-to-cluster : clone] metadata:
