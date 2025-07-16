@@ -25,10 +25,10 @@ jobs:
       - name: Deploy TeaGetIndex
         shell: bash
         env:
-          X-INSTANCE-API-KEY: ${{ secrets.IWHI-X-INSTANCE-API-KEY }}
+          APIKEY: ${{ secrets.IWHI-X-INSTANCE-API-KEY }}
         run: |
           echo "Deploying TeaGetIndex"
-          echo "X-INSTANCE-API-KEY == ${X-INSTANCE-API-KEY} =="
+          echo "APIKEY == ${APIKEY} =="
 
       - name: Deploy TeaPostIndex
         shell: bash
