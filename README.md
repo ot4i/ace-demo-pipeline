@@ -24,6 +24,7 @@ created on-demand to make setup easier, the logging goes to the console instead 
 
 - Upgraded to [ACE 13.0.4](https://community.ibm.com/community/user/blogs/ben-thompson1/2025/06/18/ace-13-0-4-0)
 - Uses [Crane](https://github.com/google/go-containerregistry/tree/main/cmd/crane) for faster container image builds.
+- Added callable flow interface to enable [hybrid cloud scenarios](/extensions/iwhi/README.md) with IBM webMethods Hybrid Integration.
 
 ## Technology and target options
 
