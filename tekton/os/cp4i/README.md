@@ -6,6 +6,11 @@ allow JDBC connections to be tested using the same CP4i configurations used by t
 
 ![Pipeline overview](/demo-infrastructure/images/tekton-cp4i-pipeline.png)
 
+The resulting containers can act as callable flow providers for hybrid integration, where cloud-based flows call down
+to the CP4i containers to access the database. This requires a private network connection configuration to be available
+(one that connects to the cloud switch, and not a local CP4i switch) and the 
+[create-integrationruntime.yaml](create-integrationruntime.yaml) file to be updated to pull in the configuration.
+
 ## Container builds
 
 The pipeline creates the main application image first, and then builds the component test image on top of the first image.
