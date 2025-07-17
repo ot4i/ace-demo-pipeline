@@ -53,9 +53,6 @@ secrets and environment variables that enable the automated deploy.
 
 `IWHI_X_INSTANCE_API_KEY` can be created by following the instructions at
 https://www.ibm.com/docs/en/wm-integration-ipaas?topic=reference-authenticating-api-requests.
-Note that the instructions at the time of writing say "Open the instance under the Instances
-tab" but this does *not* mean clicking on the "Open" link: clicking anywhere but that link on
-the same line brings up the correct page where keys can be managed.
 
 *Repository variables*
 
