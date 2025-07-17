@@ -1,35 +1,66 @@
-# Serverless with Knative
+# IBM webMethods Hybrid Integration 
 
-Knative serving of the Tea application; relies on the main pipeline having been
-run already, and Knative Serving being installed. See https://knative.dev/docs/serving/
-for more details on the latter, but for OpenShift users installing the RedHat
-Serverless operator is the simplest way to achieve the goal.
+IWHI allows webMethods workflows to call ACE flows via private network connections
+to ACE integration servers, and this allows the creation of hybrid solutions where
+the Internet-facing REST APIs are hosted in the cloud while the database accesses
+happen in an on-prem ACE flow (container or integration node).
 
-## Permissions
+## Solution overview
 
-The knative-service-account.yaml extends the existing pipeline service account to
-allow for Knative service creation. Modify based on organisational needs; the default
-is to assign knative-serving-admin which may be more than desired.
+![solution picture](/demo-infrastructure/images/iwhi-diagram.png)
 
-```
-kubectl apply -f extensions/serverless/knative-service-account.yaml
-```
+- ACE flows described and deployed elsewhere. They could be running in containers
+  (ordinary or CP4i) or an integration node, but the servers must be configured 
+  with an IWHI switchclient.json so that the callable flows are visible to IWHI.
+- wM workflows deployed from this directory using GitHub Actions.
 
-## Commands
+## Deploy
 
-Once the permissions have been updated, the task can be created and run:
-```
-kubectl apply -f tekton/21-knative-deploy-task.yaml
-kubectl apply -f tekton/knative-deploy-taskrun.yaml
-tkn taskrun logs knative-deploy-taskrun-1 -f
-```
+Combination of manual and automated steps, with automation for workflow and ACE updates.
 
-This should create a working Knative service deployment using the spec in
-the [tea-tekton-knative-service.yaml](tea-tekton-knative-service.yaml) file
-in this directory.
+![pipeline picture](/demo-infrastructure/images/iwhi-diagram-with-pipeline.png)
 
-Assuming the use of OpenShift, the service should be accessible at a hostname
-such as tea-tekton-knative-default.acecc-shared-46-s390x.cp.fyre.ibm.com or
-similar; when using CodeReady Containers, the URL http://tea-tekton-knative-default.apps-crc.testing/tea/index/1
-should result in the application running and showing JSON result data.
+- A webMethods project must exist before the deploy can start, and the ACE callable
+  flows should be added manually (assuming the ACE flows are deployed and visible to
+  IWHI). This part relies on the on-prem pipeline having deployed the flows and 
+  configuration correctly, and only needs to be done once. The `TeaCallableApplicationV2`
+  application should have `getIndex` and `postIndex` made available to the project.
+- The `TeaGetIndex` and `TeaPostIndex` workflows can be deployed automatically using
+  the [IWHI workflow deploy](/.github/workflows/iwhi-workflows.yml) action, which
+  will import the two workflows into an existing project.
+- After the workflows have been imported into the project, the REST APIs must be 
+  created manually using the "Create from scratch/Design new API" approach described
+  at https://www.ibm.com/docs/en/wm-integration-ipaas?topic=apis-creating-rest (the
+  other methods do not allow workflows to be attached to the operations). The resource
+  names must be `/index/{id}` for GET and `/index` for POST, and should only need to
+  be created once.
 
+  The result should look as follows for `/index`:
+
+  ![POST](/demo-infrastructure/images/rest-api-POST.png)
+
+  and for `/index/{id}`:
+
+  ![GET](/demo-infrastructure/images/rest-api-GET.png)
+
+
+### Configuration for the "IWHI workflow deploy" action
+
+The GitHub repo "Actions secrets and variables" settings page can be used to create
+secrets and environment variables that enable the automated deploy.
+
+*Repository secrets*
+
+`IWHI_X_INSTANCE_API_KEY` can be created by following the instructions at
+https://www.ibm.com/docs/en/wm-integration-ipaas?topic=reference-authenticating-api-requests.
+Note that the instructions at the time of writing say "Open the instance under the Instances
+tab" but this does *not* mean clicking on the "Open" link: clicking anywhere but that link on
+the same line brings up the correct page where keys can be managed.
+
+*Repository variables*
+
+`IWHI_WM_HOSTNAME` should be set to the base address of the instance (e.g., 
+"dev2299223.a-vir-r1.int.ipaas.automation.ibm.com").
+
+`IWHI_WORKFLOW_PROJECT` should be set to an existing webMethods project (e.g.,
+"TDolbyThirdProject").

@@ -29,13 +29,15 @@ spec:
         volumeMounts:
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
-        - name: switchclient-secret
-          mountPath: /home/aceuser/ace-server/config/switch/switchclient.json
-          subPath: switchclient.json
+        # For callable flows
+        #- name: switchclient-secret
+        #  mountPath: /home/aceuser/ace-server/config/switch/switchclient.json
+        #  subPath: switchclient.json
       volumes:
       - name: secret-volume-2
         secret:
           secretName: jdbc-secret
-      - name: switchclient-secret
-        secret:
-          secretName: cloud-switchclient-json
+      # For callable flows
+      #- name: switchclient-secret
+      #  secret:
+      #    secretName: cloud-switchclient-json
