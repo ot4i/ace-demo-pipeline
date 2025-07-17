@@ -14,6 +14,16 @@ happen in an on-prem ACE flow (container or integration node).
   with an IWHI switchclient.json so that the callable flows are visible to IWHI.
 - wM workflows deployed from this directory using GitHub Actions.
 
+## Initial artifact creation
+
+The workflows were created in IWHI and then exported:
+
+![export picture](/demo-infrastructure/images/export-workflow.png)
+
+These exported files are stored as TeaGetIndex-export.zip and TeaPostIndex-export.zip in
+this directory; they will be deployed with overwrite=true to allow later versions to
+replace previous versions.
+
 ## Deploy
 
 Combination of manual and automated steps, with automation for workflow and ACE updates.
