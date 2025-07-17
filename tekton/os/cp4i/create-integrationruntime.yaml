@@ -31,4 +31,7 @@ spec:
     - teajdbc-policy
     - default-policy
     - teajdbc
+    # For callable flows; name should match a valid private network connection configuration
+    # that connects to the IWHI switch server (not the a local CP4i switch server).
+    # - iwhi-private-network-connection
   version: 13.0.4.0-r1

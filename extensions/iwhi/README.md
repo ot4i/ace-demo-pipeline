@@ -9,12 +9,15 @@ happen in an on-prem ACE flow (container or integration node).
 
 ![solution picture](/demo-infrastructure/images/iwhi-diagram.png)
 
-- ACE flows described and deployed elsewhere
-- wM workflows deployed from this directory
+- ACE flows described and deployed elsewhere. They could be running in containers
+  (ordinary or CP4i) or an integration node, but the servers must be configured 
+  with an IWHI switchclient.json so that the callable flows are visible to IWHI.
+- wM workflows deployed from this directory using GitHub Actions.
 
 ## Deploy
 
-Combination of manual and automated steps
+Combination of manual and automated steps, with automation for workflow and ACE updates.
+
 ![pipeline picture](/demo-infrastructure/images/iwhi-diagram-with-pipeline.png)
 
 - A webMethods project must exist before the deploy can start, and the ACE callable
@@ -33,6 +36,7 @@ Combination of manual and automated steps
   be created once.
 
   The result should look as follows for `/index`:
+
   ![POST](/demo-infrastructure/images/rest-api-POST.png)
 
   and for `/index/{id}`:
