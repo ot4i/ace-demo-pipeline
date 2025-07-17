@@ -30,6 +30,6 @@ jobs:
           IWHI_WORKFLOW_PROJECT: ${{ vars.IWHI_WORKFLOW_PROJECT }}
         run: |
           echo "Deploying TeaGetIndex"
-          curl -sq -X POST -F overwrite=true -F "recipe=@extensions/iwhi/TeaGetIndex-export.zip"  -H "X-INSTANCE-API-KEY: ${X_INSTANCE_API_KEY}" https://${IWHI_WM_HOSTNAME}/apis/v1/rest/projects/${IWHI_WORKFLOW_PROJECT}/workflow-import
+          curl -sq -v -X POST -F overwrite=true -F "recipe=@extensions/iwhi/TeaGetIndex-export.zip"  -H "X-INSTANCE-API-KEY: ${X_INSTANCE_API_KEY}" https://${IWHI_WM_HOSTNAME}/apis/v1/rest/projects/${IWHI_WORKFLOW_PROJECT}/workflow-import
           echo "Deploying TeaPostIndex"
-          curl -sq -X POST -F overwrite=true -F "recipe=@extensions/iwhi/TeaPostIndex-export.zip" -H "X-INSTANCE-API-KEY: ${X_INSTANCE_API_KEY}" https://${IWHI_WM_HOSTNAME}/apis/v1/rest/projects/${IWHI_WORKFLOW_PROJECT}/workflow-import
+          curl -sq -v -X POST -F overwrite=true -F "recipe=@extensions/iwhi/TeaPostIndex-export.zip" -H "X-INSTANCE-API-KEY: ${X_INSTANCE_API_KEY}" https://${IWHI_WM_HOSTNAME}/apis/v1/rest/projects/${IWHI_WORKFLOW_PROJECT}/workflow-import
