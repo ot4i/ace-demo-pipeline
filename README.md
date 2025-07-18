@@ -103,6 +103,9 @@ Regardless of the pipeline technology and deployment target, some initial steps 
   ACE development experience. See the developer edition [download page](https://www.ibm.com/docs/en/app-connect/13.0?topic=enterprise-download-ace-developer-edition-get-started)
   for a free version (limited to one transaction per second per flow) if your organization does
   not have existing ACE licenses.
+  - Running the flows locally requires creating a JDBC policy called TEAJDBC in the default policy
+    project for a server, creating the associated user/pw credentials, and then deploying the Tea flows
+    and libraries. The server can be node-associated, but does not have to be.
 
 Beyond those common steps, the choice of pipeline and target determine the next steps. The simplest 
 way to choose the pipeline is to choose the target (Kubernetes, ACEaaS, or integration nodes), and
