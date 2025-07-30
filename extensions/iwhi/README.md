@@ -16,13 +16,15 @@ happen in an on-prem ACE flow (container or integration node).
 
 ## Initial artifact creation
 
-The workflows were created in IWHI and then exported:
-
-![export picture](/demo-infrastructure/images/export-workflow.png)
-
-These exported files are stored as TeaGetIndex-export.zip and TeaPostIndex-export.zip in
-this directory; they will be deployed with overwrite=true to allow later versions to
-replace previous versions.
+The workflows were created in an IWHI project and then exported using the `wmiocli` tool
+from https://github.com/trevor-dolby-at-ibm-com/webmethods-io-integration-apicli (forked 
+from the [original repo](https://github.com/ibm-wm-transition/webmethods-io-integration-apicli) 
+to fix IWHI authentication issues) 
+```
+node wmiocli.js -d dev2299223.a-vir-r1.int.ipaas.automation.ibm.com -k APIkey project-export ACEDemoTeaAPI ACEDemoTeaAPI-export.zip
+```
+The exported project is stored as ACEDemoTeaAPI-export.zip in this directory, and can 
+be deployed with GitHub Actions.
 
 ## Deploy
 
@@ -30,22 +32,18 @@ Combination of manual and automated steps, with automation for workflow and ACE 
 
 ![pipeline picture](/demo-infrastructure/images/iwhi-diagram-with-pipeline.png)
 
-- A webMethods project must exist before the deploy can start, and the ACE callable
-  flows should be added manually (assuming the ACE flows are deployed and visible to
-  IWHI). This part relies on the on-prem pipeline having deployed the flows and 
-  configuration correctly, and only needs to be done once. The `TeaCallableApplicationV2`
-  application should have `getIndex` and `postIndex` made available to the project.
-- The `TeaGetIndex` and `TeaPostIndex` workflows can be deployed automatically using
-  the [IWHI workflow deploy](/.github/workflows/iwhi-workflows.yml) action, which
-  will import the two workflows into an existing project.
-- After the workflows have been imported into the project, the REST APIs must be 
-  created manually using the "Create from scratch/Design new API" approach described
-  at https://www.ibm.com/docs/en/wm-integration-ipaas?topic=apis-creating-rest (the
-  other methods do not allow workflows to be attached to the operations). The resource
-  names must be `/index/{id}` for GET and `/index` for POST, and should only need to
-  be created once.
-
-  The result should look as follows for `/index`:
+- The `ACEDemoTeaAPI` webMethods project does not have to exist before the deploy can start,
+  but the ACE callable flows must be visible to the IWHI instance before the deploy. This
+  part relies on the on-prem pipeline having deployed the flows and configuration correctly, 
+  and only needs to be done once. The `TeaCallableApplicationV2` application should have 
+  `getIndex` and `postIndex` made available to the project, as these will be needed
+  by the workflows and will be visible in the "Callable flows" tab of the project.
+- The `ACEDemoTeaAPI` project with the TeaGetIndex and TeaPostIndex workflows can be 
+  deployed automatically using the [IWHI workflow deploy](/.github/workflows/iwhi-workflows.yml)
+  action, which will import the project into the configured instance.
+- After the workflows have been imported with the project, the REST APIs should be 
+  operational and can be viewed in the UI (or invoked via curl). The result should 
+  look as follows for `/index`:
 
   ![POST](/demo-infrastructure/images/rest-api-POST.png)
 
@@ -68,6 +66,3 @@ https://www.ibm.com/docs/en/wm-integration-ipaas?topic=reference-authenticating-
 
 `IWHI_WM_HOSTNAME` should be set to the base address of the instance (e.g., 
 "dev2299223.a-vir-r1.int.ipaas.automation.ibm.com").
-
-`IWHI_WORKFLOW_PROJECT` should be set to an existing webMethods project (e.g.,
-"TDolbyThirdProject").

@@ -20,7 +20,7 @@ spec:
           username={{ .Data.data.username }}
           password={{ .Data.data.password }}
           {{- end }}
-        vault.hashicorp.com/role: "myapp"
+        vault.hashicorp.com/role: "teaapp"
       labels:
         app: tea-hashicorp-vault
     spec:
@@ -32,9 +32,9 @@ spec:
         - name: TEA_DATABASE_NAME
           value: 'BLUDB'
         - name: TEA_SERVER_NAME
-          value: '824dfd4d-99de-440d-9991-629c01b3832d.bs2io90l08kqb1od8lcg.databases.appdomain.cloud'
+          value: '9938aec0-8105-433e-8bf9-0fbb7e483086.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud'
         - name: TEA_PORT_NUMBER
-          value: '30119'
+          value: '32459'
 ---
 apiVersion: v1
 kind: ServiceAccount

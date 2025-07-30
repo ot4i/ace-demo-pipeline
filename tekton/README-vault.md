@@ -10,7 +10,7 @@ are read in using an ExternalCredentialsProviders script configured in server.co
 
 The simplest way to use Vault is to install it in "dev" mode, which is insecure but works for the
 purposes of a pipeline demo. See https://developer.hashicorp.com/vault/docs/platform/k8s/helm/run 
-for details, with this page being a quick summary. 
+for details (https://developer.hashicorp.com/vault/tutorials/kubernetes-platforms/kubernetes-openshift?productSlug=vault&tutorialSlug=kubernetes&tutorialSlug=kubernetes-openshift#install-the-vault-helm-chart for OpenShift), with this page being a quick summary. 
 
 Assuming a Kubernetes namespace of "vault", the install is as follows:
 ```
@@ -18,25 +18,31 @@ helm install -n vault vault hashicorp/vault --set "server.dev.enabled=true"
 ```
 and the vault must then be configured. To do this, use `kubectl exec` to get into the Vault container:
 ```
-kubectl exec -i -t -n vault vault-0 sh
+kubectl exec -i -t -n vault vault-0 -- sh
 ```
-Assuming the Tea application container is running in the "default" namespace using a service account of 
+Assuming the Tea application container is running in the "ace" namespace using a service account of 
 "default", then the configuration commands once inside the container would be
 ```
 vault kv put secret/tea type=jdbc username=<db2user> password=<db2password>
 vault auth enable kubernetes
-vault write auth/kubernetes/role/myapp bound_service_account_names=default bound_service_account_namespaces=default policies=app ttl=30s
+vault write auth/kubernetes/role/teaapp bound_service_account_names=default bound_service_account_namespaces=ace policies=app ttl=30s
 vault write auth/kubernetes/config \
    token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
    kubernetes_host=https://${KUBERNETES_PORT_443_TCP_ADDR}:443 \
    kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-cat <<EOF > /home/vault/app-policy.hcl
+cat <<EOF > /home/vault/teaapp-policy.hcl
 path "secret*" {
   capabilities = ["read"]
 }
 EOF
-vault policy write app /home/vault/app-policy.hcl
+vault policy write app /home/vault/teaapp-policy.hcl
 ```
+Note that CP4i containers created by the ACE operator will use a per-container service account, and
+so `bound_service_account_names` should be set to '*' to avoid having to change the Vault configuration
+every time a new IntegrationRuntime is deployed. See https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#parameters-1 
+for details of the possible values for the various parameters.
+
+## Container setup
 
 At this point, the vault should contain the correct secret and have correct permissions, so the
 Tea application container Deployment can be modified to add the Vault annotations. OpenShift users
@@ -55,9 +61,12 @@ spec:
           username={{ .Data.data.username }}
           password={{ .Data.data.password }}
           {{- end }}
-        vault.hashicorp.com/role: myapp
+        vault.hashicorp.com/role: teaapp
 ```
-where the "role" must match the auth record created in the Vault container.
+where the "role" must match the auth record created in the Vault container. For CP4i, the
+annotations go into `spec.template.spec.metadata.annotations` in the IntegrationRuntime CR
+rather than the Deployment (which is owned by the IR); see commented-out sections in the 
+[create-integrationruntime.yaml](/tekton/os/cp4i/create-integrationruntime.yaml) for an example.
 
 Once the containers have restarted, the Vault sidecar should connect successfully and provide
 credentials in the /vault/secrets directory, with a single file called "tea" that contains the
@@ -69,9 +78,9 @@ username=<db2user>
 password=<db2password>
 ```
 
-This file is detected by the [init-creds.sh](/demo-infrastructure/init-creds.sh) startup
-script, and the server.conf.yaml file for the server is configured with a 
-[script](/demo-infrastructure/read-hashicorp-creds.sh) to load the credentials:
+For the non-CP4i cases, this file is detected by the [init-creds.sh](/demo-infrastructure/init-creds.sh)
+startup script, and the server.conf.yaml file for the server is configured with a 
+[read-hashicorp-creds.sh](/demo-infrastructure/read-hashicorp-creds.sh) to load the credentials:
 ```
 Credentials:
   ExternalCredentialsProviders:
@@ -80,6 +89,17 @@ Credentials:
       loadAllCredentialsFormat: 'yaml'
 ```
 This load happens at startup time, and credentials are not reloaded if they change.
+
+For CP4i, the [read-hashicorp-creds.sh](/demo-infrastructure/read-hashicorp-creds.sh) script
+needs to be provided to the container (using a "generic files" configuration or other mechanism)
+and the server.conf.yaml configuration would include something like
+```
+Credentials:
+  ExternalCredentialsProviders:
+    TeaJDBCHashiCorp:
+      loadAllCredentialsCommand: '/home/aceuser/generic/read-hashicorp-creds.sh'
+      loadAllCredentialsFormat: 'yaml'
+```
 
 ## Notes for non-dev mode
 
@@ -179,8 +199,8 @@ Success! Data written to: secret/tea
 / $ vault auth enable kubernetes
 Success! Enabled kubernetes auth method at: kubernetes/
 
-/ $ vault write auth/kubernetes/role/myapp bound_service_account_names=app bound_service_account_namespaces=default policies=app ttl=1h
-Success! Data written to: auth/kubernetes/role/myapp
+/ $ vault write auth/kubernetes/role/teaapp bound_service_account_names=app bound_service_account_namespaces=default policies=app ttl=1h
+Success! Data written to: auth/kubernetes/role/teaapp
 
 vault write auth/kubernetes/config \
    token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
