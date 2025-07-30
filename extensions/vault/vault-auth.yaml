@@ -1,0 +1,14 @@
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultAuth
+metadata:
+  name: static-auth
+  namespace: ace
+spec:
+  method: kubernetes
+  mount: kubernetes
+  vaultConnectionRef: default
+  kubernetes:
+    role: teavso
+    serviceAccount: default
+    audiences:
+      - vault
