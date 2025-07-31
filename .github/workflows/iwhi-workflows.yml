@@ -27,9 +27,6 @@ jobs:
         env:
           X_INSTANCE_API_KEY:    ${{ secrets.IWHI_X_INSTANCE_API_KEY }}
           IWHI_WM_HOSTNAME:      ${{ vars.IWHI_WM_HOSTNAME }}
-          IWHI_WORKFLOW_PROJECT: ${{ vars.IWHI_WORKFLOW_PROJECT }}
         run: |
-          echo "Deploying TeaGetIndex"
-          curl -sq --fail-with-body -X POST -F overwrite=true -F "recipe=@extensions/iwhi/TeaGetIndex-export.zip"  -H "X-INSTANCE-API-KEY: ${X_INSTANCE_API_KEY}" https://${IWHI_WM_HOSTNAME}/apis/v1/rest/projects/${IWHI_WORKFLOW_PROJECT}/workflow-import
-          echo "Deploying TeaPostIndex"
-          curl -sq --fail-with-body -X POST -F overwrite=true -F "recipe=@extensions/iwhi/TeaPostIndex-export.zip" -H "X-INSTANCE-API-KEY: ${X_INSTANCE_API_KEY}" https://${IWHI_WM_HOSTNAME}/apis/v1/rest/projects/${IWHI_WORKFLOW_PROJECT}/workflow-import
+          echo "Deploying ACEDemoTeaAPI"
+          curl -sq --fail-with-body -X POST -F "project=@extensions/iwhi/ACEDemoTeaAPI-export.zip" -H "X-INSTANCE-API-KEY: ${X_INSTANCE_API_KEY}" https://${IWHI_WM_HOSTNAME}/apis/v1/rest/project-import
