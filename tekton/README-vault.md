@@ -100,7 +100,9 @@ Credentials:
       loadAllCredentialsCommand: '/home/aceuser/ace-server/read-hashicorp-creds.sh'
       loadAllCredentialsFormat: 'yaml'
 ```
-This load happens at startup time, and credentials are not reloaded if they change.
+This load happens at startup time, and credentials are not reloaded if they change. See 
+https://www.ibm.com/docs/en/app-connect/13.0.x?topic=cis-configuring-integration-server-use-security-credentials-from-external-source
+for a description of the ExternalCredentialsProviders capabilities.
 
 For CP4i, the [read-hashicorp-creds.sh](/demo-infrastructure/read-hashicorp-creds.sh) script
 needs to be provided to the container (using a "generic files" configuration or other mechanism)
