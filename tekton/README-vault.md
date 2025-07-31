@@ -15,7 +15,7 @@ acessible, and the initial stages are very similar.
 
 The simplest way to use Vault is to install it in "dev" mode, which is insecure but works for the
 purposes of a pipeline demo. See https://developer.hashicorp.com/vault/docs/platform/k8s/helm/run 
-for details (https://developer.hashicorp.com/vault/tutorials/kubernetes-platforms/kubernetes-openshift?productSlug=vault&tutorialSlug=kubernetes&tutorialSlug=kubernetes-openshift#install-the-vault-helm-chart for OpenShift), with this page being a quick summary. 
+for details (or [here](https://developer.hashicorp.com/vault/tutorials/kubernetes-platforms/kubernetes-openshift?productSlug=vault&tutorialSlug=kubernetes&tutorialSlug=kubernetes-openshift#install-the-vault-helm-chart) for OpenShift), with this page being a quick summary. 
 
 Assuming a Kubernetes namespace of "vault", the install is as follows:
 ```
@@ -146,9 +146,49 @@ kubectl apply -f extensions/vault/vault-connection.yaml
 kubectl apply -f extensions/vault/vault-auth.yaml
 kubectl apply -f extensions/vault/vault-tea-static-secret.yaml
 ```
-This will create a secret called `vault-teajdbc` containing the relavant values.
+This will create a secret called `vault-teajdbc` containing the relevant values, and this can
+be mounted into a container in the usual manner:
+```
+sh-5.1$ ls -l /run/secrets/vault-teajdbc/
+total 0
+lrwxrwxrwx. 1 root 1000920000 11 Jul 31 03:40 _raw -> ..data/_raw
+lrwxrwxrwx. 1 root 1000920000 11 Jul 31 03:40 name -> ..data/name
+lrwxrwxrwx. 1 root 1000920000 15 Jul 31 03:40 password -> ..data/password
+lrwxrwxrwx. 1 root 1000920000 11 Jul 31 03:40 type -> ..data/type
+lrwxrwxrwx. 1 root 1000920000 15 Jul 31 03:40 username -> ..data/username
+```
+at which point a script such as [read-creds.sh](/demo-infrastructure/read-creds.sh) can
+be used to read the credentials into the server (similar to agent sidecar approach).
 
-## Notes for non-dev mode
+## Issues with CP4i configurations
+
+While it is technically possible to use Vault to populate CP4i Configurations of type
+setdbparms, it is not without issues. The CP4i Configuration custom resource does not
+contain the secret data, and instead links to an operator-generated secret that stores
+the data securely.
+
+The Configuration CR might look like this:
+```
+apiVersion: appconnect.ibm.com/v1beta1
+kind: Configuration
+metadata:
+  name: demosetdbparms
+spec:
+  secretName: demosetdbparms-dk6j9
+  type: setdbparms
+  version: 13.0.4.0-r1
+```
+with a pointer to the `demosetdbparms-dk6j9` that contains the actual data. While it
+might be possible to get the Vault Secrets Operator to generate a secret that can be
+put into the Configuration `secretName` field, this might itself be overwritten if a
+user updated the user/password information using the ACE dashboard, and then the VSO
+might overwrite the values provided by the user.
+
+The set of credentials supported by mqsisetdbparms is also limited, while the credentials
+scripts used above can provide any type of credentials.
+
+
+## Notes for non-dev mode (advanced)
 
 Vault without using dev mode is more complicated; some notes from the experiments:
 ```
