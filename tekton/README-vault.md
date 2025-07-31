@@ -6,6 +6,11 @@ are read in using an ExternalCredentialsProviders script configured in server.co
 
 ![vault overview](/demo-infrastructure/images/ace-and-vault-overview.png)
 
+Several ways to achieve this are described at https://developer.hashicorp.com/vault/docs/deploy/kubernetes#high-level-comparison-of-integrations
+with two of the main approaches being [Vault Agent Injection](#container-setup-for-agent-injection) and
+the [Vault Secrets Operator](#container-setup-for-vault-secrets-operator). Both require a Vault to be
+acessible, and the initial stages are very similar.
+
 ## Initial Vault setup
 
 The simplest way to use Vault is to install it in "dev" mode, which is insecure but works for the
@@ -37,9 +42,9 @@ path "secret*" {
 EOF
 vault policy write app /home/vault/teaapp-policy.hcl
 ```
-Note that CP4i containers created by the ACE operator will use a per-container service account, and
-so `bound_service_account_names` should be set to '*' to avoid having to change the Vault configuration
-every time a new IntegrationRuntime is deployed. See https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#parameters-1 
+Note that CP4i runtime containers created by the ACE operator will use a per-IntegrationRuntime service
+account, and so `bound_service_account_names` should be set to '*' to avoid having to change the Vault 
+configuration every time a new IntegrationRuntime is deployed. See https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#parameters-1 
 for details of the possible values for the various parameters.
 
 ## Container setup for Agent Injection
@@ -111,8 +116,11 @@ Credentials:
 ## Container setup for Vault Secrets Operator
 
 As described in the [Vault docs](https://developer.hashicorp.com/vault/docs/deploy/kubernetes/vso), the
-Vault Secrets Operator (VSO) allows mirroring of Vault secrets to Kubernetes secrets. This page includes a quick summary
-of initial steps, with the Vault tutorial at https://developer.hashicorp.com/vault/tutorials/kubernetes-introduction/vault-secrets-operator
+Vault Secrets Operator (VSO) allows mirroring of Vault secrets to Kubernetes secrets:
+![vault vso](/demo-infrastructure/images/ace-and-vault-vso.png)
+
+This page includes a quick summary of initial steps, with the Vault tutorial at
+https://developer.hashicorp.com/vault/tutorials/kubernetes-introduction/vault-secrets-operator
 providing all the details.
 ```
 helm install --version 0.10.0 --create-namespace --namespace vault-secrets-operator vault-secrets-operator hashicorp/vault-secrets-operator
