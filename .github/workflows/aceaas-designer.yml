@@ -25,7 +25,30 @@ jobs:
       - name: Deploy Designer flows
         shell: bash
         env:
-          X_INSTANCE_API_KEY:    ${{ secrets.IWHI_X_INSTANCE_API_KEY }}
-          IWHI_WM_HOSTNAME:      ${{ vars.IWHI_WM_HOSTNAME }}
+          APPCON_ENDPOINT:       ${{ vars.APPCON_ENDPOINT }}
+          APPCON_DEPLOY_PREFIX:  ${{ vars.APPCON_DEPLOY_PREFIX }}
+          APPCON_INSTANCE_ID:    ${{ secrets.APPCON_INSTANCE_ID }}
+          APPCON_CLIENT_ID:      ${{ secrets.APPCON_CLIENT_ID }}
+          APPCON_CLIENT_SECRET:  ${{ secrets.APPCON_CLIENT_SECRET }}
+          APPCON_API_KEY:        ${{ secrets.APPCON_API_KEY }}
         run: |
           echo "Deploying Designer flows"
+
+          # Fix for ace-minimal-build and curl
+          unset LD_LIBRARY_PATH
+
+          set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+
+          echo "########################################################################"
+          echo "# Acquiring token using API key"
+          echo "########################################################################" && echo
+
+          curl --request POST \
+            --url https://${APPCON_ENDPOINT}/api/v1/tokens \
+            --header "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" \
+            --header "X-IBM-Client-Secret: ${APPCON_CLIENT_SECRET}" \
+            --header 'accept: application/json' \
+            --header 'content-type: application/json' \
+            --header "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" \
+            --data "{\\"apiKey\\": \\"${APPCON_API_KEY}\\"}" --output /tmp/token-output.txt
+          cat /tmp/token-output.txt  | tr -d '{}"' | tr ',' '\n' | grep access_token | sed 's/access_token://g' > /tmp/APPCON_TOKEN
