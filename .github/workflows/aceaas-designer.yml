@@ -73,6 +73,8 @@ jobs:
           echo ========================================================================
           echo Checking for IntegrationRuntime
           echo ========================================================================
+          # Avoid failing immediately if the grep commands find errors
+          set +e
           curl -s https://${APPCON_ENDPOINT}/api/v1/integration-runtimes/${APPCON_DEPLOY_PREFIX}-tea-ghaction-ir \
             -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
             -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
@@ -95,6 +97,7 @@ jobs:
             echo ========================================================================
             echo Creating IntegrationRuntime JSON
             echo ========================================================================
+            set -e
             cp extensions/designer/create-integrationruntime-template.json /tmp/create-integrationruntime.json
             sed -i "s/TEMPLATE_NAME/${APPCON_DEPLOY_PREFIX}-tea-ghaction-ir/g" /tmp/create-integrationruntime.json
             # Backslash issues - the effect is to escape / characters in the URL data to avoid issues with sed
