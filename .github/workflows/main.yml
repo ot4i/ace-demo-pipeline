@@ -5,10 +5,11 @@ name: CI
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches: [ main, minikube-cp4i ]
-  pull_request:
-    branches: [ main, minikube-cp4i ]
+  # Disable temporarily during workflow development
+  #push:
+  #  branches: [ main, minikube-cp4i ]
+  #pull_request:
+  #  branches: [ main, minikube-cp4i ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
