@@ -77,6 +77,7 @@ jobs:
             -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
             -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
             --output /tmp/curl-output.txt
+          cat /tmp/curl-output.txt
           # Check for 404 Not Found
           grep -q '"Internal error","code":404' /tmp/curl-output.txt
           if [ "$?" != "0" ]; then
