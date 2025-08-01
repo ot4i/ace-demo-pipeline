@@ -64,7 +64,7 @@ jobs:
             --data-binary @extensions/designer/TeaAPI.bar --output /tmp/curl-output.txt
 
           # We will have exited if curl returned non-zero so the output should contain the BAR file name
-          cat /tmp/curl-output.txt ; echo
+          # cat /tmp/curl-output.txt ; echo
           # This would be easier with jq but that's not available in most ACE images
           export BARURL=$(cat /tmp/curl-output.txt | tr -d '{}"' | tr ',' '\n' | grep url | sed 's/url://g')
           echo BARURL: $BARURL
@@ -73,11 +73,11 @@ jobs:
           echo ========================================================================
           echo Checking for IntegrationRuntime
           echo ========================================================================
-          curl -s https://${APPCON_ENDPOINT}/api/v1/bar-files/${APPCON_DEPLOY_PREFIX}-tea-ghaction-ir \
+          curl -s https://${APPCON_ENDPOINT}/api/v1/integration-runtimes/${APPCON_DEPLOY_PREFIX}-tea-ghaction-ir \
             -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
             -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
             --output /tmp/curl-output.txt
-          cat /tmp/curl-output.txt
+          cat /tmp/curl-output.txt ; echo
           # Check for 404 Not Found
           grep -q '"Internal error","code":404' /tmp/curl-output.txt
           if [ "$?" != "0" ]; then
