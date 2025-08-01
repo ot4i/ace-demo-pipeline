@@ -42,7 +42,7 @@ For the `ace` image (following https://www.ibm.com/docs/en/app-connect/container
 ```
 kubectl create secret docker-registry ibm-entitlement-key --docker-username=cp --docker-password=myEntitlementKey --docker-server=cp.icr.io
 minikube ssh
-docker login cp.icr.io -u cp -p ibmEntitlementKey
+docker login cp.icr.io -u cp -p myEntitlementKey
 docker pull cp.icr.io/cp/appc/ace:13.0.4.0-r1
 docker tag cp.icr.io/cp/appc/ace:13.0.4.0-r1 192.168.49.2:5000/default/ace:13.0.4.0-r1
 docker push 192.168.49.2:5000/default/ace:13.0.4.0-r1
@@ -77,6 +77,10 @@ kubectl apply -f tekton/minikube/tea-tekton-minikube-ingress.yaml
 ```
 The application should now be available and can be tested with `curl http://192.168.49.2/tea/index/2` to GET index 2.
 
+To add tea to the index, curl can be used:
+```
+curl -X POST --data '{"name": "Assam", "strength": 5}' http://192.168.49.2/tea/index
+```
 
 ## Knative setup:
 
