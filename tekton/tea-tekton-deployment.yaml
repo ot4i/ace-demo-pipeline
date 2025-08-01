@@ -25,7 +25,7 @@ spec:
         #  password={{ .Data.data.password }}
         #  {{- end }}
         #vault.hashicorp.com/role: teaapp
-      spec:
+    spec:
       # This is now handled via the "default" service account
       # kubectl patch serviceaccount default --type=json -p='[{"op": "add", "path": "/imagePullSecrets/-", "value": {"name": "regcred"}}]'
       #imagePullSecrets:
