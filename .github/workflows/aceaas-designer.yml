@@ -43,7 +43,7 @@ jobs:
           echo "# Acquiring token using API key"
           echo "########################################################################" && echo
 
-          curl -s --request POST \
+          curl -s --fail-with-body --request POST \
             --url https://${APPCON_ENDPOINT}/api/v1/tokens \
             --header "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" \
             --header "X-IBM-Client-Secret: ${APPCON_CLIENT_SECRET}" \
@@ -58,7 +58,7 @@ jobs:
           echo "# PUTting BAR file to ACE service"
           echo "########################################################################" && echo
 
-          curl -s -X PUT https://${APPCON_ENDPOINT}/api/v1/bar-files/${APPCON_DEPLOY_PREFIX}-tea-ghaction \
+          curl -s --fail-with-body -X PUT https://${APPCON_ENDPOINT}/api/v1/bar-files/${APPCON_DEPLOY_PREFIX}-tea-ghaction \
             -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
             -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
             --data-binary @extensions/designer/TeaAPI.bar --output /tmp/curl-output.txt
@@ -80,7 +80,7 @@ jobs:
           echo "Contents of create-integrationruntime.json:"
           cat /tmp/create-integrationruntime.json
 
-          curl -s -X PUT https://${APPCON_ENDPOINT}/api/v1/integration-runtimes/${APPCON_DEPLOY_PREFIX}-tea-ghaction-ir \
+          curl -s --fail-with-body -X PUT https://${APPCON_ENDPOINT}/api/v1/integration-runtimes/${APPCON_DEPLOY_PREFIX}-tea-ghaction-ir \
             -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/json" \
             -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
             --data-binary @/tmp/create-integrationruntime.json
