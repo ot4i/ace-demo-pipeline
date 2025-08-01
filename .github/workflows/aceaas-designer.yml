@@ -57,6 +57,11 @@ jobs:
           echo "########################################################################"
           echo "# PUTting BAR file to ACE service"
           echo "########################################################################" && echo
+          ls -l 
+          echo "ls -l extensions"
+          ls -l extensions
+          echo "ls -l extensions/designer"
+          ls -l extensions/designer
 
           curl -X PUT https://${APPCON_ENDPOINT}/api/v1/bar-files/${APPCON_DEPLOY_PREFIX}-tea-ghaction \
             -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
