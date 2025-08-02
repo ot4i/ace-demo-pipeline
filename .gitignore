@@ -11,7 +11,7 @@
 *.~undo-tree
 
 # ACE v11
-*.bar
+# *.bar
 *.class
 
 TeaSharedLibrary/TeaSharedLibraryJava.jar
