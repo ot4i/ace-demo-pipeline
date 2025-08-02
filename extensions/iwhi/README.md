@@ -32,7 +32,7 @@ Combination of manual and automated steps, with automation for workflow and ACE 
 
 ![pipeline picture](/demo-infrastructure/images/iwhi-diagram-with-pipeline.png)
 
-The automated steps use the wM REST API (described at https://github.com/ibm-wm-transition/webmethods_io_int_cicd/blob/main/apis/wMIO_OpenAPI_Spec_v3.yaml))
+The automated steps use the wM REST API (described at https://github.com/ibm-wm-transition/webmethods_io_int_cicd/blob/main/apis/wMIO_OpenAPI_Spec_v3.yaml)
 to deploy artifacts using curl.
 
 - The `ACEDemoTeaAPI` webMethods project does not have to exist before the deploy can start,

@@ -33,7 +33,7 @@ Combination of automated steps, with automation for Designer and ACE updates.
 
 ![pipeline picture](/demo-infrastructure/images/aceaas-designer-diagram-with-pipeline.png)
 
-The automated steps use the ACEaaS REST API (described at https://www.ibm.com/docs/en/app-connect/saas?topic=overview-openapi-document))
+The automated steps use the ACEaaS REST API (described at https://www.ibm.com/docs/en/app-connect/saas?topic=overview-openapi-document)
 to deploy artifacts using curl.
 
 - The Designer project is deployed to an App Connect runtime that does not need to 
@@ -59,8 +59,11 @@ See [https://www.ibm.com/docs/en/app-connect/saas?topic=overview-accessing-api](
 for details on how to create the correct credentials, and then set the following:
 
 `APPCON_INSTANCE_ID` is the instance identifier (similar to `2vkpa0udw` or `dev2299223`)
+
 `APPCON_CLIENT_ID` is the client ID created from the "Public API credentials" section of the ACEaaS dashboard 
+
 `APPCON_CLIENT_SECRET` is the client secret created from the "Public API credentials" section of the ACEaaS dashboard 
+
 `APPCON_API_KEY` is the API key created from the ACEaaS dashboard 
 
 *Repository variables*
