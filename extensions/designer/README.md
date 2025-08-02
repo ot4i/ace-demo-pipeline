@@ -21,7 +21,7 @@ webMethods Hybrid Integration, as that includes the required ACEaaS capabilities
 The workflows were created in a Designer authoring editor in ACEaaS and tested with
 callable flows running in CP4i containers on-prem. The flows were then exported from
 the ACEaaS cloud service, stored as TeaAPI.bar in this directory, and can be deployed 
-with GitHub Actions.
+with the [ACEaaS Designer flows deploy](/.github/workflows/aceaas-designer.yml) GitHub Action.
 
 Note that this pipeline deploys the Designer flows as a BAR file, which does not 
 load the flows into the Designer Authoring experience: the flows will run successfully,

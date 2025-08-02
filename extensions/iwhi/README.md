@@ -24,7 +24,7 @@ to fix IWHI authentication issues)
 node wmiocli.js -d dev2299223.a-vir-r1.int.ipaas.automation.ibm.com -k APIkey project-export ACEDemoTeaAPI ACEDemoTeaAPI-export.zip
 ```
 The exported project is stored as ACEDemoTeaAPI-export.zip in this directory, and can 
-be deployed with GitHub Actions.
+be deployed with the [IWHI workflow deploy](/.github/workflows/iwhi-workflows.yml) GitHub Action.
 
 ## Deploy
 
