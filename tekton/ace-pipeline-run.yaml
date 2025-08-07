@@ -39,7 +39,7 @@ spec:
       # Local copy of ace container
       #value: "192.168.49.2:5000/default/ace:13.0.4.0-r1"
     - name: url
-      value: "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
+      value: "https://github.com/ot4i/ace-demo-pipeline"
     - name: revision
       value: "main"
     #- name: knativeDeploy
