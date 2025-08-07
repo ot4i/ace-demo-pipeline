@@ -34,6 +34,6 @@ spec:
       # the dockerRegistry specified above.
       value: "ace-minimal-build:13.0.4.0-alpine"
     - name: url
-      value: "https://github.com/ot4i/ace-demo-pipeline"
+      value: "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
     - name: revision
       value: "main"

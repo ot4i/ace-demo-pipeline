@@ -37,7 +37,8 @@ public class TeaRESTApplication_LogAuditData_Tests {
 
             // Define the SpyObjectReference
             SpyObjectReference nodeReference = new SpyObjectReference().application("TeaRESTApplication")
-                            .messageFlow("gen.TeaRESTApplication").subflowNode("getIndex (Implementation)").subflowNode("LogAuditData").node("Create XML from JSON");
+                            .messageFlow("gen.TeaRESTApplication").subflowNode("getIndex (Implementation)")
+                            .subflowNode("getIndexImpl").subflowNode("LogAuditData").node("Create XML from JSON");
 
             // Initialise a NodeSpy
             NodeSpy nodeSpy = new NodeSpy(nodeReference);
@@ -64,7 +65,8 @@ public class TeaRESTApplication_LogAuditData_Tests {
 
             // Define the SpyObjectReference
             SpyObjectReference nodeReference = new SpyObjectReference().application("TeaRESTApplication")
-                            .messageFlow("gen.TeaRESTApplication").subflowNode("getIndex (Implementation)").subflowNode("LogAuditData").node("Remove XML");
+                            .messageFlow("gen.TeaRESTApplication").subflowNode("getIndex (Implementation)")
+                            .subflowNode("getIndexImpl").subflowNode("LogAuditData").node("Remove XML");
 
             // Initialise a NodeSpy
             NodeSpy nodeSpy = new NodeSpy(nodeReference);

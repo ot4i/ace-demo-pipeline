@@ -33,7 +33,7 @@ public class GetIndex_JavaCompute extends MbJavaComputeNode {
     MbMessageAssembly outAssembly = null;
     try {
       // create new message as a copy of the input
-      MbMessage outMessage = new MbMessage(inMessage);
+      MbMessage outMessage = new MbMessage();
       outAssembly = new MbMessageAssembly(inAssembly, outMessage);
       // ----------------------------------------------------------
       // Add user code below
@@ -45,26 +45,35 @@ public class GetIndex_JavaCompute extends MbJavaComputeNode {
                                             ResultSet.CONCUR_READ_ONLY);
       // This would normally be done externally, but we do it here for convenience
       try {
-        stmt.executeUpdate("CREATE TABLE Tea(id INTEGER, name VARCHAR(128))");
+        stmt.executeUpdate("CREATE TABLE Tea(id INTEGER, name VARCHAR(128), strength INTEGER)");
         conn.commit();
       } catch ( java.lang.Throwable jlt ) {
         //jlt.printStackTrace();
       }
 	        
       String teaName = null;
-      MbElement inputLE = outAssembly.getLocalEnvironment().getRootElement();
-      String teaIndex = (String)(inputLE.getFirstElementByPath("HTTP/Input/Path").getLastChild().getValue());
+      String teaIndex = null;
+      int teaStrength = 0;
+      try
+      {
+    	  MbElement inputLE = inAssembly.getLocalEnvironment().getRootElement();
+    	  teaIndex = (String)(inputLE.getFirstElementByPath("HTTP/Input/Path").getLastChild().getValue());
+      } catch ( java.lang.Throwable jlt ) {
+    	  MbElement inputRoot = inAssembly.getMessage().getRootElement();
+    	  teaIndex = (String)(inputRoot.getFirstElementByPath("JSON/Data/id").getValueAsString());
+      }
 	        
       stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
                                   ResultSet.CONCUR_READ_ONLY);
-      ResultSet rs = stmt.executeQuery("SELECT name from Tea where id='"+teaIndex+"'");
+      ResultSet rs = stmt.executeQuery("SELECT name, strength from Tea where id='"+teaIndex+"'");
       if ( rs.first() )
       {
         teaName = rs.getString(1);
+        teaStrength = rs.getInt(2);
       }
       MbElement rootElem = outAssembly.getMessage().getRootElement();
 
-
+      rootElem.createElementAsLastChild("Properties");
       rootElem.createElementAsLastChild("HTTPReplyHeader").
         createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "Server_Hostname", 
                                   InetAddress.getLocalHost().getHostName());
@@ -72,8 +81,8 @@ public class GetIndex_JavaCompute extends MbJavaComputeNode {
       MbElement jsonData = rootElem.createElementAsLastChild("JSON").
         createElementAsFirstChild(MbElement.TYPE_NAME);
       jsonData.setName("Data");
-      jsonData.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "id", teaIndex);
-      jsonData.createElementAsFirstChild(MbElement.TYPE_NAME_VALUE, "name", teaName);
+      jsonData.createElementAsLastChild(MbElement.TYPE_NAME_VALUE, "name", teaName);
+      jsonData.createElementAsLastChild(MbElement.TYPE_NAME_VALUE, "strength", teaStrength);
 	        
       // End of user code
       // ----------------------------------------------------------

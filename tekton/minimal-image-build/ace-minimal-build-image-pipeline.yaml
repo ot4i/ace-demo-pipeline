@@ -10,7 +10,7 @@ spec:
       type: string
     - name: url
       type: string
-      default: "https://github.com/ot4i/ace-demo-pipeline"
+      default: "https://github.com/trevor-dolby-at-ibm-com/ace-demo-pipeline"
     - name: revision
       type: string
       default: "main"

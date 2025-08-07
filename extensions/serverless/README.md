@@ -12,7 +12,7 @@ allow for Knative service creation. Modify based on organisational needs; the de
 is to assign knative-serving-admin which may be more than desired.
 
 ```
-kubectl apply -f serverless/knative-service-account.yaml
+kubectl apply -f extensions/serverless/knative-service-account.yaml
 ```
 
 ## Commands

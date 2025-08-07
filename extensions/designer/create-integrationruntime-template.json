@@ -1,0 +1,27 @@
+{
+    "metadata": {
+        "name": "TEMPLATE_NAME"
+    },
+    "spec": {
+        "template": {
+            "spec": {
+                "containers": [
+                    {
+                        "name": "runtime"
+                    }
+                ]
+            }
+        },
+        "barURL": [
+            "TEMPLATE_BARURL"
+        ],
+        "configurations": [
+            "default-switch-server-privatenetworkagent"
+        ],
+        "forceFlowBasicAuth": {
+            "enabled": true
+        },
+        "version": "13.0",
+        "replicas": 1
+    }
+}

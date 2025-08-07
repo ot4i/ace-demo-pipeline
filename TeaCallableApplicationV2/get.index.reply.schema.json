@@ -1,0 +1,14 @@
+{
+	"$id": "https://ace.demo.pipeline/get.index.reply.schema.json",
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"description": "Reply for the Tea get index operation",
+	"type": "object",
+	"properties": {
+		"name": {
+			"type": "string"
+		},
+		"strength": {
+			"type": "integer"
+		}
+	}
+}

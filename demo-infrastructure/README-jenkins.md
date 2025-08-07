@@ -6,6 +6,11 @@ available, and will run on Windows (integration node only) or via docker on Unix
 
 ![Pipelines overview](/demo-infrastructure/images/jenkins-pipelines-overview.jpg)
 
+The integration servers can act as callable flow providers for hybrid integration, where cloud-based flows call down
+to access the database. This requires a switchclient.json to be available in the integration node so that the
+servers can connect to the cloud switch, at which point the TeaCallableApplicationV2 getIndex and postIndex endpoints
+will automatically be made available to the cloud.
+
 ## Running Jenkins
 
 Jenkins can be run from a command line (using Java11 or greater) as follows once downloaded:
@@ -144,7 +149,7 @@ node without MQ on the default HTTP per-server listener port), which is likely t
 values unless there is data in the database already:
 ```
 C:\>curl http://localhost:7800/tea/index/1
-{"name":null,"id":"1"}
+{"name":null,"strength":"0"}
 ```
 
 To add tea to the index, curl can be used:
@@ -205,7 +210,7 @@ The endpoint should be of the form `https://tdolby-tea-jenkins-ir-https-ac2vkpa0
 and (similar to the integration node example above) curl can be used to retrieve or add data.
 ```
 C:\>curl https://tdolby-tea-jenkins-ir-https-ac2vkpa0udw.p-vir-d1.appconnect.ibmappdomain.cloud/tea/index/1
-{"name":"Assam","id":"1"}
+{"name":"Assam","strength":5}
 ```
 
 ## Common errors

@@ -44,17 +44,19 @@ public class PostIndex_UpdateDB extends MbJavaComputeNode {
                                             ResultSet.CONCUR_READ_ONLY);
       // This would normally be done externally, but we do it here for convenience
       try {
-        stmt.executeUpdate("CREATE TABLE Tea(id INTEGER, name VARCHAR(128))");
+        stmt.executeUpdate("CREATE TABLE Tea(id INTEGER, name VARCHAR(128), strength INTEGER)");
         conn.commit();
       } catch ( java.lang.Throwable jlt ) {
         //jlt.printStackTrace();
       }
 	        
       String teaName = null;
+      String teaStrength = null;
       //MbElement inputLE = outAssembly.getMessage().getRootElement();
       //teaName = (String)(inputLE.getFirstElementByPath("HTTP.Input.Path").getLastChild().getValue());
       MbElement inputRoot = outAssembly.getMessage().getRootElement();
       teaName = (String)(inputRoot.getFirstElementByPath("JSON/Data/name").getValue());
+      teaStrength = (String)(inputRoot.getFirstElementByPath("JSON/Data/strength").getValueAsString());
       // This is an example only, and is oversimplified to minimise database
       // setup; most real database solutions would have tables pre-configured 
       // with a unique index on name, and possibly an auto-incrementing id column.
@@ -75,7 +77,7 @@ public class PostIndex_UpdateDB extends MbJavaComputeNode {
       }
       stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
                                   ResultSet.CONCUR_READ_ONLY);
-      stmt.executeUpdate("INSERT INTO Tea (id, name) VALUES ("+newIndex+", '"+teaName+"')");
+      stmt.executeUpdate("INSERT INTO Tea (id, name, strength) VALUES ("+newIndex+", '"+teaName+"', "+teaStrength+")");
 
       MbElement rootElem = outAssembly.getMessage().getRootElement();
       MbElement jsonData = rootElem.getFirstElementByPath("JSON");

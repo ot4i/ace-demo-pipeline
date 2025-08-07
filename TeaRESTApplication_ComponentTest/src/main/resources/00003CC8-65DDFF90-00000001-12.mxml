@@ -1,1 +1,120 @@
-<MessageAssembly xmlns:iib="http://com.ibm.iib/lt/1.0" iib:parser="GENERICROOT"><version iib:valueType="INTEGER">1</version><checkpoint><messageId iib:valueType="CHARACTER">00003CC8-65DDFF90-00000001</messageId><propagationCount iib:valueType="INTEGER">12</propagationCount><nodeCallDepth iib:valueType="INTEGER">13</nodeCallDepth><timestamp iib:valueType="TIMESTAMP">2024-02-27 15:28:16.228640</timestamp><source><name iib:valueType="CHARACTER">getIndex (Implementation)</name><identifier iib:valueType="CHARACTER">gen.TeaRESTApplication#FCMComposite_1_5</identifier><type iib:valueType="CHARACTER">SubFlowNode</type><terminal iib:valueType="CHARACTER">Output_1</terminal><nodePath><application iib:valueType="CHARACTER">TeaRESTApplication</application><messageFlow iib:valueType="CHARACTER">gen.TeaRESTApplication</messageFlow><node iib:valueType="CHARACTER">getIndex (Implementation)</node></nodePath><inputNode iib:valueType="BOOLEAN">FALSE</inputNode><resolved><name iib:valueType="CHARACTER">getIndex (Implementation).getIndex#OutTerminal.Output_1</name><identifier iib:valueType="CHARACTER">gen.TeaRESTApplication#FCMComposite_1_5.getIndex#OutTerminal.Output_1</identifier><type iib:valueType="CHARACTER">OutputNode</type><terminal iib:valueType="CHARACTER">out</terminal><nodePath><application iib:valueType="CHARACTER">TeaRESTApplication</application><messageFlow iib:valueType="CHARACTER">gen.TeaRESTApplication</messageFlow><subflow><index iib:valueType="INTEGER">0</index><name iib:valueType="CHARACTER">getIndex (Implementation)</name></subflow><node iib:valueType="CHARACTER">getIndex (Implementation).getIndex#OutTerminal.Output_1</node></nodePath></resolved></source><target><name iib:valueType="CHARACTER">HTTP Reply</name><identifier iib:valueType="CHARACTER">gen.TeaRESTApplication#FCMComposite_1_3</identifier><type iib:valueType="CHARACTER">ComIbmWSReplyNode</type><terminal iib:valueType="CHARACTER">in</terminal><nodePath><application iib:valueType="CHARACTER">TeaRESTApplication</application><messageFlow iib:valueType="CHARACTER">gen.TeaRESTApplication</messageFlow><node iib:valueType="CHARACTER">HTTP Reply</node></nodePath></target></checkpoint><message iib:parser="WSRoot" iib:injectable="true"><Properties iib:parser="WSPROPERTYPARSER"><MessageSet iib:valueType="CHARACTER" iib:elementType="0x03000000"></MessageSet><MessageType iib:valueType="CHARACTER" iib:elementType="0x03000000"></MessageType><MessageFormat iib:valueType="CHARACTER" iib:elementType="0x03000000"></MessageFormat><Encoding iib:valueType="INTEGER">546</Encoding><CodedCharSetId iib:valueType="INTEGER">1208</CodedCharSetId><Transactional iib:valueType="BOOLEAN">FALSE</Transactional><Persistence iib:valueType="BOOLEAN">FALSE</Persistence><CreationTime iib:valueType="GMTTIMESTAMP">2024-02-27 15:28:16.228640</CreationTime><ExpirationTime iib:valueType="INTEGER">-1</ExpirationTime><Priority iib:valueType="INTEGER">0</Priority><ReplyIdentifier iib:valueType="BLOB">000000000000000000000000000000000000000000000000</ReplyIdentifier><ReplyProtocol iib:valueType="CHARACTER">SOAP-HTTP</ReplyProtocol><Topic iib:elementType="0x03000000"/><ContentType iib:valueType="CHARACTER" iib:elementType="0x03000000"></ContentType><IdentitySourceType iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentitySourceType><IdentitySourceToken iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentitySourceToken><IdentitySourcePassword iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentitySourcePassword><IdentitySourceIssuedBy iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentitySourceIssuedBy><IdentityMappedType iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentityMappedType><IdentityMappedToken iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentityMappedToken><IdentityMappedPassword iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentityMappedPassword><IdentityMappedIssuedBy iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentityMappedIssuedBy></Properties><HTTPInputHeader iib:parser="WSINPHDR"><Host iib:valueType="CHARACTER">localhost:7800</Host><User-Agent iib:valueType="CHARACTER">curl/7.68.0</User-Agent><Accept iib:valueType="CHARACTER">*/*</Accept><X-Original-HTTP-Command iib:valueType="CHARACTER">GET http://localhost:7800/tea/index/1 HTTP/1.1</X-Original-HTTP-Command><X-Server-Name iib:valueType="CHARACTER">localhost</X-Server-Name><X-Server-Port iib:valueType="CHARACTER">7800</X-Server-Port><X-Remote-Addr iib:valueType="CHARACTER">127.0.0.1</X-Remote-Addr><X-Remote-Host iib:valueType="CHARACTER">localhost</X-Remote-Host><X-Scheme iib:valueType="CHARACTER">http</X-Scheme></HTTPInputHeader><HTTPReplyHeader iib:parser="WSREPHDR"><Server_Hostname iib:valueType="CHARACTER">IBM-PF3K066L</Server_Hostname></HTTPReplyHeader><JSON iib:parser="json"><Data><name iib:valueType="CHARACTER">Assam</name><id iib:valueType="CHARACTER">1</id></Data></JSON></message><localEnvironment iib:parser="MQROOT"><WrittenDestination><Label><label iib:valueType="CHARACTER">getIndex</label></Label></WrittenDestination><Destination><HTTP><RequestIdentifier iib:valueType="BLOB">455648540000000000000000644b2eebbf3c000000000000</RequestIdentifier></HTTP><RouterList/></Destination><HTTP><Input><Path><Segment iib:valueType="CHARACTER">tea</Segment><Segment iib:valueType="CHARACTER">index</Segment><Segment iib:valueType="CHARACTER">1</Segment></Path></Input></HTTP><REST><Input><Method iib:valueType="CHARACTER">GET</Method><Operation iib:valueType="CHARACTER">getIndex</Operation><Path iib:valueType="CHARACTER">/tea/index/1</Path><URI iib:valueType="CHARACTER">http://localhost:7800/tea/index/1</URI><Parameters><id iib:valueType="CHARACTER">1</id></Parameters></Input></REST></localEnvironment><environment/><exceptionList/></MessageAssembly>
+<MessageAssembly xmlns:iib="http://com.ibm.iib/lt/1.0" iib:parser="GENERICROOT">
+    <version iib:valueType="INTEGER">1</version>
+    <checkpoint>
+        <messageId iib:valueType="CHARACTER">00003CC8-65DDFF90-00000001</messageId>
+        <propagationCount iib:valueType="INTEGER">12</propagationCount>
+        <nodeCallDepth iib:valueType="INTEGER">13</nodeCallDepth>
+        <timestamp iib:valueType="TIMESTAMP">2024-02-27 15:28:16.228640</timestamp>
+        <source>
+            <name iib:valueType="CHARACTER">getIndex (Implementation)</name>
+            <identifier iib:valueType="CHARACTER">gen.TeaRESTApplication#FCMComposite_1_5</identifier>
+            <type iib:valueType="CHARACTER">SubFlowNode</type>
+            <terminal iib:valueType="CHARACTER">Output_1</terminal>
+            <nodePath>
+                <application iib:valueType="CHARACTER">TeaRESTApplication</application>
+                <messageFlow iib:valueType="CHARACTER">gen.TeaRESTApplication</messageFlow>
+                <node iib:valueType="CHARACTER">getIndex (Implementation)</node>
+            </nodePath>
+            <inputNode iib:valueType="BOOLEAN">FALSE</inputNode>
+            <resolved>
+                <name iib:valueType="CHARACTER">getIndex
+                    (Implementation).getIndex#OutTerminal.Output_1</name>
+                <identifier iib:valueType="CHARACTER">
+                    gen.TeaRESTApplication#FCMComposite_1_5.getIndex#OutTerminal.Output_1</identifier>
+                <type iib:valueType="CHARACTER">OutputNode</type>
+                <terminal iib:valueType="CHARACTER">out</terminal>
+                <nodePath>
+                    <application iib:valueType="CHARACTER">TeaRESTApplication</application>
+                    <messageFlow iib:valueType="CHARACTER">gen.TeaRESTApplication</messageFlow>
+                    <subflow>
+                        <index iib:valueType="INTEGER">0</index>
+                        <name iib:valueType="CHARACTER">getIndex (Implementation)</name>
+                    </subflow>
+                    <node iib:valueType="CHARACTER">getIndex
+                        (Implementation).getIndex#OutTerminal.Output_1</node>
+                </nodePath>
+            </resolved>
+        </source>
+        <target>
+            <name iib:valueType="CHARACTER">HTTP Reply</name>
+            <identifier iib:valueType="CHARACTER">gen.TeaRESTApplication#FCMComposite_1_3</identifier>
+            <type iib:valueType="CHARACTER">ComIbmWSReplyNode</type>
+            <terminal iib:valueType="CHARACTER">in</terminal>
+            <nodePath>
+                <application iib:valueType="CHARACTER">TeaRESTApplication</application>
+                <messageFlow iib:valueType="CHARACTER">gen.TeaRESTApplication</messageFlow>
+                <node iib:valueType="CHARACTER">HTTP Reply</node>
+            </nodePath>
+        </target>
+    </checkpoint>
+    <message iib:parser="WSRoot" iib:injectable="true">
+        <Properties iib:parser="WSPROPERTYPARSER">
+            <MessageSet iib:valueType="CHARACTER" iib:elementType="0x03000000"></MessageSet>
+            <MessageType iib:valueType="CHARACTER" iib:elementType="0x03000000"></MessageType>
+            <MessageFormat iib:valueType="CHARACTER" iib:elementType="0x03000000"></MessageFormat>
+            <Encoding iib:valueType="INTEGER">546</Encoding>
+            <CodedCharSetId iib:valueType="INTEGER">1208</CodedCharSetId>
+            <Transactional iib:valueType="BOOLEAN">FALSE</Transactional>
+            <Persistence iib:valueType="BOOLEAN">FALSE</Persistence>
+            <CreationTime iib:valueType="GMTTIMESTAMP">2024-02-27 15:28:16.228640</CreationTime>
+            <ExpirationTime iib:valueType="INTEGER">-1</ExpirationTime>
+            <Priority iib:valueType="INTEGER">0</Priority>
+            <ReplyIdentifier iib:valueType="BLOB">000000000000000000000000000000000000000000000000</ReplyIdentifier>
+            <ReplyProtocol iib:valueType="CHARACTER">SOAP-HTTP</ReplyProtocol>
+            <Topic iib:elementType="0x03000000" />
+            <ContentType iib:valueType="CHARACTER" iib:elementType="0x03000000"></ContentType>
+            <IdentitySourceType iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentitySourceType>
+            <IdentitySourceToken iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentitySourceToken>
+            <IdentitySourcePassword iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentitySourcePassword>
+            <IdentitySourceIssuedBy iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentitySourceIssuedBy>
+            <IdentityMappedType iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentityMappedType>
+            <IdentityMappedToken iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentityMappedToken>
+            <IdentityMappedPassword iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentityMappedPassword>
+            <IdentityMappedIssuedBy iib:valueType="CHARACTER" iib:elementType="0x03000000"></IdentityMappedIssuedBy>
+        </Properties>
+        <HTTPReplyHeader iib:parser="WSREPHDR">
+            <Server_Hostname iib:valueType="CHARACTER">IBM-PF3K066L</Server_Hostname>
+        </HTTPReplyHeader>
+        <JSON iib:parser="json">
+            <Data>
+                <name iib:valueType="CHARACTER">Assam</name>
+                <strength iib:valueType="INTEGER">5</strength>
+            </Data>
+        </JSON>
+    </message>
+    <localEnvironment iib:parser="MQROOT">
+        <WrittenDestination>
+            <Label>
+                <label iib:valueType="CHARACTER">getIndex</label>
+            </Label>
+        </WrittenDestination>
+        <Destination>
+            <HTTP>
+                <RequestIdentifier iib:valueType="BLOB">455648540000000000000000644b2eebbf3c000000000000</RequestIdentifier>
+            </HTTP>
+            <RouterList />
+        </Destination>
+        <HTTP>
+            <Input>
+                <Path>
+                    <Segment iib:valueType="CHARACTER">tea</Segment>
+                    <Segment iib:valueType="CHARACTER">index</Segment>
+                    <Segment iib:valueType="CHARACTER">1</Segment>
+                </Path>
+            </Input>
+        </HTTP>
+        <REST>
+            <Input>
+                <Method iib:valueType="CHARACTER">GET</Method>
+                <Operation iib:valueType="CHARACTER">getIndex</Operation>
+                <Path iib:valueType="CHARACTER">/tea/index/1</Path>
+                <URI iib:valueType="CHARACTER">http://localhost:7800/tea/index/1</URI>
+                <Parameters>
+                    <id iib:valueType="CHARACTER">1</id>
+                </Parameters>
+            </Input>
+        </REST>
+    </localEnvironment>
+    <environment />
+    <exceptionList />
+</MessageAssembly>

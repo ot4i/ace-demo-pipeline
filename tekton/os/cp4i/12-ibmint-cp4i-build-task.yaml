@@ -80,7 +80,7 @@ spec:
         mkdir /work/ibmint-output
         mqsicreateworkdir /work/ibmint-output/ace-server
         # Using --compile-maps-and-schemas for 13.0.1 and later . . . 
-        ibmint deploy --input-path . --output-work-directory /work/ibmint-output/ace-server --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
+        ibmint deploy --input-path . --output-work-directory /work/ibmint-output/ace-server --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --project TeaCallableApplicationV2 --compile-maps-and-schemas 
         ibmint optimize server --work-dir /work/ibmint-output/ace-server
 
         # Copy the contents of the work directory into a new unit-test-specific work directory

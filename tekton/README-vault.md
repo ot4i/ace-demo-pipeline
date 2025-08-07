@@ -4,13 +4,18 @@ Vault can be used to store JDBC credentials used by the Tea application, with th
 provided to the application by an in-memory volume mount from a sidecar container. The credentials
 are read in using an ExternalCredentialsProviders script configured in server.conf.yaml.
 
-![vault picture](vault-container.png)
+![vault overview](/demo-infrastructure/images/ace-and-vault-overview.png)
+
+Several ways to achieve this are described at https://developer.hashicorp.com/vault/docs/deploy/kubernetes#high-level-comparison-of-integrations
+with two of the main approaches being [Vault Agent Injection](#container-setup-for-agent-injection) and
+the [Vault Secrets Operator](#container-setup-for-vault-secrets-operator). Both require a Vault to be
+acessible, and the initial stages are very similar.
 
 ## Initial Vault setup
 
 The simplest way to use Vault is to install it in "dev" mode, which is insecure but works for the
 purposes of a pipeline demo. See https://developer.hashicorp.com/vault/docs/platform/k8s/helm/run 
-for details, with this page being a quick summary. 
+for details (or [here](https://developer.hashicorp.com/vault/tutorials/kubernetes-platforms/kubernetes-openshift?productSlug=vault&tutorialSlug=kubernetes&tutorialSlug=kubernetes-openshift#install-the-vault-helm-chart) for OpenShift), with this page being a quick summary. 
 
 Assuming a Kubernetes namespace of "vault", the install is as follows:
 ```
@@ -18,30 +23,41 @@ helm install -n vault vault hashicorp/vault --set "server.dev.enabled=true"
 ```
 and the vault must then be configured. To do this, use `kubectl exec` to get into the Vault container:
 ```
-kubectl exec -i -t -n vault vault-0 sh
+kubectl exec -i -t -n vault vault-0 -- sh
 ```
-Assuming the Tea application container is running in the "default" namespace using a service account of 
+Assuming the Tea application container is running in the "ace" namespace using a service account of 
 "default", then the configuration commands once inside the container would be
 ```
-vault kv put secret/tea type=jdbc username=<db2user> password=<db2password>
+vault kv put secret/tea name=tea type=jdbc username=<db2user> password=<db2password>
 vault auth enable kubernetes
-vault write auth/kubernetes/role/myapp bound_service_account_names=default bound_service_account_namespaces=default policies=app ttl=30s
+vault write auth/kubernetes/role/teaapp bound_service_account_names=default bound_service_account_namespaces=ace policies=app ttl=30s
 vault write auth/kubernetes/config \
    token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
    kubernetes_host=https://${KUBERNETES_PORT_443_TCP_ADDR}:443 \
    kubernetes_ca_cert=@/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-cat <<EOF > /home/vault/app-policy.hcl
+cat <<EOF > /home/vault/teaapp-policy.hcl
 path "secret*" {
   capabilities = ["read"]
 }
 EOF
-vault policy write app /home/vault/app-policy.hcl
+vault policy write app /home/vault/teaapp-policy.hcl
 ```
+Note that CP4i runtime containers created by the ACE operator will use a per-IntegrationRuntime service
+account, and so `bound_service_account_names` should be set to '*' to avoid having to change the Vault 
+configuration every time a new IntegrationRuntime is deployed. See https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#parameters-1 
+for details of the possible values for the various parameters.
 
-At this point, the vault should contain the correct secret and have correct permissions, so the
-Tea application container Deployment can be modified to add the Vault annotations. OpenShift users
-should examine the files in [/tekton/os/hashicorp-vault](/tekton/os/hashicorp-vault), while IKS 
-users can modify the tea-tekton Deployment to add the following:
+## Container setup for Agent Injection
+
+The [Vault Agent Injector](https://developer.hashicorp.com/vault/docs/deploy/kubernetes/injector)
+makes secrets available to the ACE runtime using an in-memory filesystem and a sidecar agent pod:
+
+![vault sidecar](/demo-infrastructure/images/ace-and-vault-sidecar.png)
+
+The vault should contain the correct secret and have correct permissions, so the Tea application
+container Deployment can be modified to add the Vault annotations to create the sidecar and pull in
+the scret data. OpenShift users should examine the files in [/tekton/os/hashicorp-vault](/tekton/os/hashicorp-vault), 
+while MiniKube users can modify the tea-tekton Deployment to add the following:
 ```
 spec:
   template:
@@ -51,27 +67,32 @@ spec:
         vault.hashicorp.com/agent-inject-secret-tea: secret/tea
         vault.hashicorp.com/agent-inject-template-tea: |
           {{- with secret "secret/tea" -}}
+          name={{ .Data.data.name }}
           type={{ .Data.data.type }}
           username={{ .Data.data.username }}
           password={{ .Data.data.password }}
           {{- end }}
-        vault.hashicorp.com/role: myapp
+        vault.hashicorp.com/role: teaapp
 ```
-where the "role" must match the auth record created in the Vault container.
+where the "role" must match the auth record created in the Vault container. For CP4i, the
+annotations go into `spec.template.spec.metadata.annotations` in the IntegrationRuntime CR
+rather than the Deployment (which is owned by the IR); see commented-out sections in the 
+[create-integrationruntime.yaml](/tekton/os/cp4i/create-integrationruntime.yaml) for an example.
 
 Once the containers have restarted, the Vault sidecar should connect successfully and provide
 credentials in the /vault/secrets directory, with a single file called "tea" that contains the
 necessary information:
 ```
 tea-tekton-8497896f95-c9krg:/tmp/maven-output$ cat /vault/secrets/tea
+name=tea
 type=jdbc
 username=<db2user>
 password=<db2password>
 ```
 
-This file is detected by the [init-creds.sh](/demo-infrastructure/init-creds.sh) startup
-script, and the server.conf.yaml file for the server is configured with a 
-[script](/demo-infrastructure/read-hashicorp-creds.sh) to load the credentials:
+For the non-CP4i cases, this file is detected by the [init-creds.sh](/demo-infrastructure/init-creds.sh)
+startup script, and the server.conf.yaml file for the server is configured with a 
+[read-hashicorp-creds.sh](/demo-infrastructure/read-hashicorp-creds.sh) to load the credentials:
 ```
 Credentials:
   ExternalCredentialsProviders:
@@ -79,9 +100,97 @@ Credentials:
       loadAllCredentialsCommand: '/home/aceuser/ace-server/read-hashicorp-creds.sh'
       loadAllCredentialsFormat: 'yaml'
 ```
-This load happens at startup time, and credentials are not reloaded if they change.
+This load happens at startup time, and credentials are not reloaded if they change. See 
+https://www.ibm.com/docs/en/app-connect/13.0.x?topic=cis-configuring-integration-server-use-security-credentials-from-external-source
+for a description of the ExternalCredentialsProviders capabilities.
 
-## Notes for non-dev mode
+For CP4i, the [read-hashicorp-creds.sh](/demo-infrastructure/read-hashicorp-creds.sh) script
+needs to be provided to the container (using a "generic files" configuration or other mechanism)
+and the server.conf.yaml configuration would include something like
+```
+Credentials:
+  ExternalCredentialsProviders:
+    TeaJDBCHashiCorp:
+      loadAllCredentialsCommand: '/home/aceuser/generic/read-hashicorp-creds.sh'
+      loadAllCredentialsFormat: 'yaml'
+```
+
+## Container setup for Vault Secrets Operator
+
+As described in the [Vault docs](https://developer.hashicorp.com/vault/docs/deploy/kubernetes/vso), the
+Vault Secrets Operator (VSO) allows mirroring of Vault secrets to Kubernetes secrets:
+![vault vso](/demo-infrastructure/images/ace-and-vault-vso.png)
+
+This page includes a quick summary of initial steps, with the Vault tutorial at
+https://developer.hashicorp.com/vault/tutorials/kubernetes-introduction/vault-secrets-operator
+providing all the details.
+```
+helm install --version 0.10.0 --create-namespace --namespace vault-secrets-operator vault-secrets-operator hashicorp/vault-secrets-operator
+git clone https://github.com/hashicorp-education/learn-vault-secrets-operator
+```
+
+The configuration above is for the v1 "kv" store, while the VSO expects v2. To create the v2 configuration
+run the following in the the Vault container (using `kubectl exec` as shown above):
+```
+vault secrets enable -path=kvv2 kv-v2
+tee /tmp/webapp.json <<EOF
+path "kvv2/data/webapp/tea" {
+   capabilities = ["read", "list"]
+}
+EOF
+vault policy write webapp /tmp/webapp.json
+vault write auth/kubernetes/role/teavso bound_service_account_names=default bound_service_account_namespaces=ace policies=webapp audience=vault ttl=24h
+vault kv put kvv2/webapp/tea name=tea type=jdbc username=<db2user> password=<db2password>
+```
+To create the vault auth connection and secret, run the following:
+```
+kubectl apply -f extensions/vault/vault-connection.yaml
+kubectl apply -f extensions/vault/vault-auth.yaml
+kubectl apply -f extensions/vault/vault-tea-static-secret.yaml
+```
+This will create a secret called `vault-teajdbc` containing the relevant values, and this can
+be mounted into a container in the usual manner:
+```
+sh-5.1$ ls -l /run/secrets/vault-teajdbc/
+total 0
+lrwxrwxrwx. 1 root 1000920000 11 Jul 31 03:40 _raw -> ..data/_raw
+lrwxrwxrwx. 1 root 1000920000 11 Jul 31 03:40 name -> ..data/name
+lrwxrwxrwx. 1 root 1000920000 15 Jul 31 03:40 password -> ..data/password
+lrwxrwxrwx. 1 root 1000920000 11 Jul 31 03:40 type -> ..data/type
+lrwxrwxrwx. 1 root 1000920000 15 Jul 31 03:40 username -> ..data/username
+```
+at which point a script such as [read-creds.sh](/demo-infrastructure/read-creds.sh) can
+be used to read the credentials into the server (similar to agent sidecar approach).
+
+## Issues with CP4i configurations
+
+While it is technically possible to use Vault to populate CP4i Configurations of type
+setdbparms, it is not without issues. The CP4i Configuration custom resource does not
+contain the secret data, and instead links to an operator-generated secret that stores
+the data securely.
+
+The Configuration CR might look like this:
+```
+apiVersion: appconnect.ibm.com/v1beta1
+kind: Configuration
+metadata:
+  name: demosetdbparms
+spec:
+  secretName: demosetdbparms-dk6j9
+  type: setdbparms
+  version: 13.0.4.0-r1
+```
+with a pointer to the `demosetdbparms-dk6j9` that contains the actual data. While it
+might be possible to get the Vault Secrets Operator to generate a secret that can be
+put into the Configuration `secretName` field, this might itself be overwritten if a
+user updated the user/password information using the ACE dashboard, and then the VSO
+might overwrite the values provided by the user.
+
+The set of credentials supported by mqsisetdbparms is also limited, while the credentials
+scripts used above can provide any type of credentials.
+
+
+## Notes for non-dev mode (advanced)
 
 Vault without using dev mode is more complicated; some notes from the experiments:
 ```
@@ -179,8 +288,8 @@ Success! Data written to: secret/tea
 / $ vault auth enable kubernetes
 Success! Enabled kubernetes auth method at: kubernetes/
 
-/ $ vault write auth/kubernetes/role/myapp bound_service_account_names=app bound_service_account_namespaces=default policies=app ttl=1h
-Success! Data written to: auth/kubernetes/role/myapp
+/ $ vault write auth/kubernetes/role/teaapp bound_service_account_names=app bound_service_account_namespaces=default policies=app ttl=1h
+Success! Data written to: auth/kubernetes/role/teaapp
 
 vault write auth/kubernetes/config \
    token_reviewer_jwt="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \

@@ -19,6 +19,15 @@ spec:
             IR_IMAGE_PLACEHOLDER
           imagePullPolicy: IfNotPresent
           name: runtime
+          # If using HashiCorp Vault, the host/port info is not in the secret.
+          # These values could also be placed in a ConfigMap . . . 
+          #env:
+          #  - name: TEA_DATABASE_NAME
+          #    value: BLUDB
+          #  - name: TEA_SERVER_NAME
+          #    value: 9938aec0-8105-433e-8bf9-0fbb7e483086.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud
+          #  - name: TEA_PORT_NUMBER
+          #    value: '32459'
           resources:
             requests:
               cpu: 300m
@@ -27,8 +36,24 @@ spec:
       # kubectl patch serviceaccount default --type=json -p='[{"op": "add", "path": "/imagePullSecrets/-", "value": {"name": "regcred"}}]'
       #imagePullSecrets:
       #- name: regcred
+      #
+      # For HashiCorp Vault sidecar credentials:
+      #metadata:
+      #  annotations:
+      #    vault.hashicorp.com/agent-inject: 'true'
+      #    vault.hashicorp.com/agent-inject-secret-tea: secret/tea
+      #    vault.hashicorp.com/agent-inject-template-tea: |
+      #      {{- with secret "secret/tea" -}}
+      #      type={{ .Data.data.type }}
+      #      username={{ .Data.data.username }}
+      #      password={{ .Data.data.password }}
+      #      {{- end }}
+      #    vault.hashicorp.com/role: teaapp
   configurations:
     - teajdbc-policy
     - default-policy
     - teajdbc
+    # For callable flows; name should match a valid private network connection configuration
+    # that connects to the IWHI switch server (not the a local CP4i switch server).
+    # - iwhi-private-network-connection
   version: 13.0.4.0-r1

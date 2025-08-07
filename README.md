@@ -24,6 +24,7 @@ created on-demand to make setup easier, the logging goes to the console instead 
 
 - Upgraded to [ACE 13.0.4](https://community.ibm.com/community/user/blogs/ben-thompson1/2025/06/18/ace-13-0-4-0)
 - Uses [Crane](https://github.com/google/go-containerregistry/tree/main/cmd/crane) for faster container image builds.
+- Added callable flow interface to enable [hybrid cloud scenarios](/extensions/iwhi/README.md) with IBM webMethods Hybrid Integration.
 
 ## Technology and target options
 
@@ -102,6 +103,9 @@ Regardless of the pipeline technology and deployment target, some initial steps 
   ACE development experience. See the developer edition [download page](https://www.ibm.com/docs/en/app-connect/13.0?topic=enterprise-download-ace-developer-edition-get-started)
   for a free version (limited to one transaction per second per flow) if your organization does
   not have existing ACE licenses.
+  - Running the flows locally requires creating a JDBC policy called TEAJDBC in the default policy
+    project for a server, creating the associated user/pw credentials, and then deploying the Tea flows
+    and libraries. The server can be node-associated, but does not have to be.
 
 Beyond those common steps, the choice of pipeline and target determine the next steps. The simplest 
 way to choose the pipeline is to choose the target (Kubernetes, ACEaaS, or integration nodes), and
