@@ -35,6 +35,11 @@ In general, using the default namespace for Kubernetes artifacts is discouraged,
 in this repo generally do not have namespaces specified (other than some CP4i files), so using
 `oc project ace-demo` to set the default namespace should provide the correct results.
 
+For container deployments, the resulting containers can act as callable flow providers for hybrid integration,
+where cloud-based flows call down to the CP4i containers to access the database. This requires a switchclient.json
+file (one that connects to the cloud switch, and not a local CP4i switch) stored as a secret and the 
+[tea-tekton-deployment.yaml](tea-tekton-deployment.yaml) file to be updated to pull in the secret.
+
 ## Getting started
 
 A Kubernetes cluster will be needed, with Minikube (see [minikube/README.md](/tekton/minikube/README.md)) and
@@ -131,6 +136,12 @@ kubectl apply -f tekton/ace-pipeline.yaml
 ```
 (note that the pipeline will run without the cluster being enabled for Knative serverless; the 21
 task is only run if `knativeDeploy` is set to `true` when the pipeline is run).
+
+For hybrid solutions, the `cloud-switchclient-json` secret must be created as follows:
+```
+kubectl create secret generic cloud-switchclient-json --from-file=switchclient.json=/path/to/downloaded/switchclient.json
+```
+and the relevant section uncommented in [tea-tekton-deployment.yaml](tea-tekton-deployment.yaml).
 
 Once that has been accomplished, the simplest way to run the pipeline is
 ```
@@ -271,5 +282,5 @@ The endpoint should be of the form `https://tdolby-tea-tekton-ir-https-ac2vkpa0u
 and (similar to the integration node example above) curl can be used to retrieve or add data.
 ```
 C:\>curl https://tdolby-tea-tekton-ir-https-ac2vkpa0udw.p-vir-d1.appconnect.ibmappdomain.cloud/tea/index/1
-{"name":"Assam","id":"1"}
+{"name":"Assam","strength":5}
 ```

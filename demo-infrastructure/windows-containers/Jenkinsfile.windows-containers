@@ -27,7 +27,7 @@ pipeline {
               rmdir /q /s junit-reports
             )
             CALL "%ACE_COMMAND%" mqsicreateworkdir %TEMP%\\ace-server
-            CALL "%ACE_COMMAND%" ibmint deploy --input-path . --output-work-directory %TEMP%\\ace-server --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --project TeaRESTApplication_UnitTest
+            CALL "%ACE_COMMAND%" ibmint deploy --input-path . --output-work-directory %TEMP%\\ace-server --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --project TeaCallableApplicationV2 --project TeaRESTApplication_UnitTest
             CALL "%ACE_COMMAND%" ibmint optimize server --work-dir %TEMP%\\ace-server --disable NodeJS
             CALL "%ACE_COMMAND%" IntegrationServer -w %TEMP%\\ace-server --test-project TeaRESTApplication_UnitTest --test-junit-options --reports-dir=junit-reports
             '''
@@ -78,7 +78,7 @@ pipeline {
             IF EXIST "tea-application-combined.bar" (
               del /q tea-application-combined.bar
             )
-            CALL "%ACE_COMMAND%" ibmint package --input-path . --output-bar-file tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication
+            CALL "%ACE_COMMAND%" ibmint package --input-path . --output-bar-file tea-application-combined.bar --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --project TeaCallableApplicationV2
             '''
       }
     }

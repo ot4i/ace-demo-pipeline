@@ -42,7 +42,7 @@ For the `ace` image (following https://www.ibm.com/docs/en/app-connect/container
 ```
 kubectl create secret docker-registry ibm-entitlement-key --docker-username=cp --docker-password=myEntitlementKey --docker-server=cp.icr.io
 minikube ssh
-docker login cp.icr.io -u cp -p ibmEntitlementKey
+docker login cp.icr.io -u cp -p myEntitlementKey
 docker pull cp.icr.io/cp/appc/ace:13.0.4.0-r1
 docker tag cp.icr.io/cp/appc/ace:13.0.4.0-r1 192.168.49.2:5000/default/ace:13.0.4.0-r1
 docker push 192.168.49.2:5000/default/ace:13.0.4.0-r1
@@ -77,6 +77,10 @@ kubectl apply -f tekton/minikube/tea-tekton-minikube-ingress.yaml
 ```
 The application should now be available and can be tested with `curl http://192.168.49.2/tea/index/2` to GET index 2.
 
+To add tea to the index, curl can be used:
+```
+curl -X POST --data '{"name": "Assam", "strength": 5}' http://192.168.49.2/tea/index
+```
 
 ## Knative setup:
 
@@ -114,7 +118,7 @@ EOF
 export ksvc_domain="\"data\":{\""$(minikube ip)".nip.io\": \"\"}"
 kubectl patch configmap/config-domain -n knative-serving --type merge  -p "{$ksvc_domain}"
 
-cat serverless/tea-tekton-knative-service.yaml | sed 's/DOCKER_REGISTRY/192.168.49.2:5000\/default/g' | sed 's/IMAGE_TAG/20240408183942-f07980e/g' |  kubectl apply -f -
+cat extensions/serverless/tea-tekton-knative-service.yaml | sed 's/DOCKER_REGISTRY/192.168.49.2:5000\/default/g' | sed 's/IMAGE_TAG/20240408183942-f07980e/g' |  kubectl apply -f -
 
 curl -LO https://github.com/knative/client/releases/download/knative-v1.11.2/kn-linux-amd64
 ```
@@ -367,7 +371,7 @@ ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ Forwarding from 0.0.0.0
 
 ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ curl http://localhost:7800/tea/index/1
 Handling connection for 7800
-{"name":"Assam","id":"1"}
+{"name":"Assam","strength":5}
 
 
 ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.12.1/serving-crds.yaml
@@ -534,13 +538,13 @@ pipelinerun.tekton.dev/ace-pipeline-run-1 created
 [deploy-knative-to-cluster : clone] + sed 's/\//\\\//g'
 [deploy-knative-to-cluster : clone] + export 'REG_WITH_ESCAPED_SLASH=192.168.49.2:5000\/default'
 [deploy-knative-to-cluster : clone] + echo '192.168.49.2:5000\/default'
-[deploy-knative-to-cluster : clone] + sed -i 's/DOCKER_REGISTRY/192.168.49.2:5000\/default/g' /work/ace-demo-pipeline/serverless/tea-tekton-knative-service.yaml
+[deploy-knative-to-cluster : clone] + sed -i 's/DOCKER_REGISTRY/192.168.49.2:5000\/default/g' /work/ace-demo-pipeline/extensions/serverless/tea-tekton-knative-service.yaml
 [deploy-knative-to-cluster : clone] 192.168.49.2:5000\/default
 [deploy-knative-to-cluster : clone] + export 'TAG=20240408185001-f07980e'
 [deploy-knative-to-cluster : clone] + echo Using 20240408185001-f07980e as image tag
 [deploy-knative-to-cluster : clone] Using 20240408185001-f07980e as image tag
-[deploy-knative-to-cluster : clone] + sed -i s/IMAGE_TAG/20240408185001-f07980e/g /work/ace-demo-pipeline/serverless/knative-service-account.yaml /work/ace-demo-pipeline/serverless/tea-tekton-knative-service.yaml
-[deploy-knative-to-cluster : clone] + cat /work/ace-demo-pipeline/serverless/tea-tekton-knative-service.yaml
+[deploy-knative-to-cluster : clone] + sed -i s/IMAGE_TAG/20240408185001-f07980e/g /work/ace-demo-pipeline/extensions/serverless/knative-service-account.yaml /work/ace-demo-pipeline/extensions/serverless/tea-tekton-knative-service.yaml
+[deploy-knative-to-cluster : clone] + cat /work/ace-demo-pipeline/extensions/serverless/tea-tekton-knative-service.yaml
 [deploy-knative-to-cluster : clone] apiVersion: serving.knative.dev/v1
 [deploy-knative-to-cluster : clone] kind: Service
 [deploy-knative-to-cluster : clone] metadata:
@@ -573,5 +577,5 @@ ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ kn services list
 NAME                 URL                                                     LATEST                     AGE    CONDITIONS   READY   REASON
 tea-tekton-knative   http://tea-tekton-knative.default.192.168.49.2.nip.io   tea-tekton-knative-00003   9m5s   3 OK / 3     True
 ubuntu@minikube-20231123:~/github.com/ace-demo-pipeline$ curl http://tea-tekton-knative.default.192.168.49.2.nip.io/tea/index/1
-{"name":"Assam","id":"1"}
+{"name":"Assam","strength":5}
 ```

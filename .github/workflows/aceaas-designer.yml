@@ -1,0 +1,116 @@
+# Deploy ACE Designer front-end flows
+
+name: ACEaaS Designer flows deploy
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  #push:
+  #  branches: [ main ]
+  #pull_request:
+  #  branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Deploy Designer flows
+        shell: bash
+        env:
+          APPCON_ENDPOINT:       ${{ vars.APPCON_ENDPOINT }}
+          APPCON_DEPLOY_PREFIX:  ${{ vars.APPCON_DEPLOY_PREFIX }}
+          APPCON_INSTANCE_ID:    ${{ secrets.APPCON_INSTANCE_ID }}
+          APPCON_CLIENT_ID:      ${{ secrets.APPCON_CLIENT_ID }}
+          APPCON_CLIENT_SECRET:  ${{ secrets.APPCON_CLIENT_SECRET }}
+          APPCON_API_KEY:        ${{ secrets.APPCON_API_KEY }}
+        run: |
+          echo "Deploying Designer flows"
+
+          # Fix for ace-minimal-build and curl
+          unset LD_LIBRARY_PATH
+
+          set -e # Fail on error - this must be done after the profile in case the container has the profile loaded already
+
+          echo "########################################################################"
+          echo "# Acquiring token using API key"
+          echo "########################################################################" && echo
+
+          curl -s --fail-with-body --request POST \
+            --url https://${APPCON_ENDPOINT}/api/v1/tokens \
+            --header "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" \
+            --header "X-IBM-Client-Secret: ${APPCON_CLIENT_SECRET}" \
+            --header 'accept: application/json' \
+            --header 'content-type: application/json' \
+            --header "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" \
+            --data "{\"apiKey\": \"${APPCON_API_KEY}\"}" --output /tmp/token-output.txt
+
+          cat /tmp/token-output.txt  | tr -d '{}"' | tr ',' '\n' | grep access_token | sed 's/access_token://g' > /tmp/APPCON_TOKEN
+
+          echo "########################################################################"
+          echo "# PUTting BAR file to ACE service"
+          echo "########################################################################" && echo
+
+          curl -s --fail-with-body -X PUT https://${APPCON_ENDPOINT}/api/v1/bar-files/${APPCON_DEPLOY_PREFIX}-tea-ghaction \
+            -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
+            -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
+            --data-binary @extensions/designer/TeaAPI.bar --output /tmp/curl-output.txt
+
+          # We will have exited if curl returned non-zero so the output should contain the BAR file name
+          # cat /tmp/curl-output.txt ; echo
+          # This would be easier with jq but that's not available in most ACE images
+          export BARURL=$(cat /tmp/curl-output.txt | tr -d '{}"' | tr ',' '\n' | grep url | sed 's/url://g')
+          echo BARURL: $BARURL
+          echo -n $BARURL > /tmp/BARURL
+
+          echo "########################################################################"
+          echo "# Checking for IntegrationRuntime"
+          echo "########################################################################" && echo
+          # Avoid failing immediately if the grep commands find errors
+          set +e
+          curl -s https://${APPCON_ENDPOINT}/api/v1/integration-runtimes/${APPCON_DEPLOY_PREFIX}-tea-ghaction-ir \
+            -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/octet-stream" \
+            -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
+            --output /tmp/curl-output.txt
+          #cat /tmp/curl-output.txt ; echo
+          # Check for 404 Not Found
+          grep -q '"Internal error","code":404' /tmp/curl-output.txt
+          if [ "$?" != "0" ]; then
+              # IR found or else another error
+              # Look for an expected string to check for a valid IR
+              grep -q supportsTraceCustomResource /tmp/curl-output.txt
+              if [ "$?" != "0" ]; then
+                echo "########################################################################"
+                echo "# Error detecting ACEaaS IR"
+                echo "########################################################################" && echo
+                cat /tmp/curl-output.txt
+                exit 1
+              fi
+              echo "########################################################################"
+              echo "# Found existing IR"
+              echo "########################################################################" && echo
+          else
+            echo "########################################################################"
+            echo "# Creating IntegrationRuntime JSON"
+            echo "########################################################################" && echo
+            set -e
+            cp extensions/designer/create-integrationruntime-template.json /tmp/create-integrationruntime.json
+            sed -i "s/TEMPLATE_NAME/${APPCON_DEPLOY_PREFIX}-tea-ghaction-ir/g" /tmp/create-integrationruntime.json
+            # Backslash issues - the effect is to escape / characters in the URL data to avoid issues with sed
+            sed -i "s/TEMPLATE_BARURL/`cat /tmp/BARURL | sed 's|/|\\\\/|g'`/g" /tmp/create-integrationruntime.json
+            echo "Contents of create-integrationruntime.json:"
+            cat /tmp/create-integrationruntime.json
+
+            curl -s --fail-with-body -X PUT https://${APPCON_ENDPOINT}/api/v1/integration-runtimes/${APPCON_DEPLOY_PREFIX}-tea-ghaction-ir \
+              -H "x-ibm-instance-id: ${APPCON_INSTANCE_ID}" -H "Content-Type: application/json" \
+              -H "Accept: application/json" -H "X-IBM-Client-Id: ${APPCON_CLIENT_ID}" -H "authorization: Bearer `cat /tmp/APPCON_TOKEN`" \
+              --data-binary @/tmp/create-integrationruntime.json
+          fi
+

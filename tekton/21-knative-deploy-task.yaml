@@ -24,11 +24,11 @@ spec:
         git clone -b $(params.revision) $(params.url)
         export REG_WITH_ESCAPED_SLASH=`echo $(params.dockerRegistry) | sed 's/\//\\\\\\//g'`
         echo $REG_WITH_ESCAPED_SLASH
-        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/serverless/tea-tekton-knative-service.yaml
+        sed -i "s/DOCKER_REGISTRY/$REG_WITH_ESCAPED_SLASH/g" /work/ace-demo-pipeline/extensions/serverless/tea-tekton-knative-service.yaml
         export TAG=$(params.tag)
         echo Using $TAG as image tag
-        sed -i "s/IMAGE_TAG/$TAG/g" /work/ace-demo-pipeline/serverless/*.yaml
-        cat /work/ace-demo-pipeline/serverless/tea-tekton-knative-service.yaml
+        sed -i "s/IMAGE_TAG/$TAG/g" /work/ace-demo-pipeline/extensions/serverless/*.yaml
+        cat /work/ace-demo-pipeline/extensions/serverless/tea-tekton-knative-service.yaml
       volumeMounts:
         - mountPath: /work
           name: work
@@ -38,7 +38,7 @@ spec:
       args:
         - "apply"
         - "-f"
-        - "/work/ace-demo-pipeline/serverless/tea-tekton-knative-service.yaml"
+        - "/work/ace-demo-pipeline/extensions/serverless/tea-tekton-knative-service.yaml"
       volumeMounts:
         - mountPath: /work
           name: work

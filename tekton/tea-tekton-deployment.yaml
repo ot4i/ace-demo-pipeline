@@ -12,14 +12,20 @@ spec:
       labels:
         app: tea-tekton
       annotations:
-        productName: "IBM App Connect Enterprise for non-production"
         productID: eb5b5e73f62b4dcf8c434c6274a158a7
         productMetric: FREE
+        productName: IBM App Connect Enterprise for non-production
+        # For HashiCorp Vault with agent injector
+        #vault.hashicorp.com/agent-inject: 'true'
+        #vault.hashicorp.com/agent-inject-secret-tea: secret/tea
+        #vault.hashicorp.com/agent-inject-template-tea: |
+        #  {{- with secret "secret/tea" -}}
+        #  type={{ .Data.data.type }}
+        #  username={{ .Data.data.username }}
+        #  password={{ .Data.data.password }}
+        #  {{- end }}
+        #vault.hashicorp.com/role: teaapp
     spec:
-      volumes:
-      - name: secret-volume-2
-        secret:
-          secretName: jdbc-secret
       # This is now handled via the "default" service account
       # kubectl patch serviceaccount default --type=json -p='[{"op": "add", "path": "/imagePullSecrets/-", "value": {"name": "regcred"}}]'
       #imagePullSecrets:
@@ -33,3 +39,23 @@ spec:
         volumeMounts:
         - name: secret-volume-2
           mountPath: /var/run/secrets/jdbc
+        # For callable flows
+        #- name: switchclient-secret
+        #  mountPath: /home/aceuser/ace-server/config/switch/switchclient.json
+        #  subPath: switchclient.json
+        # For HashiCorp Vault, which does not store URLs in the secret
+        env:
+        - name: TEA_DATABASE_NAME
+          value: 'BLUDB'
+        - name: TEA_SERVER_NAME
+          value: '9938aec0-8105-433e-8bf9-0fbb7e483086.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud'
+        - name: TEA_PORT_NUMBER
+          value: '32459'
+      volumes:
+      - name: secret-volume-2
+        secret:
+          secretName: jdbc-secret
+      # For callable flows
+      #- name: switchclient-secret
+      #  secret:
+      #    secretName: cloud-switchclient-json

@@ -59,8 +59,9 @@ spec:
         mkdir /work/ibmint-output
         mqsicreateworkdir /work/ibmint-output/ace-server
         # Using --compile-maps-and-schemas for 13.0.1 and later . . . 
-        ibmint deploy --input-path . --output-work-directory /work/ibmint-output/ace-server --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --compile-maps-and-schemas 
-        ibmint optimize server --work-dir /work/ibmint-output/ace-server --disable NodeJS
+        ibmint deploy --input-path . --output-work-directory /work/ibmint-output/ace-server --project TeaSharedLibraryJava --project TeaSharedLibrary --project TeaRESTApplication --project TeaCallableApplicationV2 --compile-maps-and-schemas 
+        # ibmint optimize server --work-dir /work/ibmint-output/ace-server --disable NodeJS
+        ibmint optimize server --work-dir /work/ibmint-output/ace-server
 
         # Copy the contents of the work directory into a new unit-test-specific work directory
         # This avoids the risk of unit tests files being deployed in the real containers, and
@@ -160,7 +161,8 @@ spec:
         set -e # Fail on error
         set -x
         crane append -b $(params.runtimeBaseImage) -f /work/crane-append-file.tar.gz -t $(params.outputRegistry)/tea-tekton:$TAG
-        crane mutate --env "LICENSE=accept" --entrypoint='bash,-c,". /opt/ibm/ace-13/server/bin/mqsiprofile ; /home/aceuser/ace-server/ace-startup-script.sh && ibmint apply overrides /home/aceuser/ace-server/application-overrides.txt --work-directory /home/aceuser/ace-server && IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 --no-nodejs && IntegrationServer -w /home/aceuser/ace-server"' $(params.outputRegistry)/tea-tekton:$TAG
+        #crane mutate --env "LICENSE=accept" --entrypoint='bash,-c,". /opt/ibm/ace-13/server/bin/mqsiprofile ; /home/aceuser/ace-server/ace-startup-script.sh && ibmint apply overrides /home/aceuser/ace-server/application-overrides.txt --work-directory /home/aceuser/ace-server && IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 --no-nodejs && IntegrationServer -w /home/aceuser/ace-server"' $(params.outputRegistry)/tea-tekton:$TAG
+        crane mutate --env "LICENSE=accept" --entrypoint='bash,-c,". /opt/ibm/ace-13/server/bin/mqsiprofile ; /home/aceuser/ace-server/ace-startup-script.sh && ibmint apply overrides /home/aceuser/ace-server/application-overrides.txt --work-directory /home/aceuser/ace-server && IntegrationServer -w /home/aceuser/ace-server --admin-rest-api -1 && IntegrationServer -w /home/aceuser/ace-server"' $(params.outputRegistry)/tea-tekton:$TAG
         date
       volumeMounts:
         - mountPath: /work
