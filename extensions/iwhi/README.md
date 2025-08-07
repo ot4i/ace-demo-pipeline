@@ -90,10 +90,4 @@ approach described at https://www.ibm.com/docs/en/wm-integration-ipaas?topic=api
 (the other methods do not allow workflows to be attached to the operations). The resource names
 must be `/index/{id}` for GET and `/index` for POST, and should only need to be created once.
 
-The result should look as follows for `/index`:
-
-![POST](/demo-infrastructure/images/rest-api-POST.png)
-
-and for `/index/{id}`:
-
-![GET](/demo-infrastructure/images/rest-api-GET.png)
+The result should look as shown above for the POST and GET operations.
