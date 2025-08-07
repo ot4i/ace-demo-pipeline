@@ -69,3 +69,31 @@ https://www.ibm.com/docs/en/wm-integration-ipaas?topic=reference-authenticating-
 
 `IWHI_WM_HOSTNAME` should be set to the base address of the instance (e.g., 
 "dev2299223.a-vir-r1.int.ipaas.automation.ibm.com").
+
+## Issues with missing capabilities
+
+Errors of the form
+```
+{"error":{"message":"SAP® ERP is not available in this tenant.","code":400,"errorSource":{"errorCode":"API_000","requestID":"4cb1da4ec743b6eaf115d899a5c63dfa"}}}
+```
+may occur if the destination instance does not have the SAP capabilities and the original
+instance did have SAP available. The projects in this repo were created on an instance
+without SAP and so the import should not hit this issue, but anyone trying to replicate
+the steps to build the project may see this if they export from a more-functional instance.
+
+Note that this error can occur even though the webMethods flows in this repo do not use SAP. 
+
+## Creating the REST APIs manually
+
+The REST APIs may be created manually using the "Create from scratch/Design new API" 
+approach described at https://www.ibm.com/docs/en/wm-integration-ipaas?topic=apis-creating-rest 
+(the other methods do not allow workflows to be attached to the operations). The resource names
+must be `/index/{id}` for GET and `/index` for POST, and should only need to be created once.
+
+The result should look as follows for `/index`:
+
+![POST](/demo-infrastructure/images/rest-api-POST.png)
+
+and for `/index/{id}`:
+
+![GET](/demo-infrastructure/images/rest-api-GET.png)
