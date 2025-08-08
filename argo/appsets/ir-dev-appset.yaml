@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ir-dev-appset
+  namespace: openshift-gitops
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - matrix:
+        generators:
+          - git:
+              repoURL: https://github.com/mrislam11378/ace-demo-gitops.git
+              revision: main
+              directories:
+                - path: envs/dev/* # All the directories inside dev env are going to be separate apps
+                - path: envs/*/configurationCRs
+                  exclude: true
+          - clusters: {} # Automatically use all clusters defined within Argo CD
+  template:
+    metadata:
+      # The Argo App name is derived from the git generator path envs/dev/*. path.segments[2] is * which refers to each of the application
+      # directories e.g. envs/dev/FairFaresV3. path.segments[1] is environment e.g. dev or qa. It is also 1-1 with OCP namespace
+      #
+      # normalize function makes any string parameter usable as a valid DNS name by replacing invalid characters with hyphens and
+      # truncating at 253 characters.
+      name: "{{index .path.segments 2 | normalize}}-{{index .path.segments 1}}"
+      namespace: openshift-gitops
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/mrislam11378/ace-demo-gitops.git
+        targetRevision: main
+        path: "{{.path.path}}"
+      destination:
+        # path.segments[1] is environment e.g. dev or qa. It is also 1-1 with OCP namespace
+        namespace: "{{index .path.segments 1}}"
+        server: "{{.server}}"
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+        automated:
+          prune: true
+          selfHeal: true
+      ignoreDifferences:
+        - group: appconnect.ibm.com
+          kind: IntegrationRuntime
+          jqPathExpressions:
+            - '.spec.configurations[] | select(endswith("-adminssl"))'
