@@ -1,0 +1,143 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: update-gitops-repo
+  namespace: cp4i
+spec:
+  stepTemplate:
+    securityContext:
+      runAsUser: 0
+    env:
+      - name: DOCKER_REGISTRY
+        value: $(params.dockerRegistry)
+      - name: APP_NAME
+        value: $(params.appName)
+      - name: APP_NAMESPACE
+        value: $(params.appNamespace)
+      - name: GITHUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: github-token
+            key: GITHUB_TOKEN
+  params:
+    - name: dockerRegistry
+      type: string
+    - name: appName
+      type: string
+    - name: appNamespace
+      type: string
+    - name: url
+      type: string
+    - name: revision
+      type: string
+    - name: tag
+      type: string
+    - name: sha
+      type: string
+  steps:
+    - name: clone
+      image: alpine/git:v2.49.1
+      script: |
+        #!/bin/sh
+        set -x
+        cd /work
+
+        # Clone the repo into a specific folder
+        git clone -b $(params.revision) $(params.url) ace-demo-gitops
+
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: update-dev
+      image: alpine/git:v2.49.1
+      script: |
+        #!/bin/sh
+        set -x
+        
+        cd /work/ace-demo-gitops
+
+        # Make the change
+        sed -i "s|^\(\s*newTag:\s*\).*|\1$(params.tag)|" envs/dev/tea-argo-cp4i/kustomization.yaml
+
+        # Optional: show the diff
+        git diff
+
+        # Git config (you can also set this globally on the image if needed)
+        git config user.email "tekton@pipeline"
+        git config user.name "Tekton Bot"
+
+        # Stage, commit, and push
+        git add envs/dev/tea-argo-cp4i/kustomization.yaml
+        git commit -m "Update tag to $(params.tag) for $(params.appName)"
+        git push origin $(params.revision)
+
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: update-uat
+      image: alpine/git:v2.49.1
+      script: |
+        #!/bin/sh
+        set -ex
+        cd /work/ace-demo-gitops
+
+        BRANCH="autoPr/$(params.appName)"
+
+        # Ensure we are on the correct branch (create if needed)
+        if ! git switch "$BRANCH" 2>/dev/null; then
+          echo "Branch $BRANCH does not exist locally. Attempting to fetch or create it..."
+          git fetch origin "$BRANCH:$BRANCH" 2>/dev/null || git switch -c "$BRANCH"
+          git switch "$BRANCH"
+        fi
+
+        # Make the change
+        sed -i "s|^\(\s*newTag:\s*\).*|\1$(params.tag)|" envs/uat/tea-argo-cp4i/kustomization.yaml
+
+        # Optional: show the diff
+        git diff
+
+        # Git config (you can also set this globally on the image if needed)
+        git config user.email "tekton@pipeline"
+        git config user.name "Tekton Bot"
+
+        # Stage, commit, and push
+        git add envs/uat/tea-argo-cp4i/kustomization.yaml
+        git commit -m "Update tag to $(params.tag) for $(params.appName)"
+        git push origin $BRANCH
+
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: create-pr-uat
+      image: curlimages/curl:8.6.0
+      script: |
+        #!/bin/sh
+        set -ex
+        cd /work/ace-demo-gitops
+
+        # Extract repo from URL
+        REPO="mrislam11378/ace-demo-gitops"
+        # Branch name (must match what was pushed earlier)
+        BRANCH="autoPr/$(params.appName)"
+
+        # Prepare PR data
+        PR_TITLE="Update tag for $(params.appName) to $(params.tag)"
+        PR_BODY="Automated tag update via Tekton."
+        BASE_BRANCH=$(params.revision)
+
+        # Create PR via GitHub API
+        curl -X POST "https://api.github.com/repos/$REPO/pulls" \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          -d "{
+            \"title\": \"$PR_TITLE\",
+            \"head\": \"$BRANCH\",
+            \"base\": \"$BASE_BRANCH\",
+            \"body\": \"$PR_BODY\"
+          }"
+      volumeMounts:
+        - mountPath: /work
+          name: work
+  volumes:
+    - name: work
+      emptyDir: {}

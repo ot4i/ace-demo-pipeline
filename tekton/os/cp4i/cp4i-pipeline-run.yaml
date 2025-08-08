@@ -18,6 +18,8 @@ spec:
       value: "https://github.com/mrislam11378/ace-demo-pipeline.git"
     - name: revision
       value: "main"
+    - name: updateGitOpsRepo
+      value: "true"
     - name: buildImage
       value: "cp.icr.io/cp/appc/ace:13.0.4.0-r1"
       # For Maven builds - build ace-minimal-build first

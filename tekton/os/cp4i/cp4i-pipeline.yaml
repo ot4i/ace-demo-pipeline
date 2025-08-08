@@ -17,9 +17,15 @@ spec:
     - name: url
       type: string
       default: "https://github.com/ot4i/ace-demo-pipeline"
+    - name: gitops-url
+      type: string
+      default: "https://github.com/mrislam11378/ace-demo-gitops.git"
     - name: revision
       type: string
       default: "main"
+    - name: updateGitOpsRepo
+      type: string
+      default: "false"
     - name: buildImage
       type: string
       default: "cp.icr.io/cp/appc/ace:13.0.4.0-r1"
@@ -48,6 +54,10 @@ spec:
     - name: deploy-to-cp4i
       taskRef:
         name: deploy-to-cp4i
+      when:
+        - input: "$(params.updateGitOpsRepo)"
+          operator: in
+          values: ["false"]
       params:
         - name: dockerRegistry
           value: $(params.dockerRegistry)
@@ -57,6 +67,30 @@ spec:
           value: $(params.appNamespace)
         - name: url
           value: $(params.url)
+        - name: revision
+          value: $(params.revision)
+        - name: tag
+          value: "$(tasks.build-from-source.results.tag)"
+        - name: sha
+          value: "$(tasks.build-from-source.results.sha)"
+      runAfter:
+        - build-from-source
+    - name: update-gitops-repo
+      taskRef:
+        name: update-gitops-repo
+      when:
+        - input: "$(params.updateGitOpsRepo)"
+          operator: in
+          values: ["true"]
+      params:
+        - name: dockerRegistry
+          value: $(params.dockerRegistry)
+        - name: appName
+          value: $(params.appName)
+        - name: appNamespace
+          value: $(params.appNamespace)
+        - name: url
+          value: $(params.gitops-url)
         - name: revision
           value: $(params.revision)
         - name: tag
