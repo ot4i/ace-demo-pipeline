@@ -70,6 +70,44 @@ docker tag  cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331@sha256
  image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
 docker push image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
 ```
+OR 
+
+Use an External Route to the Image Registry
+If you're outside the cluster (e.g., local Docker), you must expose the internal OpenShift image registry via a route.
+
+Check if the registry route exists:
+
+```
+oc get route -n openshift-image-registry
+```
+
+If not, expose it:
+
+```
+oc patch configs.imageregistry.operator.openshift.io/cluster \
+  --type merge \
+  -p '{"spec":{"defaultRoute":true}}'
+```
+
+Get the external registry hostname:
+
+```
+REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')
+echo "Registry URL: $REGISTRY"
+```
+
+Log in to that registry:
+
+```
+docker login $REGISTRY -u $(oc whoami) -p $(oc whoami -t)
+```
+
+Tag and push:
+
+```
+docker tag cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331 $REGISTRY/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
+docker push $REGISTRY/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
+```
 
 Note that the ACE operator often uses the version-and-date form of the image tag when creating
 containers, which would also work; the following tags refer to the same image:
