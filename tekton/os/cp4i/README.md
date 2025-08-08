@@ -99,14 +99,15 @@ echo "Registry URL: $REGISTRY"
 Log in to that registry:
 
 ```
-docker login $REGISTRY -u $(oc whoami) -p $(oc whoami -t)
+podman login $REGISTRY -u $(oc whoami) -p $(oc whoami -t)
 ```
 
 Tag and push:
 
 ```
-docker tag cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331 $REGISTRY/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
-docker push $REGISTRY/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
+podman pull cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331
+podman tag cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331 $REGISTRY/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
+podman push --remove-signatures $REGISTRY/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
 ```
 
 Note that the ACE operator often uses the version-and-date form of the image tag when creating
