@@ -41,11 +41,12 @@ before the container is killed, but it is possible that very slow server startup
 could miss the required window. Setting `livenessProbe.failureThreshold` (see [Integration Runtime Reference](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=resources-integration-runtime-reference)) to a large value should eliminate this issue.
 
 Note that this approach splits responsibilities between the ACE operator (create the work directory and run the initial server)
-and the ACE product itself (run the tests and report the results); the operator support code in the container does not know 
-anything about running tests. 
+and the ACE product itself (run the tests and report the results); the operator support code in the container does not know
+anything about running tests.
+
 - Anything that would also affect production (such as issues with CP4i configuration formats and other related matters) would fall under CP4i support.
 - Issues with ACE application code, JUnit options, etc, would fall under ACE product support.
-- As the tests are using the operator, the [ot4i/ace-docker](https://github.com/ot4i/ace-docker) repo is not involved, so issues should be 
+- As the tests are using the operator, the [ot4i/ace-docker](https://github.com/ot4i/ace-docker) repo is not involved, so issues should be
   raised with product support (CP4i or ACE itself) rather than in that repo; ace-docker is now intended only for non-operator use cases.
 
 ## Pipeline setup and run
@@ -54,36 +55,40 @@ Many of the steps are the same as the main repo, but use the `cp4i` namespace. S
 in OpenShift, but using crane avoids a lot of extra permissions seen with kaniko and buildah.
 
 The pipeline assumes the CP4i ACE integration server image has been copied to the local image registry to make the
-container builds go faster; the image must match the locations in the YAML files. See 
+container builds go faster; the image must match the locations in the YAML files. See
 https://www.ibm.com/docs/en/app-connect/containers_cd?topic=obtaining-app-connect-enterprise-server-image-from-cloud-container-registry
 for details on the available images, and it may be helpful to use port forwarding to pull and push the images from
-a local system using a command such as 
-```
+a local system using a command such as
+
+```bash
 kubectl --namespace openshift-image-registry port-forward --address 0.0.0.0 svc/image-registry 5000:5000
 ```
+
 at which point the OpenShift registry will be accessible from localhost:5000.
 
 As an example, the following sequence would tage the 13.0.4.0-r1 image and upload to the registry:
-```
+
+```bash
 docker pull cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331@sha256:79bf0ef9e8d7cad8f70ea7dc22783670b4edbc54d81348b030af25d75033097e
 docker tag  cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331@sha256:79bf0ef9e8d7cad8f70ea7dc22783670b4edbc54d81348b030af25d75033097e
  image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
 docker push image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
 ```
-OR 
+
+OR
 
 Use an External Route to the Image Registry
 If you're outside the cluster (e.g., local Docker), you must expose the internal OpenShift image registry via a route.
 
 Check if the registry route exists:
 
-```
+```bash
 oc get route -n openshift-image-registry
 ```
 
 If not, expose it:
 
-```
+```bash
 oc patch configs.imageregistry.operator.openshift.io/cluster \
   --type merge \
   -p '{"spec":{"defaultRoute":true}}'
@@ -91,20 +96,20 @@ oc patch configs.imageregistry.operator.openshift.io/cluster \
 
 Get the external registry hostname:
 
-```
+```bash
 REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')
 echo "Registry URL: $REGISTRY"
 ```
 
 Log in to that registry:
 
-```
+```bash
 podman login $REGISTRY -u $(oc whoami) -p $(oc whoami -t)
 ```
 
 Tag and push:
 
-```
+```bash
 podman pull cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331
 podman tag cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331 $REGISTRY/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
 podman push --remove-signatures $REGISTRY/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
@@ -112,7 +117,8 @@ podman push --remove-signatures $REGISTRY/cp4i/ace-server-prod:13.0.4.0-r1-20250
 
 Note that the ACE operator often uses the version-and-date form of the image tag when creating
 containers, which would also work; the following tags refer to the same image:
-```
+
+```bash
 cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331
 cp.icr.io/cp/appc/ace-server-prod@sha256:79bf0ef9e8d7cad8f70ea7dc22783670b4edbc54d81348b030af25d75033097e
 ```
@@ -186,7 +192,6 @@ A route should have been created, and the application can be checked by querying
 http://tea-tekton-cp4i-http-cp4i.apps.openshift.domain.name/tea/index/1
 
 (with the appropriate domain name) to call the tea application.
-
 
 ## IntegrationServer CR
 

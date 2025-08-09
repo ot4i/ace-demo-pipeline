@@ -1,0 +1,38 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: tea-argo-triggertemplate
+spec:
+  params:
+    - name: git-repo-url
+      description: The git repository url
+    - name: git-revision
+      description: The git revision
+      default: main
+    - name: git-repo-name
+      description: The name of the deployment to be created / patched
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      generateName: cp4i-pipeline-run-
+      namespace: cp4i
+    spec:
+      serviceAccountName: cp4i-tekton-service-account
+      pipelineRef:
+        name: cp4i-pipeline
+      params:
+        - name: dockerRegistry
+          value: "image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i"
+        - name: appName
+          value: "tea-tekton-cp4i"
+        - name: url
+          value: "https://github.com/mrislam11378/ace-demo-pipeline.git"
+        - name: revision
+          value: "main"
+        - name: updateGitOpsRepo
+          value: "true"
+        - name: buildImage
+          value: "cp.icr.io/cp/appc/ace:13.0.4.0-r1"
+        - name: runtimeBaseImage
+          value: "cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331"        
