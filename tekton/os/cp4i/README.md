@@ -144,6 +144,12 @@ The Tekton pipeline expects docker credentials to be provided for [Crane](https:
 kubectl create secret -n cp4i docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
 ```
 
+Without regcred
+
+```bash
+oc policy add-role-to-user system:image-puller system:serviceaccount:cp4i:default --namespace=cp4i
+```
+
 Given we need to pull the ace prod image from `cp.icr.io` we need the entitlemnt in our openshift namespace. If `ibm-entitlement-key` needs to be created
 
 ```bash
