@@ -1,6 +1,6 @@
 # CP4i pipeline
 
-This pipeline is similar to the main project pipeline, but is designed to work with the Cloud Pak for Integration (CP4i) 
+This pipeline is similar to the main project pipeline, but is designed to work with the Cloud Pak for Integration (CP4i)
 and uses the App Connect Enterprise certified containers for runtime. It also runs component tests in a CP4i container to
 allow JDBC connections to be tested using the same CP4i configurations used by the deployed application itself.
 
@@ -8,7 +8,7 @@ allow JDBC connections to be tested using the same CP4i configurations used by t
 
 The resulting containers can act as callable flow providers for hybrid integration, where cloud-based flows call down
 to the CP4i containers to access the database. This requires a private network connection configuration to be available
-(one that connects to the cloud switch, and not a local CP4i switch) and the 
+(one that connects to the cloud switch, and not a local CP4i switch) and the
 [create-integrationruntime.yaml](create-integrationruntime.yaml) file to be updated to pull in the configuration.
 
 ## Container builds
@@ -34,10 +34,10 @@ The test run strategy is as follows:
 - Collect the output and return code from kubectl exec as usual, allowing the pipeline to stop on failed tests.
 - Delete the CR, and then send another kill -INT 1 to make the runaceserver code exit.
 
-See [13-component-test-in-cp4i-task.yaml](13-component-test-in-cp4i-task.yaml) for details on running the tests. Despite 
+See [13-component-test-in-cp4i-task.yaml](13-component-test-in-cp4i-task.yaml) for details on running the tests. Despite
 MQSI_PREVENT_CONTAINER_SHUTDOWN being set, there are still liveness probes running in the background, and these check for
 port 7600 to be active. In most cases, the component test server will start quickly enough to be listening on port 7600
-before the container is killed, but it is possible that very slow server startup (on an overloaded node, for example) 
+before the container is killed, but it is possible that very slow server startup (on an overloaded node, for example)
 could miss the required window. Setting `livenessProbe.failureThreshold` (see [Integration Runtime Reference](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=resources-integration-runtime-reference)) to a large value should eliminate this issue.
 
 Note that this approach splits responsibilities between the ACE operator (create the work directory and run the initial server)
@@ -55,10 +55,12 @@ Many of the steps are the same as the main repo, but use the `cp4i` namespace. S
 in OpenShift, but using crane avoids a lot of extra permissions seen with kaniko and buildah.
 
 The pipeline assumes the CP4i ACE integration server image has been copied to the local image registry to make the
-container builds go faster; the image must match the locations in the YAML files. See
-https://www.ibm.com/docs/en/app-connect/containers_cd?topic=obtaining-app-connect-enterprise-server-image-from-cloud-container-registry
-for details on the available images, and it may be helpful to use port forwarding to pull and push the images from
-a local system using a command such as
+container builds go faster; the image must match the locations in the YAML files. See [Obtaining the IBM App Connect Enterprise server image from the IBM Cloud Container Registry](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=obtaining-app-connect-enterprise-server-image-from-cloud-container-registry)
+for details on the available images.
+
+### Using port-forwarding to push image
+
+It may be helpful to use port forwarding to pull and push the images from a local system using a command such as
 
 ```bash
 kubectl --namespace openshift-image-registry port-forward --address 0.0.0.0 svc/image-registry 5000:5000
@@ -75,7 +77,7 @@ docker tag  cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331@sha256
 docker push image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
 ```
 
-OR
+### Using external routes to push image
 
 Use an External Route to the Image Registry
 If you're outside the cluster (e.g., local Docker), you must expose the internal OpenShift image registry via a route.
@@ -123,14 +125,16 @@ cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331
 cp.icr.io/cp/appc/ace-server-prod@sha256:79bf0ef9e8d7cad8f70ea7dc22783670b4edbc54d81348b030af25d75033097e
 ```
 
+## Creating App Connect Configurations
+
 Configurations need to be created for the JDBC credentials (teajdbc-policy and teajdbc) and default policy project name
 in a server.conf.yaml configuration (default-policy). See [configurations/README.md](configurations/README.md) for details.
 
-The JDBC credentials also need to be placed in a Kubernetes secret called `jdbc-secret` so that the the non-CP4i 
+The JDBC credentials also need to be placed in a Kubernetes secret called `jdbc-secret` so that the the non-CP4i
 component test can access them during the pipeline run. This step (`component-test` in [ibmint-cp4i-build](12-ibmint-cp4i-build-task.yaml))
 proves that the code itself is working and connections are possible to the specified DB2 instance, while the later
 [CP4i-based component test](13-component-test-in-cp4i-task.yaml) demonstrates that the configurations are also valid
-and that the ACE server in the certified container can connect to DB2. 
+and that the ACE server in the certified container can connect to DB2.
 
 Create the `jdbc-secret`
 
@@ -138,13 +142,15 @@ Create the `jdbc-secret`
 kubectl create secret generic jdbc-secret -n cp4i --from-literal=USERID='USERNAME' --from-literal=PASSWORD='PASSWORD' --from-literal=databaseName='BLUDB' --from-literal=serverName='9938aec0-8105-433e-8bf9-0fbb7e483086.c1ogj3sd0tgtu0lqde00.databases.appdomain.cloud' --from-literal=portNumber='32459'
 ```
 
+## Pipeline Setup and Run
+
 The Tekton pipeline expects docker credentials to be provided for [Crane](https://github.com/google/go-containerregistry/tree/main/cmd/crane) to use when pushing the built image, and these credentials must be associated with the service account for the pipeline. If this has not already been done elsewhere, then create them with the following format for OpenShift
 
 ```bash
 kubectl create secret -n cp4i docker-registry regcred --docker-server=image-registry.openshift-image-registry.svc.cluster.local:5000 --docker-username=kubeadmin --docker-password=$(oc whoami -t)
 ```
 
-Without regcred
+**Without regcred**, the `system:image-puller` role can be added to the default service acocunt. This avoids the need to renew/recreate the regcred everytime the login token expires
 
 ```bash
 oc policy add-role-to-user system:image-puller system:serviceaccount:cp4i:default --namespace=cp4i
@@ -195,9 +201,15 @@ tkn pipelinerun -n cp4i logs -L -f
 If the pipeline is successful, there should be an integration server CR called `tea-tekton-cp4i` in the cp4i namespace.
 A route should have been created, and the application can be checked by querying the URL
 
+```bash
 http://tea-tekton-cp4i-http-cp4i.apps.openshift.domain.name/tea/index/1
+```
 
 (with the appropriate domain name) to call the tea application.
+
+## Extending the Pipeline with GitOps
+
+WIP
 
 ## IntegrationServer CR
 
