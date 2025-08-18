@@ -58,13 +58,17 @@ The pipeline assumes the CP4i ACE integration server image has been copied to th
 container builds go faster; the image must match the locations in the YAML files. See [Obtaining the IBM App Connect Enterprise server image from the IBM Cloud Container Registry](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=obtaining-app-connect-enterprise-server-image-from-cloud-container-registry)
 for details on the available images.
 
-### Using port-forwarding to push image
+### Pushing Images to OpenShift Registry
+
+#### 1. Using port-forwarding to push image
 
 It may be helpful to use port forwarding to pull and push the images from a local system using a command such as
 
 ```bash
 kubectl --namespace openshift-image-registry port-forward --address 0.0.0.0 svc/image-registry 5000:5000
 ```
+  
+> Keep this terminal open while pushing or pulling images
 
 at which point the OpenShift registry will be accessible from localhost:5000.
 
@@ -77,47 +81,7 @@ docker tag  cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331@sha256
 docker push image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
 ```
 
-### Using external routes to push image
-
-Use an External Route to the Image Registry
-If you're outside the cluster (e.g., local Docker), you must expose the internal OpenShift image registry via a route.
-
-Check if the registry route exists:
-
-```bash
-oc get route -n openshift-image-registry
-```
-
-If not, expose it:
-
-```bash
-oc patch configs.imageregistry.operator.openshift.io/cluster \
-  --type merge \
-  -p '{"spec":{"defaultRoute":true}}'
-```
-
-Get the external registry hostname:
-
-```bash
-REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')
-echo "Registry URL: $REGISTRY"
-```
-
-Log in to that registry:
-
-```bash
-podman login $REGISTRY -u $(oc whoami) -p $(oc whoami -t)
-```
-
-Tag and push:
-
-```bash
-podman pull cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331
-podman tag cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331 $REGISTRY/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
-podman push --remove-signatures $REGISTRY/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
-```
-
-Note that the ACE operator often uses the version-and-date form of the image tag when creating
+> Note: The ACE operator often uses the version-and-date form of the image tag when creating
 containers, which would also work; the following tags refer to the same image:
 
 ```bash
@@ -125,6 +89,48 @@ cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331
 cp.icr.io/cp/appc/ace-server-prod@sha256:79bf0ef9e8d7cad8f70ea7dc22783670b4edbc54d81348b030af25d75033097e
 ```
 
+#### 2. Using external routes to push image
+
+Depending on Windows or Linux or WSL, the port forwarding can be tricky. Using the external route is simpler and switching to **Podman** from **Docker** avoids TLS Certificate issues.
+
+a. Check if the registry route exists:
+
+  ```bash
+  oc get route -n openshift-image-registry
+  ```
+
+If not present, expose it:
+
+  ```bash
+  oc patch configs.imageregistry.operator.openshift.io/cluster \
+    --type merge \
+    -p '{"spec":{"defaultRoute":true}}'
+  ```
+
+b. Get the external registry hostname:
+
+  ```bash
+  REGISTRY=$(oc get route default-route -n openshift-image-registry --template='{{ .spec.host }}')
+  echo "Registry URL: $REGISTRY"
+  ```
+
+c. Log in to that registry. Use `kubeadmin` instead of `oc whoami` (details [here](https://access.redhat.com/solutions/4939411)):
+
+  ```bash
+  podman login $REGISTRY -u kubeadmin --password (oc whoami -t) --tls-verify=false
+  ```
+
+> --tls-verify=false avoids certificate issues with cluster-issued certificates. For production, see instructions to trust the OpenShift CA.
+
+d. Tag and push:
+
+```bash
+podman pull cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331
+podman tag cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331 $REGISTRY/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
+podman push --tls-verify=false --remove-signatures $REGISTRY/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
+```
+
+> need --remove-signatures because of Error: Copying this image would require changing layer representation, which we cannot do: "Would invalidate signatures"
 ## Creating App Connect Configurations
 
 Configurations need to be created for the JDBC credentials (teajdbc-policy and teajdbc) and default policy project name
