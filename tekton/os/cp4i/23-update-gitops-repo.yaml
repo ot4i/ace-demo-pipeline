@@ -177,16 +177,27 @@ spec:
         PR_BODY="Automated tag update via Tekton."
         BASE_BRANCH=$(params.revision)
 
-        # Create PR via GitHub API
-        curl -X POST "https://api.github.com/repos/$REPO/pulls" \
-          -H "Authorization: token $GITHUB_TOKEN" \
-          -H "Accept: application/vnd.github.v3+json" \
-          -d "{
-            \"title\": \"$PR_TITLE\",
-            \"head\": \"$BRANCH\",
-            \"base\": \"$BASE_BRANCH\",
-            \"body\": \"$PR_BODY\"
-          }"
+        # Check if the PR already exists
+        OWNER=$(echo $REPO | cut -d/ -f1)
+
+        EXISTING_PR=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$REPO/pulls?head=$OWNER:$BRANCH&base=$BASE_BRANCH" \
+          | jq '. | length')
+
+        if [ "$EXISTING_PR" -gt 0 ]; then
+          echo "Pull request already exists for branch $BRANCH. Skipping PR creation."
+        else
+          # Create PR via GitHub API
+          curl -X POST "https://api.github.com/repos/$REPO/pulls" \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -d "{
+              \"title\": \"$PR_TITLE\",
+              \"head\": \"$BRANCH\",
+              \"base\": \"$BASE_BRANCH\",
+              \"body\": \"$PR_BODY\"
+            }"
+        fi
       volumeMounts:
         - mountPath: /work
           name: work
