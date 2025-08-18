@@ -147,6 +147,32 @@ podman tag tools-image:20250818 $REGISTRY/cp4i/tools-image:20250818
 podman push $REGISTRY/cp4i/tools-image:20250818 --tls-verify=false
 ```
 
+To test the tools-image in OpenShift, do the following:
+
+```bash
+oc run testpull \
+  --image=image-registry.openshift-image-registry.svc:5000/cp4i/tools-image:20250818 \
+  --restart=Never \
+  --command -- sleep infinity \
+  -n cp4i
+
+oc exec -it testpull -n cp4i -- /bin/sh
+
+/ # oc version
+Client Version: 4.16.38
+Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3
+Kubernetes Version: v1.29.14+7cf4c05
+/ # crane version
+0.20.6
+/ # curl --version
+curl 8.12.1 (x86_64-alpine-linux-musl) libcurl/8.12.1 OpenSSL/3.3.4 zlib/1.3.1 brotli/1.1.0 zstd/1.5.6 c-ares/1.33.1 libidn2/2.3.7 libpsl/0.21.5 nghttp2/1.62.1
+...
+
+exit
+
+oc delete pod testpull -n cp4i
+```
+
 ## Creating App Connect Configurations
 
 Configurations need to be created for the JDBC credentials (teajdbc-policy and teajdbc) and default policy project name
