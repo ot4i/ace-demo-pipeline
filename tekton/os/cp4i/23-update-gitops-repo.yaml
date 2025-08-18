@@ -48,8 +48,11 @@ spec:
         set -x
         cd /work
 
-        # Clone the repo into a specific folder
-        git clone -b $(params.revision) $(params.url) ace-demo-gitops
+        # Extract owner/repo from URL
+        REPO_PATH=$(echo $(params.url) | sed -E 's#https://github.com/##; s#\.git$##')
+
+        # Clone using token authentication
+        git clone -b $(params.revision) https://$GITHUB_TOKEN@github.com/$REPO_PATH.git ace-demo-gitops
 
       volumeMounts:
         - mountPath: /work
@@ -93,7 +96,7 @@ spec:
         git config user.email "tekton@pipeline"
         git config user.name "Tekton Bot"
 
-        # Stage, commit, and push
+        # Stage, commit and push
         git add $CONFIG_PATH/kustomization.yaml
         git commit -m "Update tag to $(params.tag) for $(params.appName)"
         git push origin $(params.revision)
@@ -149,9 +152,9 @@ spec:
         git config user.email "tekton@pipeline"
         git config user.name "Tekton Bot"
 
-        # Stage, commit, and push
+        # Stage, commit and push
         git add envs/uat/tea-argo-cp4i/kustomization.yaml
-        git commit -m "Update tag to $(params.tag) for $(params.appName)"
+        git commit -m "Update tag to $(params.tag) for $(params.appName)"       
         git push origin $BRANCH
 
       volumeMounts:
