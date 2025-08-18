@@ -14,6 +14,8 @@ spec:
         value: $(params.appName)
       - name: APP_NAMESPACE
         value: $(params.appNamespace)
+      - name: TAG
+        value: $(params.tag)
       - name: GITHUB_TOKEN
         valueFrom:
           secretKeyRef:
@@ -34,9 +36,13 @@ spec:
       type: string
     - name: sha
       type: string
+    - name: tools-image
+      type: string
   steps:
     - name: clone
-      image: alpine/git:v2.49.1
+      image: $(params.tools-image) # Use the tools image for consistency
+      # If you want to use a specific image for git operations, uncomment the line below
+      # image: alpine/git:v2.49.1
       script: |
         #!/bin/sh
         set -x
@@ -49,15 +55,36 @@ spec:
         - mountPath: /work
           name: work
     - name: update-dev
-      image: alpine/git:v2.49.1
+      image: $(params.tools-image) # Use the tools image for consistency
+      # If you want to use a specific image for git operations, uncomment the line below
+      # image: alpine/git:v2.49.1
       script: |
         #!/bin/sh
         set -x
         
         cd /work/ace-demo-gitops
 
-        # Make the change
-        sed -i "s|^\(\s*newTag:\s*\).*|\1$(params.tag)|" envs/dev/tea-argo-cp4i/kustomization.yaml
+        # Define the path to the config 
+        CONFIG_PATH="envs/dev/tea-argo-cp4i"
+
+        # Fail if kustomization.yaml doesn't exist
+        if [ ! -f "$CONFIG_PATH/kustomization.yaml" ]; then
+          echo "ERROR: kustomization.yaml not found at $CONFIG_PATH"
+          exit 1
+        fi
+
+        # Update the image tag in kustomization.yaml using yq
+        yq e '.images[].newTag = strenv(TAG)' -i "$CONFIG_PATH/kustomization.yaml"
+
+        # Alternatively, if yq is not available, you can use sed to update the tag
+        # sed -i "s|^\(\s*newTag:\s*\).*|\1$(params.tag)|" $CONFIG_PATH/kustomization.yaml
+
+        set +x
+        echo ========================================================================
+        echo "Updated kustomization.yaml for DEV"
+        echo ========================================================================
+        yq e . "$CONFIG_PATH/kustomization.yaml"
+        set -x
 
         # Optional: show the diff
         git diff
@@ -67,7 +94,7 @@ spec:
         git config user.name "Tekton Bot"
 
         # Stage, commit, and push
-        git add envs/dev/tea-argo-cp4i/kustomization.yaml
+        git add $CONFIG_PATH/kustomization.yaml
         git commit -m "Update tag to $(params.tag) for $(params.appName)"
         git push origin $(params.revision)
 
@@ -75,7 +102,10 @@ spec:
         - mountPath: /work
           name: work
     - name: update-uat
-      image: alpine/git:v2.49.1
+      image: $(params.tools-image) # Use the tools image for consistency
+      # If you want to use a specific image for git operations, uncomment the line below
+      # image: alpine/git:v2.49.1
+      # TODO: Create a separate sh file to call from steps instead of inline script with slight changes
       script: |
         #!/bin/sh
         set -ex
@@ -90,8 +120,27 @@ spec:
           git switch "$BRANCH"
         fi
 
-        # Make the change
-        sed -i "s|^\(\s*newTag:\s*\).*|\1$(params.tag)|" envs/uat/tea-argo-cp4i/kustomization.yaml
+        # Define the path to the config 
+        CONFIG_PATH="envs/uat/tea-argo-cp4i"
+
+        # Fail if kustomization.yaml doesn't exist
+        if [ ! -f "$CONFIG_PATH/kustomization.yaml" ]; then
+          echo "ERROR: kustomization.yaml not found at $CONFIG_PATH"
+          exit 1
+        fi
+
+        # Update the image tag in kustomization.yaml using yq
+        yq e '.images[].newTag = strenv(TAG)' -i "$CONFIG_PATH/kustomization.yaml"
+
+        # Alternatively, if yq is not available, you can use sed to update the tag
+        # sed -i "s|^\(\s*newTag:\s*\).*|\1$(params.tag)|" $CONFIG_PATH/kustomization.yaml
+
+        set +x
+        echo ========================================================================
+        echo "Updated kustomization.yaml for UAT"
+        echo ========================================================================
+        yq e . "$CONFIG_PATH/kustomization.yaml"
+        set -x
 
         # Optional: show the diff
         git diff
@@ -109,8 +158,10 @@ spec:
         - mountPath: /work
           name: work
     - name: create-pr-uat
-      #image: curlimages/curl:8.6.0 # Might hit docker toomanyrequests: You have reached your unauthenticated pull rate limit.
-      image: cp.icr.io/cp/appc/ace:13.0.4.0-r1
+      image: $(params.tools-image) # Use the tools image for consistency
+      # If you want to use a specific image for git operations, uncomment the line below
+      # image: curlimages/curl:8.6.0 # Might hit docker toomanyrequests: You have reached your unauthenticated pull rate limit.
+      # image: cp.icr.io/cp/appc/ace:13.0.4.0-r1
       script: |
         #!/bin/sh
         set -ex
