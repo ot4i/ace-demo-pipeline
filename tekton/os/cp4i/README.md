@@ -49,28 +49,35 @@ anything about running tests.
 - As the tests are using the operator, the [ot4i/ace-docker](https://github.com/ot4i/ace-docker) repo is not involved, so issues should be
   raised with product support (CP4i or ACE itself) rather than in that repo; ace-docker is now intended only for non-operator use cases.
 
-## Pipeline setup and run
+## OpenShift Pipeline
 
-Many of the steps are the same as the main repo, but use the `cp4i` namespace. Security constraints are more of an issue
-in OpenShift, but using crane avoids a lot of extra permissions seen with kaniko and buildah.
-
-The pipeline assumes the CP4i ACE integration server image has been copied to the local image registry to make the
-container builds go faster; the image must match the locations in the YAML files. See [Obtaining the IBM App Connect Enterprise server image from the IBM Cloud Container Registry](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=obtaining-app-connect-enterprise-server-image-from-cloud-container-registry)
-for details on the available images.
+Many of the steps are the same as the main repo, but use the `cp4i` namespace. Security constraints are more of an issue in OpenShift, but using crane avoids a lot of extra permissions seen with kaniko and buildah.
 
 ### Pushing Images to OpenShift Registry
 
-#### 1. Using port-forwarding to push image
+The pipeline assumes the CP4i ACE integration server image has been copied to the local image registry to make the container builds go faster; the image must match the locations in the YAML files. See [Obtaining the IBM App Connect Enterprise server image from the IBM Cloud Container Registry](https://www.ibm.com/docs/en/app-connect/containers_cd?topic=obtaining-app-connect-enterprise-server-image-from-cloud-container-registry) for details on the available images.
+
+Also building and using the lightweight custom `tools-image` will simplify the pipeline by making commonly used cli tools available to the pipeline tasks instead of installing them from within a tekton taskrun. A sample [tools-image.Dockerfile](./tools-image.Dockerfile) is provided with that goal in mind.
+
+To build the `tools-image` using `podman`
+
+```bash
+podman build --network=host -f tools-image.Dockerfile -t tools-image:20250818 .
+```
+
+>--network=host uses your host network and usually fixes apk fetch failures. Can be common with podman machines or wsl
+
+#### Using port-forwarding to push image
 
 It may be helpful to use port forwarding to pull and push the images from a local system using a command such as
 
 ```bash
 kubectl --namespace openshift-image-registry port-forward --address 0.0.0.0 svc/image-registry 5000:5000
 ```
-  
-> Keep this terminal open while pushing or pulling images
 
-at which point the OpenShift registry will be accessible from localhost:5000.
+>Keep this terminal open while pushing or pulling images
+
+at which point the OpenShift registry will be accessible from `localhost:5000`.
 
 As an example, the following sequence would tage the 13.0.4.0-r1 image and upload to the registry:
 
@@ -81,7 +88,7 @@ docker tag  cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331@sha256
 docker push image-registry.openshift-image-registry.svc.cluster.local:5000/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
 ```
 
-> Note: The ACE operator often uses the version-and-date form of the image tag when creating
+>Note: The ACE operator often uses the version-and-date form of the image tag when creating
 containers, which would also work; the following tags refer to the same image:
 
 ```bash
@@ -89,7 +96,7 @@ cp.icr.io/cp/appc/ace-server-prod:13.0.4.0-r1-20250621-111331
 cp.icr.io/cp/appc/ace-server-prod@sha256:79bf0ef9e8d7cad8f70ea7dc22783670b4edbc54d81348b030af25d75033097e
 ```
 
-#### 2. Using external routes to push image
+#### Using external routes to push image
 
 Depending on Windows or Linux or WSL, the port forwarding can be tricky. Using the external route is simpler and switching to **Podman** from **Docker** avoids TLS Certificate issues.
 
@@ -114,13 +121,13 @@ Depending on Windows or Linux or WSL, the port forwarding can be tricky. Using t
   echo "Registry URL: $REGISTRY"
   ```
 
-- Log in to that registry. Use `kubeadmin` instead of `oc whoami` (details [here](https://access.redhat.com/solutions/4939411)):
+- Log in to that registry. Use `kubeadmin` instead of `oc whoami` (see [Podman login failed](https://access.redhat.com/solutions/4939411)):
 
   ```bash
   podman login $REGISTRY -u kubeadmin --password (oc whoami -t) --tls-verify=false
   ```
 
-  > --tls-verify=false avoids certificate issues with cluster-issued certificates. For production, see instructions to trust the OpenShift CA.
+  >--tls-verify=false avoids certificate issues with cluster-issued certificates. For production, see instructions to trust the OpenShift CA.
 
 - Tag and push:
 
@@ -130,7 +137,15 @@ Depending on Windows or Linux or WSL, the port forwarding can be tricky. Using t
   podman push --tls-verify=false --remove-signatures $REGISTRY/cp4i/ace-server-prod:13.0.4.0-r1-20250621-111331
   ```
 
-  > need --remove-signatures because of Error: Copying this image would require changing layer representation, which we cannot do: "Would invalidate signatures"
+  >need --remove-signatures because of `Error: Copying this image would require changing layer representation, which we cannot do: "Would invalidate signatures"`
+
+Similarly, the `tools-image` can be built, tagged and pushed with the following commands
+
+```bash
+podman build --network=host -f tools-image.Dockerfile -t tools-image:20250818 .
+podman tag tools-image:20250818 $REGISTRY/cp4i/tools-image:20250818
+podman push $REGISTRY/cp4i/tools-image:20250818 --tls-verify=false
+```
 
 ## Creating App Connect Configurations
 
