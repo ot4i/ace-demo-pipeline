@@ -209,6 +209,8 @@ http://tea-tekton-cp4i-http-cp4i.apps.openshift.domain.name/tea/index/1
 
 ## Extending the Pipeline with GitOps
 
+[ace-demo-gitops](https://github.com/mrislam11378/ace-demo-gitops)
+
 WIP
 
 ## IntegrationServer CR

@@ -109,7 +109,8 @@ spec:
         - mountPath: /work
           name: work
     - name: create-pr-uat
-      image: curlimages/curl:8.6.0
+      #image: curlimages/curl:8.6.0 # Might hit docker toomanyrequests: You have reached your unauthenticated pull rate limit.
+      image: cp.icr.io/cp/appc/ace:13.0.4.0-r1
       script: |
         #!/bin/sh
         set -ex
