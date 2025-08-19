@@ -50,12 +50,12 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: pipeline-clusterole-binding
+  name: pipeline-clusterrole-binding
   namespace: cp4i
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusteRole
-  name: pipeline-clusterole
+  kind: ClusterRole
+  name: pipeline-clusterrole
 subjects:
 - kind: ServiceAccount
   name: cp4i-tekton-service-account
