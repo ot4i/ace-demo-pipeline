@@ -4,10 +4,8 @@ metadata:
   name: cp4i-tekton-service-account
   namespace: cp4i
 imagePullSecrets:
-  - name: regcred
   - name: ibm-entitlement-key
 secrets:
-  - name: regcred
   - name: ibm-entitlement-key
 ---
 
@@ -15,14 +13,13 @@ kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: el-sel-clusterrole
-  namespace: cp4i
 rules:
 - apiGroups: ["triggers.tekton.dev"]
-  resources: ["eventlisteners", "clusterinterceptors", "interceptors", "clustertriggerbindings", "triggerbindings", "triggertemplates", "triggers"]
-  verbs: ["get", "list", "watch"]
+  resources: ["eventlisteners", "events", "clusterinterceptors", "interceptors", "clustertriggerbindings", "pipelineruns", "triggerbindings", "triggertemplates", "triggers"]
+  verbs: ["get", "create","list", "watch"]
 - apiGroups: [""]
-  resources: ["configmaps", "secrets"]
-  verbs: ["get", "list", "watch"]
+  resources: ["configmaps", "events", "secrets"]
+  verbs: ["get", "create", "patch", "list", "watch"]
 - apiGroups: [""]
   resources: ["serviceaccounts"]
   verbs: ["impersonate"]
@@ -34,7 +31,6 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: el-mul-ClusterRoleBinding
-  namespace: cp4i
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -50,12 +46,11 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: pipeline-clusterrole-binding
-  namespace: cp4i
+  name: system-image-builder-clusterrole-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: pipeline-clusterrole
+  name: 'system:image-builder'
 subjects:
 - kind: ServiceAccount
   name: cp4i-tekton-service-account
