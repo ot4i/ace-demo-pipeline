@@ -9,27 +9,32 @@ secrets:
   - name: ibm-entitlement-key
 ---
 
-kind: Role
+kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  namespace: cp4i
-  name: pipeline-role
+  name: el-sel-clusterrole
 rules:
-- apiGroups: ["extensions", "apps", "appconnect.ibm.com", "", "v1"]
-  resources: ["services", "deployments", "pods", "integrationservers", "pods/exec", "pods/log", "integrationruntimes"]
-  verbs: ["get", "create", "update", "patch", "list", "delete", "exec", "watch"]
+- apiGroups: ["triggers.tekton.dev"]
+  resources: ["eventlisteners", "events", "clusterinterceptors", "interceptors", "clustertriggerbindings", "pipelineruns", "triggerbindings", "triggertemplates", "triggers"]
+  verbs: ["get", "create","list", "watch"]
+- apiGroups: [""]
+  resources: ["configmaps", "events", "secrets"]
+  verbs: ["get", "create", "patch", "list", "watch"]
+- apiGroups: [""]
+  resources: ["serviceaccounts"]
+  verbs: ["impersonate"]
+
 
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
-  name: pipeline-role-binding
-  namespace: cp4i
+  name: el-mul-ClusterRoleBinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: pipeline-role
+  kind: ClusterRole
+  name: el-sel-clusterrole
 subjects:
 - kind: ServiceAccount
   name: cp4i-tekton-service-account
@@ -39,10 +44,9 @@ subjects:
 # Needed for OpenShift registry pushes
 # Note that the project for the container must match the namespace for the Tekton pipeline
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
-  name: system-image-builder-role-binding
-  namespace: cp4i
+  name: system-image-builder-clusterrole-binding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

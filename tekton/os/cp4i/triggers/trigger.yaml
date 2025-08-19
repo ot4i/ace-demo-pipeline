@@ -1,0 +1,20 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: Trigger
+metadata:
+  name: tea-argo-trigger
+spec:
+  serviceAccountName: cp4i-tekton-service-account
+  interceptors:
+    - ref:
+        name: "github"
+      params:
+        - name: "secretRef"
+          value:
+            secretName: github-secret
+            secretKey: secretToken
+        - name: "eventTypes"
+          value: ["push"]
+  bindings:
+    - ref: ace-ir-triggerbinding
+  template:
+    ref: tea-argo-triggertemplate
