@@ -50,7 +50,8 @@ spec:
         - mountPath: /work
           name: work
     - name: deploy-app
-      image: lachlanevenson/k8s-kubectl
+      # image: lachlanevenson/k8s-kubectl
+      image: gcr.io/cloud-builders/kubectl
       script: |
         #!/bin/sh
         #set -x
@@ -60,38 +61,38 @@ spec:
         echo "CR YAML for application:"
         cat /work/ace-demo-pipeline/tekton/os/cp4i/create-integrationruntime.yaml
         echo
-        echo "Creating CR for application at " `date`
+        echo "Creating CR for application at " $(date)
         kubectl apply -f /work/ace-demo-pipeline/tekton/os/cp4i/create-integrationruntime.yaml
         rc=1
-        echo "Starting polling for operator IR at " `date`
-        for i in `seq 1 48`
+        echo "Starting polling for operator IR at " $(date)
+        for i in $(seq 1 48)
         do
           #echo $i
           #kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i
           lastError=`kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i --template={{.status.phase}} 2>&1`
-          if [ "$lastError" == "Ready" ]; then
-            echo "Container is ready at " `date`
+          if [ "$lastError" = "Ready" ]; then
+            echo "Container is ready at " $(date)
             rc=0
             break
           fi
           # Minikube doesn't have routes so the CR stays at phase Warning.
-          if [ "$lastError" == "Warning" ]; then
+          if [ "$lastError" = "Warning" ]; then
           lastStatus=`kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i '--template={{(index .status.conditions 0).status}} {{(index .status.conditions 0).type}} {{(index .status.conditions 0).message}}' 2>&1`
             if [ "$lastStatus" == "True Ready IntegrationRuntime is ready." ]; then
-              echo "Container is ready (Warning) at " `date`
+              echo "Container is ready (Warning) at " $(date)
               rc=0
               break
             fi
           fi
           sleep 5
         done
-        if [ "$rc" == "1" ]; then
-            echo "Container start failed; giving up at " `date`
+        if [ "$rc" = "1" ]; then
+            echo "Container start failed; giving up at " $(date)
             echo "Current state of the CR:"
             echo "----------------------------------------"
             kubectl get -n cp4i IntegrationRuntime/tea-tekton-cp4i
             echo "----------------------------------------"
-            return 1
+            exit 1
         fi
       volumeMounts:
         - mountPath: /work

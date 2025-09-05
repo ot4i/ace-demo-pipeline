@@ -1,0 +1,209 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: update-gitops-repo
+  namespace: cp4i
+spec:
+  stepTemplate:
+    securityContext:
+      runAsUser: 0
+    env:
+      - name: DOCKER_REGISTRY
+        value: $(params.dockerRegistry)
+      - name: APP_NAME
+        value: $(params.appName)
+      - name: APP_NAMESPACE
+        value: $(params.appNamespace)
+      - name: TAG
+        value: $(params.tag)
+      - name: GITHUB_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: github-token
+            key: GITHUB_TOKEN
+  params:
+    - name: dockerRegistry
+      type: string
+    - name: appName
+      type: string
+    - name: appNamespace
+      type: string
+    - name: url
+      type: string
+    - name: revision
+      type: string
+    - name: tag
+      type: string
+    - name: sha
+      type: string
+    - name: tools-image
+      type: string
+  steps:
+    - name: clone
+      image: $(params.tools-image) # Use the tools image for consistency
+      # If you want to use a specific image for git operations, uncomment the line below
+      # image: alpine/git:v2.49.1
+      script: |
+        #!/bin/sh
+        set -x
+        cd /work
+
+        # Extract owner/repo from URL
+        REPO_PATH=$(echo $(params.url) | sed -E 's#https://github.com/##; s#\.git$##')
+
+        # Clone using token authentication
+        git clone -b $(params.revision) https://$GITHUB_TOKEN@github.com/$REPO_PATH.git ace-demo-gitops
+
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: update-dev
+      image: $(params.tools-image) # Use the tools image for consistency
+      # If you want to use a specific image for git operations, uncomment the line below
+      # image: alpine/git:v2.49.1
+      script: |
+        #!/bin/sh
+        set -x
+        
+        cd /work/ace-demo-gitops
+
+        # Define the path to the config 
+        CONFIG_PATH="envs/dev/tea-argo-cp4i"
+
+        # Fail if kustomization.yaml doesn't exist
+        if [ ! -f "$CONFIG_PATH/kustomization.yaml" ]; then
+          echo "ERROR: kustomization.yaml not found at $CONFIG_PATH"
+          exit 1
+        fi
+
+        # Update the image tag in kustomization.yaml using yq
+        yq e '.images[].newTag = strenv(TAG)' -i "$CONFIG_PATH/kustomization.yaml"
+
+        # Alternatively, if yq is not available, you can use sed to update the tag
+        # sed -i "s|^\(\s*newTag:\s*\).*|\1$(params.tag)|" $CONFIG_PATH/kustomization.yaml
+
+        set +x
+        echo ========================================================================
+        echo "Updated kustomization.yaml for DEV"
+        echo ========================================================================
+        yq e . "$CONFIG_PATH/kustomization.yaml"
+        set -x
+
+        # Optional: show the diff
+        git diff
+
+        # Git config (you can also set this globally on the image if needed)
+        git config user.email "tekton@pipeline"
+        git config user.name "Tekton Bot"
+
+        # Stage, commit and push
+        git add $CONFIG_PATH/kustomization.yaml
+        git commit -m "Update tag to $(params.tag) for $(params.appName)"
+        git push origin $(params.revision)
+
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: update-uat
+      image: $(params.tools-image) # Use the tools image for consistency
+      # If you want to use a specific image for git operations, uncomment the line below
+      # image: alpine/git:v2.49.1
+      # TODO: Create a separate sh file to call from steps instead of inline script with slight changes
+      script: |
+        #!/bin/sh
+        set -ex
+        cd /work/ace-demo-gitops
+
+        BRANCH="autoPr/$(params.appName)"
+
+        # Ensure we are on the correct branch (create if needed)
+        if ! git switch "$BRANCH" 2>/dev/null; then
+          echo "Branch $BRANCH does not exist locally. Attempting to fetch or create it..."
+          git fetch origin "$BRANCH:$BRANCH" 2>/dev/null || git switch -c "$BRANCH"
+          git switch "$BRANCH"
+        fi
+
+        # Define the path to the config 
+        CONFIG_PATH="envs/uat/tea-argo-cp4i"
+
+        # Fail if kustomization.yaml doesn't exist
+        if [ ! -f "$CONFIG_PATH/kustomization.yaml" ]; then
+          echo "ERROR: kustomization.yaml not found at $CONFIG_PATH"
+          exit 1
+        fi
+
+        # Update the image tag in kustomization.yaml using yq
+        yq e '.images[].newTag = strenv(TAG)' -i "$CONFIG_PATH/kustomization.yaml"
+
+        # Alternatively, if yq is not available, you can use sed to update the tag
+        # sed -i "s|^\(\s*newTag:\s*\).*|\1$(params.tag)|" $CONFIG_PATH/kustomization.yaml
+
+        set +x
+        echo ========================================================================
+        echo "Updated kustomization.yaml for UAT"
+        echo ========================================================================
+        yq e . "$CONFIG_PATH/kustomization.yaml"
+        set -x
+
+        # Optional: show the diff
+        git diff
+
+        # Git config (you can also set this globally on the image if needed)
+        git config user.email "tekton@pipeline"
+        git config user.name "Tekton Bot"
+
+        # Stage, commit and push
+        git add envs/uat/tea-argo-cp4i/kustomization.yaml
+        git commit -m "Update tag to $(params.tag) for $(params.appName)"       
+        git push origin $BRANCH
+
+      volumeMounts:
+        - mountPath: /work
+          name: work
+    - name: create-pr-uat
+      image: $(params.tools-image) # Use the tools image for consistency
+      # If you want to use a specific image for git operations, uncomment the line below
+      # image: curlimages/curl:8.6.0 # Might hit docker toomanyrequests: You have reached your unauthenticated pull rate limit.
+      # image: cp.icr.io/cp/appc/ace:13.0.4.0-r1
+      script: |
+        #!/bin/sh
+        set -ex
+        cd /work/ace-demo-gitops
+
+        # Extract repo from URL
+        REPO="mrislam11378/ace-demo-gitops"
+        # Branch name (must match what was pushed earlier)
+        BRANCH="autoPr/$(params.appName)"
+
+        # Prepare PR data
+        PR_TITLE="Update tag for $(params.appName) to $(params.tag)"
+        PR_BODY="Automated tag update via Tekton."
+        BASE_BRANCH=$(params.revision)
+
+        # Check if the PR already exists
+        OWNER=$(echo $REPO | cut -d/ -f1)
+
+        EXISTING_PR=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$REPO/pulls?head=$OWNER:$BRANCH&base=$BASE_BRANCH" \
+          | jq '. | length')
+
+        if [ "$EXISTING_PR" -gt 0 ]; then
+          echo "Pull request already exists for branch $BRANCH. Skipping PR creation."
+        else
+          # Create PR via GitHub API
+          curl -X POST "https://api.github.com/repos/$REPO/pulls" \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -d "{
+              \"title\": \"$PR_TITLE\",
+              \"head\": \"$BRANCH\",
+              \"base\": \"$BASE_BRANCH\",
+              \"body\": \"$PR_BODY\"
+            }"
+        fi
+      volumeMounts:
+        - mountPath: /work
+          name: work
+  volumes:
+    - name: work
+      emptyDir: {}
