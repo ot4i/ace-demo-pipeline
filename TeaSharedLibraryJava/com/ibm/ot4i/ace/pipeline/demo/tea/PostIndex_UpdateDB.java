@@ -45,6 +45,11 @@ public class PostIndex_UpdateDB extends MbJavaComputeNode {
       // This would normally be done externally, but we do it here for convenience
       try {
         stmt.executeUpdate("CREATE TABLE Tea(id INTEGER, name VARCHAR(128), strength INTEGER)");
+        stmt.executeUpdate("INSERT INTO  Tea (id, name, strength) VALUES (1, 'Assam', 5)");
+        stmt.executeUpdate("INSERT INTO  Tea (id, name, strength) VALUES (2, 'Oolong', 2)");
+        stmt.executeUpdate("INSERT INTO  Tea (id, name, strength) VALUES (3, 'Darjeeling', 3)");
+        stmt.executeUpdate("INSERT INTO  Tea (id, name, strength) VALUES (4, 'Nilgiri', 4)");
+        stmt.executeUpdate("INSERT INTO  Tea (id, name, strength) VALUES (5, 'Ceylon', 3)");        
         conn.commit();
       } catch ( java.lang.Throwable jlt ) {
         //jlt.printStackTrace();

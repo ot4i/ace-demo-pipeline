@@ -4,6 +4,8 @@ import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import com.ibm.integration.test.v1.NodeSpy;
 import com.ibm.integration.test.v1.SpyObjectReference;
@@ -30,10 +32,11 @@ public class TeaRESTApplication_WholeFlow_Tests {
                 // Ensure any mocks created by a test are cleared after the test runs 
                 TestSetup.restoreAllMocks();
         }
-
-        @Test
-        public void TeaRESTApplication_WholeFlow_Get_Test() throws TestException {
-
+    	@ParameterizedTest
+    	//           Message File Name                                       Expected DFDL MXML file name
+        @CsvSource({"00003CC8-65DDFF90-00000001-0.mxml, 00003CC8-65DDFF90-00000001-12.mxml",
+        	        "00007943-65AEFC37-00000001-0.mxml, 00007943-65AEFC37-00000001-12.mxml"})
+        public void TeaRESTApplication_WholeFlow_Get_Test(String inputMXMLName, String replyMXMLName) throws TestException {
 
     		// Define the SpyObjectReference objects
     		SpyObjectReference httpInputObjRef = new SpyObjectReference().application("TeaRESTApplication")
@@ -47,7 +50,7 @@ public class TeaRESTApplication_WholeFlow_Tests {
     		
             // Declare a new TestMessageAssembly object for the message being sent into the node
             TestMessageAssembly inputMessageAssembly = new TestMessageAssembly();
-            InputStream inputMessage = Thread.currentThread().getContextClassLoader().getResourceAsStream("00003CC8-65DDFF90-00000001-0.mxml");
+            InputStream inputMessage = Thread.currentThread().getContextClassLoader().getResourceAsStream(inputMXMLName);
             inputMessageAssembly.buildFromRecordedMessageAssembly(inputMessage);
 
     		// Configure the "in" terminal on the HTTP Reply node not to propagate.
@@ -71,7 +74,7 @@ public class TeaRESTApplication_WholeFlow_Tests {
 			// Assert output message body data
 			// Get the TestMessageAssembly object for the expected propagated message
     		TestMessageAssembly expectedMessageAssembly = new TestMessageAssembly();
-            InputStream expectedMessage = Thread.currentThread().getContextClassLoader().getResourceAsStream("00003CC8-65DDFF90-00000001-12.mxml");
+            InputStream expectedMessage = Thread.currentThread().getContextClassLoader().getResourceAsStream(replyMXMLName);
             expectedMessageAssembly.buildFromRecordedMessageAssembly(expectedMessage);
 
             // Check the reply is as expected
