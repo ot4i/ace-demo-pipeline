@@ -1,0 +1,14 @@
+#
+# This is the TriggerBinding. It extracts parameters from the webhook payload.
+#
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: ace-ir-triggerbinding
+spec:
+  params:
+    - name: url
+      value: $(body.repository.clone_url)
+    - name: revision
+      value: $(body.head_commit.id)
+---

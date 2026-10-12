@@ -1,0 +1,12 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: ace-ir-tekton-eventlistener
+spec:
+  serviceAccountName: cp4i-tekton-service-account
+  # INFO: nameSpaceSelector triggers the pipeline twice: https://github.com/tektoncd/triggers/issues/1617
+  # namespaceSelector:
+  #   matchNames:
+  #   - ci
+  triggers:
+  - triggerRef: tea-argo-trigger

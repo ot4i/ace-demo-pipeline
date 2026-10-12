@@ -67,7 +67,8 @@ spec:
         - mountPath: /work
           name: work
     - name: clean-up-if-needed
-      image: lachlanevenson/k8s-kubectl
+      # image: lachlanevenson/k8s-kubectl
+      image: gcr.io/cloud-builders/kubectl
       #
       # Ensure we start with a clean environment by deleting any existing CR.
       # 
@@ -103,7 +104,8 @@ spec:
         - mountPath: /work
           name: work
     - name: create-ace-cr
-      image: lachlanevenson/k8s-kubectl
+      # image: lachlanevenson/k8s-kubectl
+      image: gcr.io/cloud-builders/kubectl
       #
       # Create the CR to make the operator create a new container and set it up.
       #
@@ -153,7 +155,8 @@ spec:
         - mountPath: /work
           name: work
     - name: stop-server-process
-      image: lachlanevenson/k8s-kubectl
+      # image: lachlanevenson/k8s-kubectl
+      image: gcr.io/cloud-builders/kubectl
       #
       # Stops the IntegrationServer process started by runaceserver in the container.
       # 
@@ -200,7 +203,8 @@ spec:
         - mountPath: /work
           name: work
     - name: run-component-tests
-      image: lachlanevenson/k8s-kubectl
+      # image: lachlanevenson/k8s-kubectl
+      image: gcr.io/cloud-builders/kubectl
       #
       # Run the component tests and validate the output.
       # 
