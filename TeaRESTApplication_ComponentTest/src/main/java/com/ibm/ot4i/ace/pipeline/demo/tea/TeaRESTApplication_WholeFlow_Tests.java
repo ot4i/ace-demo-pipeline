@@ -35,7 +35,8 @@ public class TeaRESTApplication_WholeFlow_Tests {
     	@ParameterizedTest
     	//           Message File Name                                       Expected DFDL MXML file name
         @CsvSource({"00003CC8-65DDFF90-00000001-0.mxml, 00003CC8-65DDFF90-00000001-12.mxml",
-        	        "00007943-65AEFC37-00000001-0.mxml, 00007943-65AEFC37-00000001-12.mxml"})
+	        "00007943-65AEFC37-00000001-0.mxml, 00007943-65AEFC37-00000001-12.mxml",
+	        "000963D9-68D6C934-00000002-0.mxml, 000963D9-68D6C934-00000002-14.mxml"})
         public void TeaRESTApplication_WholeFlow_Get_Test(String inputMXMLName, String replyMXMLName) throws TestException {
 
     		// Define the SpyObjectReference objects
